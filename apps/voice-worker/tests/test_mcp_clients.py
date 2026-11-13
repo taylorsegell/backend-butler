@@ -1,4 +1,4 @@
-"""The butler entry in apps/voice-worker/mcp.yaml becomes a plain callback-enabled MCP toolset."""
+"""The bundled butler MCP entry becomes a plain callback-enabled toolset."""
 
 import dataclasses
 from pathlib import Path
@@ -52,25 +52,25 @@ def _server(toolset):
 
 
 def test_skipped_without_url_and_token(setup):
-    assert _butler("Alex") is None
+    assert _butler("Taylor") is None
 
 
 def test_skipped_with_only_one_variable(setup):
     setup.setenv("BUTLER_MCP_URL", "http://ha:1234/mcp")
-    assert _butler("Alex") is None
+    assert _butler("Taylor") is None
 
 
 def test_configured_toolset(setup):
     _enable(setup)
-    toolset = _butler("Alex")
+    toolset = _butler("Taylor")
     assert type(toolset) is mcp.MCPToolset  # not Guarded: no confirm, no restriction
     server = _server(toolset)
     assert server["url"] == "http://ha:1234/mcp"
     assert server["client_session_timeout_seconds"] == 30.0
     headers = server["headers"]
     assert headers["Authorization"] == f"Bearer {FAKE_TOKEN}"
-    assert headers["X-Callback-Url"] == "http://cb:8952/chat/events?user=Alex"
-    assert headers["X-Callback-Token"] == auth.callback_token("Alex")
+    assert headers["X-Callback-Url"] == "http://cb:8952/chat/events?user=Taylor"
+    assert headers["X-Callback-Token"] == auth.callback_token("Taylor")
 
 
 def test_no_callback_headers_without_user(setup):
@@ -87,7 +87,7 @@ def test_no_callback_headers_without_base_url(setup):
         "settings",
         dataclasses.replace(mcp_clients.settings, callback_base_url=""),
     )
-    headers = _server(_butler("Alex"))["headers"]
+    headers = _server(_butler("Taylor"))["headers"]
     assert "X-Callback-Url" not in headers
     assert "X-Callback-Token" not in headers
 
