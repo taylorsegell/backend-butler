@@ -14,7 +14,7 @@ The suite reads states and registries and submits valid/invalid configuration to
 - All three read-only checks pass against a running Home Assistant instance.
 - The candidate worker and scheduler Docker images build from allowlisted, secret-scanned source contexts on a separate worker host.
 - The worker has 40 passing tests, including owner-bound leases, expiry, voice/text exclusion, service-only persistence, recovery and the patched OpenTelemetry parser/SDK.
-- The scheduler has 24 passing tests; the separate app has 382 unit tests; the card passes typecheck/build, unit checks and Chromium responsive voice controls/reduced-motion tests.
+- The scheduler has 24 passing tests; the separate app has 385 unit tests; the card passes typecheck/build, unit checks and Chromium responsive voice controls/reduced-motion tests.
 
 ## Recovery checks completed without production credentials
 

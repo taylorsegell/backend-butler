@@ -35,6 +35,8 @@ Butler puts voice and chat inside Home Assistant. Speak naturally, follow the li
 | Scheduler | Saved tasks, people and notifications. Runs with the worker through Docker Compose. |
 | Optional Butler HA app | Agent SDK workspace for larger configuration tasks and approval previews. Installed separately. |
 
+Source for the four applications lives under `apps/`. See the [component and storage map](docs/architecture.md) for development paths and upgrade notes.
+
 **Beta candidate:** bring your own Home Assistant and LiveKit credentials. Inference can incur charges. Saved-session APIs are still evolving, so back up your state before upgrading. See the [beta guide](docs/public-beta.md) for the remaining release checks and limitations.
 
 ## Before you start
