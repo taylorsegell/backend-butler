@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+  - package-ecosystem: npm
+    directories:
+      - /apps/dashboard-card
+      - /apps/configuration-app
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      javascript:
+        patterns: ['*']
+    open-pull-requests-limit: 5
+  - package-ecosystem: uv
+    directories:
+      - /apps/voice-worker
+      - /apps/household-service
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      python:
+        patterns: ['*']
+    open-pull-requests-limit: 5
