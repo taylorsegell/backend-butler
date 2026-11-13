@@ -1,6 +1,6 @@
 """Request/response schemas for the REST API.
 
-The worker's scheduling tools speak this shape (see apps/voice-worker/src/tools/), and the card renders the
+The worker's scheduling tools speak this shape (see apps/voice-worker/src/agent.py), and the card renders the
 ``TaskOut`` payload the tools return. ``ScheduleSpec`` carries a discriminating ``type``;
 ``ExecutionSpec`` holds a reminder's ``notification`` or a natural-language ``instruction``.
 """
