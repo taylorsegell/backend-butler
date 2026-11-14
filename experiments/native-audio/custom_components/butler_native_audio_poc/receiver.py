@@ -16,7 +16,8 @@ from livekit import rtc
 
 
 class Receiver:
-    def __init__(self):
+    def __init__(self, speech=None):
+        self.speech = speech
         self.lock = asyncio.Lock()
         self.expiry = None
         self.owner = None
@@ -115,6 +116,8 @@ class Receiver:
                     data = converted.to_ndarray().tobytes()
                     audio = rtc.AudioFrame(data, 48000, 1, converted.samples)
                     await self.source.capture_frame(audio)
+                    if self.speech:
+                        await self.speech.push(audio)
                     self.stats["sdk_frames"] += 1
                     self.stats["samples"] += converted.samples
                     self.stats["peak"] = max(abs(value) for value in audio.data) / 32768
