@@ -7,13 +7,15 @@ fixture.captureRequests=0;fixture.captureInTap=[];fixture.typedMessages=[];fixtu
 fixture.failure=new URLSearchParams(location.search).get('error')||'NotReadableError';
 let insideTap=false;
 document.addEventListener('click',()=>{insideTap=true;setTimeout(()=>{insideTap=false},0)},true);
-navigator.mediaDevices.getUserMedia=async()=>{
+const capture=async()=>{
  fixture.captureRequests++;fixture.captureInTap.push(insideTap);
  if(!insideTap)throw new DOMException('Capture must start in the initiating tap','NotAllowedError');
  if(fixture.failure)throw new DOMException('Synthetic capture failure',fixture.failure);
  const ctx=new AudioContext();const destination=ctx.createMediaStreamDestination();
  fixture.streams.push(destination.stream);return destination.stream;
 };
+Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,writable:true,value:capture});
+fixture.captureInstalled=navigator.mediaDevices.getUserMedia===capture;
 const host=document.createElement('div');document.body.append(host);host.style.cssText='display:block;--primary-color:#FC6B02;--primary-text-color:#eee;--secondary-text-color:#aaa;--card-background-color:#181818';
 const shadow=host.attachShadow({mode:'open'});shadow.innerHTML='<style>'+CARD_STYLES+'</style><div class="lk-root"></div>';
 const store=new HassStore();store.setHost(host);store.setConfig({type:'backend-butler-card',input_mode:new URLSearchParams(location.search).get('mode')==='auto'?'auto':'push_to_talk',layout:new URLSearchParams(location.search).get('layout')==='voice'?'voice':'fullpage'});

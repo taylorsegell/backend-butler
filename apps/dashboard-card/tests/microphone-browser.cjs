@@ -13,7 +13,7 @@ const esbuild=require('node:module').createRequire(require.resolve('vite/package
    await page.setViewportSize({width,height:874});await page.goto(base+'/?layout='+layout);await page.getByRole('button',{name:'Start talking',exact:true}).waitFor();
    assert.equal(await page.evaluate(()=>window.captureRequests),0,'idle never captures');
    await page.getByRole('button',{name:'Start talking',exact:true}).click();
-   const recovery=page.locator('.lk-recovery');await recovery.getByText('Microphone couldn’t start',{exact:true}).waitFor().catch(async e=>{console.error('Card:',await page.locator('.lk-root').innerText());console.error('Capture timing:',await page.evaluate(()=>window.captureInTap));await page.screenshot({path:'/tmp/butler-mic-fixture-fail.png'});throw e});
+   const recovery=page.locator('.lk-recovery');await recovery.getByText('Microphone couldn’t start',{exact:true}).waitFor().catch(async e=>{console.error('Card:',await page.locator('.lk-root').innerText());console.error('Capture timing:',await page.evaluate(()=>({requests:window.captureInTap,installed:window.captureInstalled,method:navigator.mediaDevices.getUserMedia.toString()})));console.error('Capture error:',await page.locator('.lk-recovery details').textContent());await page.screenshot({path:'/tmp/butler-mic-fixture-fail.png'});throw e});
    await page.waitForFunction(()=>window.connectionStarted===true);await page.waitForTimeout(200);
    assert.deepEqual(await page.evaluate(()=>window.captureInTap),[true],'capture starts in the trusted tap before connection awaits');
    assert.equal(await recovery.count(),1);assert.equal(await page.locator('.lk-voice-feedback').count(),0,'one recovery surface, no duplicate feedback panel');
