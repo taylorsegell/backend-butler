@@ -42862,7 +42862,7 @@ function a4() {
     [ki, m]
   ), ja = w.useCallback(
     async (he) => {
-      (he === "cancel_turn" || Gt.current) && Kt.current++, Gt.current = null, Mn(!1), await ei(he), await la();
+      (he === "cancel_turn" || Gt.current) && Kt.current++, Gt.current = null, Mn(!1), await Promise.allSettled([ei(he), la()]);
     },
     [ei, la]
   ), Rs = w.useCallback(() => {

@@ -399,8 +399,8 @@ function CardShell() {
       if (method === 'cancel_turn' || microphoneAttempt.current) voiceGeneration.current++;
       microphoneAttempt.current = null;
       setMicStarting(false);
-      await rpc(method);
-      await releaseMic();
+      // Release capture immediately, even if a disconnected worker cannot answer.
+      await Promise.allSettled([rpc(method), releaseMic()]);
     },
     [rpc, releaseMic],
   );

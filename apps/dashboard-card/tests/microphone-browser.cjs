@@ -36,6 +36,7 @@ const esbuild=require('node:module').createRequire(require.resolve('vite/package
   }
   await page.goto(base+'/?delay=1200');await page.evaluate(()=>{window.failure=null});
   await page.getByRole('button',{name:'Start talking',exact:true}).click();await page.waitForFunction(()=>window.streams.length>0);
+  await page.evaluate(()=>{window.hangCancel=true});
   await page.getByRole('button',{name:'Cancel recording',exact:true}).click();
   assert.equal(await page.evaluate(()=>window.streams.every(s=>s.getTracks().every(t=>t.readyState==='ended'))),true,'cancel releases a captured mic before the connection finishes');
   await page.waitForTimeout(1300);assert.equal(await page.locator('.lk-recovery').count(),0,'intentional cancellation is not a capture error');

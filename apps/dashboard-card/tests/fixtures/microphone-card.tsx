@@ -1,6 +1,5 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import {Root} from '../../src/App';
 import {HassStore} from '../../src/hass/store';
 import {CARD_STYLES} from '../../src/styles';
 const fixture=window as any;
@@ -19,4 +18,7 @@ const host=document.createElement('div');document.body.append(host);host.style.c
 const shadow=host.attachShadow({mode:'open'});shadow.innerHTML='<style>'+CARD_STYLES+'</style><div class="lk-root"></div>';
 const store=new HassStore();store.setHost(host);store.setConfig({type:'backend-butler-card',input_mode:new URLSearchParams(location.search).get('mode')==='auto'?'auto':'push_to_talk',layout:new URLSearchParams(location.search).get('layout')==='voice'?'voice':'fullpage'});
 store.setHass({states:{},user:{id:'synthetic-alice',is_admin:true},callWS:async()=>[],callService:async()=>{},callApi:async(_m:string,path:string)=>path.includes('tasks')?[]:path.includes('history')?{items:[],busy:false}:path.includes('conversations')?{conversations:[]}:path.includes('approvals')?{items:[]}:{users:[],servers:[]}} as any);
-createRoot(shadow.querySelector('.lk-root')!).render(<Root store={store}/>);
+// Install synthetic capture before the SDK's WebKit adapter caches getUserMedia.
+void import('../../src/App').then(({Root}) => {
+ createRoot(shadow.querySelector('.lk-root')!).render(<Root store={store}/>);
+});
