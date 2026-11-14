@@ -16,6 +16,9 @@ parser.add_argument("--bind", default="127.0.0.1")
 parser.add_argument("--port", type=int, default=18123)
 parser.add_argument("--prepare-only", action="store_true")
 parser.add_argument("--stop", action="store_true")
+parser.add_argument(
+    "--speech", action="store_true", help="Enable the separate loopback speech service"
+)
 args = parser.parse_args()
 state = Path(args.state).resolve()
 if not state.is_relative_to("/tmp") or state == Path("/tmp"):
@@ -59,6 +62,12 @@ except BlockingIOError:
     parser.error("Disposable lab is running; stop it before changing runtime files")
 os.set_inheritable(lab_lock.fileno(), True)
 
+if args.speech:
+    if not (state / "model-config.json").is_file():
+        parser.error("Prepare the private model-only configuration first")
+    (state / "BUTLER_NATIVE_SPEECH").touch()
+else:
+    (state / "BUTLER_NATIVE_SPEECH").unlink(missing_ok=True)
 root = Path(__file__).resolve().parent
 component = state / "custom_components/butler_native_audio_poc"
 component.mkdir(parents=True, exist_ok=True)
@@ -67,7 +76,13 @@ for source in (root / "custom_components/butler_native_audio_poc").glob("*"):
     if source.is_file():
         shutil.copyfile(source, component / source.name)
 subprocess.run(
-    ["node", str(root / "build.cjs"), str(component / "frontend")], check=True
+    [
+        "node",
+        str(root / "build.cjs"),
+        str(component / "frontend"),
+        *(["--speech"] if args.speech else []),
+    ],
+    check=True,
 )
 # JSON is also valid YAML and avoids interpolating arbitrary shell/config text.
 
