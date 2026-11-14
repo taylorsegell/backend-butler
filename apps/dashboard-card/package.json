@@ -9,8 +9,9 @@
     "watch": "vite build --watch",
     "dev": "vite",
     "typecheck": "tsc --noEmit -p .",
-    "test": "node tests/appearance-unit.cjs && node tests/voice-feedback-signals.cjs",
-    "test:browser": "node tests/house-companion.cjs"
+    "test": "node tests/appearance-unit.cjs && node tests/voice-feedback-signals.cjs && node tests/microphone-start.cjs",
+    "test:browser": "node tests/house-companion.cjs && node tests/microphone-browser.cjs",
+    "test:microphone": "node tests/microphone-browser.cjs"
   },
   "dependencies": {
     "@livekit/components-react": "^2.9.25",

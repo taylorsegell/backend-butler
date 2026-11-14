@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ConnectionState, ParticipantKind, type RemoteParticipant, Room, RoomEvent, Track } from 'livekit-client';
+import { ConnectionState, createLocalAudioTrack, ParticipantKind, type LocalAudioTrack, type RemoteParticipant, Room, RoomEvent, Track } from 'livekit-client';
 import {
   RoomAudioRenderer,
   SessionProvider,
@@ -18,6 +18,7 @@ import { TextHistory } from './components/TextHistory';
 import { useRoomDataTopic } from './lib/room-data';
 import { httpStatus } from './lib/errors';
 import { createConversationReady } from './lib/conversation-ready';
+import { startMicrophone, VoiceStartError, microphoneFailure, type MicrophoneFailure } from './lib/microphone-start';
 import { VoiceFeedback } from './components/VoiceFeedback';
 import { resolveVoiceFeedback, useVoiceAudioLevels } from './lib/voice-feedback';
 import { useReplyAudio } from './lib/reply-audio';
@@ -54,8 +55,8 @@ function SessionRoot() {
   const tokenSource = useMemo(() => new HassTokenSource(store), [store]);
   // Own the Room so we can set stopMicTrackOnMute: muting the mic (ending/cancelling a turn,
   // or pausing in auto mode) then stops the underlying MediaStreamTrack, releasing the device
-  // so the browser/OS mic-recording indicator turns off between turns. It's re-acquired when
-  // the next turn opens (setMicrophoneEnabled(true)).
+  // so the browser/OS mic-recording indicator turns off between turns. Each turn creates a
+  // fresh track in its initiating tap.
   const room = useMemo(() => new Room({ publishDefaults: { stopMicTrackOnMute: true } }), []);
   const session = useSession(tokenSource, { room });
   return (
@@ -190,6 +191,9 @@ function CardShell() {
   const [connecting, setConnecting] = useState(false);
   // Keep the failed operation visible with recovery actions until the next attempt
   const [failure, setFailure] = useState<'connection' | 'message' | 'microphone' | null>(null);
+  const [microphoneError, setMicrophoneError] = useState<MicrophoneFailure | null>(null);
+  const microphoneAttempt = useRef<Promise<void> | null>(null);
+  const microphoneTrack = useRef<LocalAudioTrack | null>(null);
   const voiceGeneration = useRef(0);
   const lastUserUtterance = [...items].reverse().find(item => item.kind === 'message' && item.role === 'user');
   const replyAudio = useReplyAudio(lastUserUtterance?.id);
@@ -199,23 +203,25 @@ function CardShell() {
   const levels = useVoiceAudioLevels(session.room!, connected, transport.micActive && sttEnabled, audioOutput && !replyMuted);
   const didAutoStart = useRef(false); // kiosk: auto-open the first turn once per mount
 
-  const setMic = useCallback(
-    (on: boolean) => sessionRef.current.room?.localParticipant?.setMicrophoneEnabled(on),
-    [],
-  );
-
   // Fully release the mic (unpublish + stop the device), not just mute. Muting keeps the audio
   // transceiver on the connection; on iOS a lingering audio transceiver flips the shared session
   // into playAndRecord and interrupts background music. Unpublishing removes it, so no audio
   // session is held between turns. The next turn re-publishes fresh.
   const releaseMic = useCallback(async () => {
+    const captured = microphoneTrack.current;
+    microphoneTrack.current = null;
     const lp = sessionRef.current.room?.localParticipant;
-    const pub = lp?.getTrackPublication(Track.Source.Microphone);
-    if (lp && pub?.track) {
-      try {
-        await lp.unpublishTrack(pub.track, true);
-      } catch (e) {
-        console.error('releaseMic failed', e);
+    const tracks = new Set([
+      captured,
+      ...(lp ? [...lp.audioTrackPublications.values()]
+        .filter(publication => publication.source === Track.Source.Microphone)
+        .map(publication => publication.track) : []),
+    ].filter(Boolean));
+    for (const track of tracks) track.stop();
+    for (const track of tracks) {
+      if (lp) {
+        try { await lp.unpublishTrack(track, true); }
+        catch (error) { console.error('releaseMic failed', error); }
       }
     }
   }, []);
@@ -238,6 +244,7 @@ function CardShell() {
     conversationReady.current?.settle(false);
     conversationReady.current = null;
     voiceGeneration.current++;
+    microphoneAttempt.current = null;
     setNavigationError(message);
     setFailure('connection');
     setTurnActive(false);
@@ -322,37 +329,65 @@ function CardShell() {
   }, []);
 
 
-  // Open the mic + start a turn — connecting first if needed. The FIRST mic acquisition on iOS
-  // is slow (getUserMedia + the AVAudioSession switch, which is also what interrupts other apps'
-  // audio, so it can't be pre-warmed). Callers flag `micStarting` so the tap shows "Starting…"
-  // instead of feeling stuck, and so the user doesn't talk into a not-yet-live mic.
-  const openTurn = useCallback(async () => {
+  // Request capture inside the tap; waiting for a network connection first can
+  // lose the browser's user activation on iOS. Publish only after persistence is ready.
+  const openTurn = useCallback(() => {
     const generation = voiceGeneration.current;
-    const ready = await connectSession();
-    if (generation !== voiceGeneration.current) throw new DOMException('Voice session ended', 'AbortError');
-    if (!ready) throw new Error('not connected');
-    await setMic(true);
-    if (generation !== voiceGeneration.current) { await releaseMic(); throw new DOMException('Voice session ended', 'AbortError'); }
-    await rpc('start_turn');
-  }, [connectSession, setMic, rpc, releaseMic]);
+    const room = sessionRef.current.room!;
+    return startMicrophone({
+      acquire: () => {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          return Promise.reject(new DOMException('Capture is unavailable', 'NotSupportedError'));
+        }
+        return createLocalAudioTrack().then(track => {
+          if (generation !== voiceGeneration.current) {
+            track.stop();
+            throw new VoiceStartError('cancelled');
+          }
+          microphoneTrack.current = track;
+          return track;
+        });
+      },
+      connect: connectSession,
+      isCurrent: () => generation === voiceGeneration.current,
+      publish: track => room.localParticipant.publishTrack(track, { source: Track.Source.Microphone }),
+      unpublish: track => room.localParticipant.unpublishTrack(track, true),
+      start: () => {
+        const identity = agentIdentity(room);
+        if (!identity) throw new Error('Voice worker is unavailable');
+        return room.localParticipant.performRpc({ destinationIdentity: identity, method: 'start_turn', payload: '' });
+      },
+    });
+  }, [connectSession]);
 
-  // Open the mic + start a turn, flagging `micStarting` for the cold-start UI and rolling back
-  // via `onFail` if the mic never comes up. Shared by push-to-talk and auto-mode resume.
   const beginTurn = useCallback(
     (onFail: () => void) => {
+      if (microphoneAttempt.current) return;
       replyAudio.restore();
       setPlaybackError(null);
-      clearSuggestions(); // answering by voice — drop any quick replies
+      clearSuggestions();
       setFailure(null);
+      setMicrophoneError(null);
       setMicStarting(true);
-      openTurn()
-        .catch((e) => {
-          if (e instanceof DOMException && e.name === 'AbortError') return;
-          console.error('open turn failed', e);
-          setFailure((current) => current ?? 'microphone');
-          onFail();
-        })
-        .finally(() => setMicStarting(false));
+      const generation = voiceGeneration.current;
+      const attempt = openTurn();
+      microphoneAttempt.current = attempt;
+      void attempt.catch((error: unknown) => {
+        if (generation !== voiceGeneration.current || (error instanceof VoiceStartError && error.stage === 'cancelled')) return;
+        console.error('open turn failed', error);
+        if (error instanceof VoiceStartError && error.stage === 'capture') {
+          setMicrophoneError(microphoneFailure(error.reason));
+          setFailure('microphone');
+        } else {
+          setFailure('connection');
+        }
+        onFail();
+      }).finally(() => {
+        if (microphoneAttempt.current === attempt) {
+          microphoneAttempt.current = null;
+          setMicStarting(false);
+        }
+      });
     },
     [openTurn, clearSuggestions],
   );
@@ -361,7 +396,8 @@ function CardShell() {
   // release the mic device. Shared by End / Cancel / Pause.
   const stopTurn = useCallback(
     async (method: 'end_turn' | 'cancel_turn') => {
-      if (method === 'cancel_turn') voiceGeneration.current++;
+      if (method === 'cancel_turn' || microphoneAttempt.current) voiceGeneration.current++;
+      microphoneAttempt.current = null;
       setMicStarting(false);
       await rpc(method);
       await releaseMic();
@@ -451,12 +487,13 @@ function CardShell() {
   // recording on its own.
   useEffect(() => {
     voiceGeneration.current++;
+    microphoneAttempt.current = null;
     setTurnActive(false);
     setMicStarting(false);
     setAutoPaused(mode === 'auto');
     if (sessionRef.current.isConnected) {
       void releaseMic();
-      void rpc('set_turn_mode', mode);
+      void rpc('set_turn_mode', 'manual');
     }
   }, [mode, releaseMic, rpc]);
 
@@ -477,7 +514,7 @@ function CardShell() {
         } catch { /* Live messages remain available if the seed is malformed. */ }
       }
       if (cancelled) return;
-      await rpc('set_turn_mode', mode);
+      await rpc('set_turn_mode', mode === 'auto' && !autoPaused ? 'auto' : 'manual');
       await rpc('set_audio_output', audioOutputConfig ? 'on' : 'off');
       if (cancelled) return;
       if (autoConnect && startOnConnect && !didAutoStart.current) {
@@ -489,7 +526,7 @@ function CardShell() {
     return () => {
       cancelled = true;
     };
-  }, [connected, agentReady, mode, autoConnect, startOnConnect, audioOutputConfig, rpc, applyConversationSeed, onTurnStart, onResume]);
+  }, [connected, agentReady, mode, autoPaused, autoConnect, startOnConnect, audioOutputConfig, rpc, applyConversationSeed, onTurnStart, onResume]);
 
   // Subscribe to the agent's audio track only while spoken replies are on (we connect with
   // autoSubscribe:false). With no subscribed remote audio track there's nothing for iOS to
@@ -554,7 +591,7 @@ function CardShell() {
     : failure === 'message'
       ? { title: 'Your message wasn’t sent', message: 'Your draft is saved below. Retry the message or check connection settings.' }
       : failure === 'microphone'
-        ? { title: 'Microphone is unavailable', message: 'Allow microphone access for Home Assistant, then retry. You can still type a message.' }
+        ? microphoneError ?? microphoneFailure(null)
         : null;
 
   // Embedded-card mode keeps its existing height behavior. Full-page sizing is owned by
@@ -563,6 +600,7 @@ function CardShell() {
     conversationReady.current?.settle(false);
     conversationReady.current = null;
     voiceGeneration.current++;
+    microphoneAttempt.current = null;
     setConnecting(false);
     setPlaybackError(null);
     setTurnActive(false);
@@ -594,7 +632,7 @@ function CardShell() {
 
   const activeView = (
     <>
-      {voiceCard && feedbackVisible && voiceFeedback}
+      {voiceCard && feedbackVisible && !voiceError && voiceFeedback}
       {/* Keep the transcript visible if the voice connection drops. */}
       <Conversation voice compact={voiceCard} before={voiceCard ? undefined : <div className="lk-context" role="region" aria-label="Home controls">
         <NowPlaying />
@@ -611,15 +649,17 @@ function CardShell() {
           onOpen={setEditing}
           onSeeAll={() => setTab('schedules')}
         />
-      </div>} approvals approvalRoom={session.room} items={items} reflowKey={suggestions.length} unavailable={Boolean(failure)}
+      </div>} approvals approvalRoom={session.room} items={items} reflowKey={suggestions.length} unavailable={failure === 'connection' || failure === 'message'}
         notice={voiceError && <RecoveryNotice {...voiceError} retryLabel={voiceDraft.trim() ? 'Retry message' : failure === 'microphone' ? 'Retry microphone' : 'Retry connection'}
           busy={connecting || sendingVoice || micStarting} onRetry={() => void retryVoice()}
-          onSettings={hass?.user?.is_admin ? openConnectionSettings : undefined} />}
+          onSettings={failure !== 'microphone' && hass?.user?.is_admin ? openConnectionSettings : undefined}
+          onEnd={failure === 'microphone' ? () => void endVoice() : undefined}
+          diagnostic={failure === 'microphone' ? microphoneError?.diagnostic : undefined} />}
         onPrompt={(prompt) => {
           setVoiceDraft(prompt);
           requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());
         }} />
-      {!voiceCard && feedbackVisible && voiceFeedback}
+      {!voiceCard && feedbackVisible && !voiceError && voiceFeedback}
       <Dock
         draft={voiceDraft}
         onDraftChange={setVoiceDraft}
