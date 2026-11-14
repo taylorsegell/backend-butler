@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0-beta.2 — canonical repository candidate
+
+- Use the canonical `taylorsegell/backend-butler` repository and migrated `apps/` source layout.
+- Preserve legacy data locations and explicit prompt/MCP overrides; add automated fresh/upgrade Compose migration checks.
+- Include the merged fix for reporting denied voice resumes after joining the room.
+- Supersede the unpublished staging beta.1 candidate; keep the optional HA app version independent.
+
 ## 1.1.0-beta.1 — release candidate
 
 - Voice-first conversation UI with live captions, reply controls, unified history, and a visible dictation glow.
