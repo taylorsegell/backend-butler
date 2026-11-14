@@ -185,12 +185,12 @@ async def entrypoint(ctx: JobContext) -> None:
                 pass
         logger.exception("Could not acquire conversation for voice session")
         error = json.dumps({"error": message, "message": message})
+        await ctx.connect()
 
         @ctx.room.local_participant.register_rpc_method("get_conversation")
         async def conversation_error(_data: rtc.RpcInvocationData) -> str:
             return error
 
-        await ctx.connect()
         await ctx.room.local_participant.publish_data(
             error, topic="ha.conversation_error", reliable=True
         )
