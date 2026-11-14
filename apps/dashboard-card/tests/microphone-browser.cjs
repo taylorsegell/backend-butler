@@ -40,6 +40,13 @@ const esbuild=require('node:module').createRequire(require.resolve('vite/package
   await page.getByRole('button',{name:'Cancel recording',exact:true}).click();
   assert.equal(await page.evaluate(()=>window.streams.every(s=>s.getTracks().every(t=>t.readyState==='ended'))),true,'cancel releases a captured mic before the connection finishes');
   await page.waitForTimeout(1300);assert.equal(await page.locator('.lk-recovery').count(),0,'intentional cancellation is not a capture error');
+  for(const captureDelay of [0,300]){
+   await page.goto(base+'/?delay=1200');await page.evaluate(delay=>{window.failure=null;window.captureDelay=delay},captureDelay);
+   await page.getByRole('button',{name:'Start talking',exact:true}).click();
+   if(!captureDelay)await page.waitForFunction(()=>window.streams.length>0);
+   await page.evaluate(()=>window.unmount());
+   await page.waitForFunction(()=>window.streams.length>0&&window.streams.every(s=>s.getTracks().every(t=>t.readyState==='ended')));
+  }
   await page.goto(base+'/?mode=auto');await page.getByRole('button',{name:'Start listening',exact:true}).click();await page.locator('.lk-recovery').waitFor();
   await page.waitForFunction(()=>window.serverMode==='manual');assert.equal(await page.locator('.lk-recovery').count(),1,'capture failure restores the dormant server mode');
   assert.deepEqual(errors,[]);console.log(engine+' PASS: full card capture-in-tap, accurate failures, single recovery, text/retry/cancel and mobile widths');

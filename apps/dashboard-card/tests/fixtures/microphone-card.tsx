@@ -11,10 +11,15 @@ const capture=async()=>{
  fixture.captureRequests++;fixture.captureInTap.push(insideTap);
  if(!insideTap)throw new DOMException('Capture must start in the initiating tap','NotAllowedError');
  if(fixture.failure)throw new DOMException('Synthetic capture failure',fixture.failure);
+ if(fixture.captureDelay)await new Promise(r=>setTimeout(r,fixture.captureDelay));
  const ctx=new AudioContext();const destination=ctx.createMediaStreamDestination();
  fixture.streams.push(destination.stream);return destination.stream;
 };
-Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,writable:true,value:capture});
+// Pin the MediaDevices object: the fixture must never fall through to native capture.
+const devices=navigator.mediaDevices;
+Object.defineProperty(navigator,'mediaDevices',{configurable:true,value:devices});
+Object.defineProperty(Object.getPrototypeOf(devices),'getUserMedia',{configurable:true,writable:true,value:capture});
+Object.defineProperty(devices,'getUserMedia',{configurable:true,writable:true,value:capture});
 fixture.captureInstalled=navigator.mediaDevices.getUserMedia===capture;
 const host=document.createElement('div');document.body.append(host);host.style.cssText='display:block;--primary-color:#FC6B02;--primary-text-color:#eee;--secondary-text-color:#aaa;--card-background-color:#181818';
 const shadow=host.attachShadow({mode:'open'});shadow.innerHTML='<style>'+CARD_STYLES+'</style><div class="lk-root"></div>';
@@ -22,5 +27,6 @@ const store=new HassStore();store.setHost(host);store.setConfig({type:'backend-b
 store.setHass({states:{},user:{id:'synthetic-alice',is_admin:true},callWS:async()=>[],callService:async()=>{},callApi:async(_m:string,path:string)=>path.includes('tasks')?[]:path.includes('history')?{items:[],busy:false}:path.includes('conversations')?{conversations:[]}:path.includes('approvals')?{items:[]}:{users:[],servers:[]}} as any);
 // Install synthetic capture before the SDK's WebKit adapter caches getUserMedia.
 void import('../../src/App').then(({Root}) => {
- createRoot(shadow.querySelector('.lk-root')!).render(<Root store={store}/>);
+ const root=createRoot(shadow.querySelector('.lk-root')!);fixture.unmount=()=>root.unmount();
+ root.render(<Root store={store}/>);
 });

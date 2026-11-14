@@ -226,6 +226,13 @@ function CardShell() {
     }
   }, []);
 
+  // A captured track may still be waiting for connection when the card is removed.
+  useEffect(() => () => {
+    voiceGeneration.current++;
+    microphoneAttempt.current = null;
+    void releaseMic();
+  }, [releaseMic]);
+
   const rpc = useCallback(async (method: string, payload = '') => {
     const room = sessionRef.current.room;
     const id = agentIdentity(room);
