@@ -43,3 +43,7 @@ Before publishing a beta:
 For the first beta installations, monitor worker/scheduler logs, voice connection errors, permission failures, saved conversation recovery, and schedule execution. Do not collect raw home transcripts as telemetry. Ask testers to report version, HA/browser version, redacted errors, and reproduction steps through GitHub issues.
 
 Stop rollout immediately for cross-user access, lost conversations, or unintended device actions. Stop the worker first to prevent new actions. Reinstall the previous integration version and redeploy the previous worker/app image or commit. Restore the matching pre-upgrade `agent-data/` and scheduler database backup if storage compatibility changed; keep a copy of the failed state for private investigation. Recheck authentication, a harmless voice query, saved history, and a disposable schedule before reopening access. There is no automatic database downgrade guarantee.
+
+## Beta.2 candidate
+
+Use the canonical repository and read [migration verification](beta2-migration.md) before upgrading an older checkout. Integration/card version is `1.1.0-beta.2`; the optional configuration app keeps its independent version. The beta.1 draft in the archived staging repository is superseded.
