@@ -15,6 +15,12 @@
 
 [![CI](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml/badge.svg)](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml)
 
+## See Butler in action
+
+[![Watch the 22-second voice-first Backend Butler promo](media/backend-butler-promo.jpg)](https://github.com/taylorsegell/backend-butler/releases/download/v1.1.0-beta.2/backend-butler-promo.mp4)
+
+[Watch or download the promo · MP4, 22 seconds](https://github.com/taylorsegell/backend-butler/releases/download/v1.1.0-beta.2/backend-butler-promo.mp4) · [Music and media credits](media/README.md)
+
 ## Talk to the house
 
 “Which lights are on?” “Turn off the kitchen lights.” “Remind me in twenty minutes.”
