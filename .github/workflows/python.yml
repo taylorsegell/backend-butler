@@ -39,3 +39,5 @@ jobs:
           persist-credentials: false
       - name: docker-compose.yml is valid with the example env
         run: cp .env.example .env && docker compose config --quiet
+      - name: Verify fresh and legacy migration paths
+        run: python3 scripts/check-migration.py

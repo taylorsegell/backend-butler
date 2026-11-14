@@ -1,15 +1,11 @@
-# Backend Butler 1.1.0-beta.1 — release notes draft
+# Backend Butler 1.1.0-beta.2 — release candidate
 
-Talk to your home with Backend Butler, a voice-first Home Assistant companion powered by LiveKit. Follow the conversation through live captions, switch to text, and return to saved history. Manage people, tools, devices, and schedules from the dashboard card.
+Voice-first conversations for Home Assistant, powered by LiveKit. Talk, follow live captions, pick up in chat and return to saved conversations.
 
-This candidate includes persistent voice conversations, improved mobile layouts and recovery feedback, a visible dictation glow, and the approved Arkitect branding. The separate Agent SDK HA app also improves composer resizing and placeholder wrapping.
+This candidate uses the canonical [Backend Butler repository](https://github.com/taylorsegell/backend-butler), the migrated `apps/` source layout and the merged denied-voice-resume fix. The old public staging repository is archived; its unpublished beta.1 draft is superseded.
 
-## Getting started
+Read [migration verification](beta2-migration.md) before upgrading an existing checkout. Existing data mounts, custom prompt/MCP overrides, integration domain and optional app slug remain stable. The configuration app retains its independent version.
 
-Use the [public beta guide](public-beta.md) and [Home Assistant integration guide](home-assistant.md). You provide your own Home Assistant and LiveKit/model credentials; inference can incur charges. Keep the worker and scheduler APIs on a trusted network and start with harmless device queries.
+Fresh/legacy Compose planning, configuration-app path tests and compiled startup pass with synthetic state. The card bundle is byte-identical to the previously phone-tested candidate. Prior voice evidence applies to unchanged paths; the merged error-path fix has dedicated regression/live evidence in [smoke tests](smoke-tests.md). Full CI and the tag pipeline must pass before publishing this draft.
 
-## Before publication
-
-Select the beta version and tested commit, complete the [release gates](public-beta.md), and verify the patched OpenTelemetry audit remains clean. The public repository uses a curated source snapshot and fresh history; the development repository stays private. HACS must pass on the public repository. Real Home Assistant voice/reconnect, multi-user isolation, and rollback smoke tests are required before inviting testers.
-
-Beta storage/API compatibility can change. Back up conversation state and scheduler data before upgrading. Report redacted issues through GitHub; report vulnerabilities privately following [SECURITY.md](../SECURITY.md).
+Back up deployment state before an upgrade and ensure the build host has sufficient disk. Linux AMD64 is validated; ARM64 and older Python versions are not covered by this release matrix. Draft LiveKit persistence APIs, provider costs and the configuration-app chunk-size warning remain beta limitations.
