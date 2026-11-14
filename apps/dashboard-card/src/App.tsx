@@ -18,6 +18,7 @@ import { TextHistory } from './components/TextHistory';
 import { useRoomDataTopic } from './lib/room-data';
 import { httpStatus } from './lib/errors';
 import { createConversationReady } from './lib/conversation-ready';
+import { NativeMicrophone } from './lib/native-microphone';
 import { startMicrophone, VoiceStartError, microphoneFailure, type MicrophoneFailure } from './lib/microphone-start';
 import { VoiceFeedback } from './components/VoiceFeedback';
 import { resolveVoiceFeedback, useVoiceAudioLevels } from './lib/voice-feedback';
@@ -117,6 +118,8 @@ function linkedTab(): Tab | null {
 function CardShell() {
   const store = useStore();
   const hass = useHass();
+  const hassRef = useRef(hass);
+  hassRef.current = hass;
   const config = useCardConfig();
   const session = useSessionContext();
   const agent = useAgent();
@@ -194,13 +197,16 @@ function CardShell() {
   const [microphoneError, setMicrophoneError] = useState<MicrophoneFailure | null>(null);
   const microphoneAttempt = useRef<Promise<void> | null>(null);
   const microphoneTrack = useRef<LocalAudioTrack | null>(null);
+  const nativeMicrophone = useRef<NativeMicrophone | null>(null);
+  const [nativeMicActive, setNativeMicActive] = useState(false);
   const voiceGeneration = useRef(0);
   const lastUserUtterance = [...items].reverse().find(item => item.kind === 'message' && item.role === 'user');
   const replyAudio = useReplyAudio(lastUserUtterance?.id);
   const replyMuted = replyAudio.muted;
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const transport = useVoiceTransport(session.room!);
-  const levels = useVoiceAudioLevels(session.room!, connected, transport.micActive && sttEnabled, audioOutput && !replyMuted);
+  const microphoneActive = nativeMicActive || transport.micActive;
+  const levels = useVoiceAudioLevels(session.room!, connected, microphoneActive && sttEnabled, audioOutput && !replyMuted);
   const didAutoStart = useRef(false); // kiosk: auto-open the first turn once per mount
 
   // Fully release the mic (unpublish + stop the device), not just mute. Muting keeps the audio
@@ -208,6 +214,8 @@ function CardShell() {
   // into playAndRecord and interrupts background music. Unpublishing removes it, so no audio
   // session is held between turns. The next turn re-publishes fresh.
   const releaseMic = useCallback(async () => {
+    nativeMicrophone.current?.stop();
+    nativeMicrophone.current = null;
     const captured = microphoneTrack.current;
     microphoneTrack.current = null;
     const lp = sessionRef.current.room?.localParticipant;
@@ -341,6 +349,37 @@ function CardShell() {
   const openTurn = useCallback(() => {
     const generation = voiceGeneration.current;
     const room = sessionRef.current.room!;
+    if (config.experimental_native_microphone) {
+      // The isolated lab must authenticate and arm its receiver before native capture.
+      return startMicrophone({
+        acquire: async () => {
+          try {
+            const prepared = await hassRef.current?.callWS?.<{ experiment: boolean; entity_id: string }>({ type: 'butler_native_audio_poc/prepare' });
+            if (generation !== voiceGeneration.current) throw new VoiceStartError('cancelled');
+            if (prepared?.experiment !== true) throw new DOMException('The isolated native microphone receiver is unavailable', 'NotSupportedError');
+            const microphone = new NativeMicrophone(hassRef.current?.auth?.external, prepared.entity_id, setNativeMicActive, () => {
+              setTurnActive(false); setAutoPaused(true);
+              setMicrophoneError(microphoneFailure(new DOMException('Native microphone session ended', 'AbortError')));
+              setFailure('microphone');
+              void rpc('cancel_turn');
+            });
+            nativeMicrophone.current = microphone;
+            return await microphone.start();
+          } catch (reason) {
+            throw reason instanceof VoiceStartError ? reason : new VoiceStartError('capture', reason);
+          }
+        },
+        connect: connectSession,
+        isCurrent: () => generation === voiceGeneration.current,
+        publish: async () => {},
+        unpublish: async microphone => microphone.stop(),
+        start: () => {
+          const identity = agentIdentity(room);
+          if (!identity) throw new Error('Audio test session is unavailable');
+          return room.localParticipant.performRpc({ destinationIdentity: identity, method: 'start_turn', payload: '' });
+        },
+      });
+    }
     return startMicrophone({
       acquire: () => {
         if (!navigator.mediaDevices?.getUserMedia) {
@@ -365,7 +404,7 @@ function CardShell() {
         return room.localParticipant.performRpc({ destinationIdentity: identity, method: 'start_turn', payload: '' });
       },
     });
-  }, [connectSession]);
+  }, [connectSession, config.experimental_native_microphone, rpc]);
 
   const beginTurn = useCallback(
     (onFail: () => void) => {
@@ -383,7 +422,7 @@ function CardShell() {
         if (generation !== voiceGeneration.current || (error instanceof VoiceStartError && error.stage === 'cancelled')) return;
         console.error('open turn failed', error);
         if (error instanceof VoiceStartError && error.stage === 'capture') {
-          setMicrophoneError(microphoneFailure(error.reason));
+          setMicrophoneError(microphoneFailure(error.reason, config.experimental_native_microphone));
           setFailure('microphone');
         } else {
           setFailure('connection');
@@ -396,7 +435,7 @@ function CardShell() {
         }
       });
     },
-    [openTurn, clearSuggestions],
+    [openTurn, clearSuggestions, config.experimental_native_microphone],
   );
 
   // Close the mic side of a turn: clear `micStarting`, tell the agent (commit or discard), and
@@ -624,7 +663,7 @@ function CardShell() {
   };
   const pendingVoiceTool = [...toolCalls].reverse().find(tool => tool.status === 'running');
   const feedback = resolveVoiceFeedback({ connected, connecting,
-    reconnecting: transport.reconnecting, micActive: transport.micActive && sttEnabled,
+    reconnecting: transport.reconnecting, micActive: microphoneActive && sttEnabled,
     micStarting, agentState, audioOutput: audioOutput && !replyMuted && transport.canPlayback,
     pendingTool: pendingVoiceTool ? humanizeTool(pendingVoiceTool.name) : undefined,
     error: playbackError ?? voiceError?.message ?? null });

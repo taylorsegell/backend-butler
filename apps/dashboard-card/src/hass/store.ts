@@ -1,3 +1,5 @@
+import type { NativeExternalMessaging } from '../lib/native-microphone';
+
 // External store bridging Home Assistant's imperative `hass`/`config` setters to React.
 // HA sets `card.hass` on every state change; the store notifies React via
 // useSyncExternalStore so tiles reflect live state.
@@ -11,6 +13,7 @@ export interface HassEntity {
 }
 
 export interface Hass {
+  auth?: { external?: NativeExternalMessaging };
   states: Record<string, HassEntity>;
   /** Entity registry: entity_id -> { area_id, device_id, ... } */
   entities?: Record<string, any>;
@@ -64,6 +67,8 @@ export interface CardConfig {
    * send/speak, so merely opening the dashboard never touches the audio session.
    */
   auto_connect?: boolean;
+  /** Opt-in transport experiment; valid only in the isolated native-audio lab. */
+  experimental_native_microphone?: boolean;
 }
 
 export interface Snapshot {
