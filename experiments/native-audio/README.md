@@ -1,30 +1,34 @@
-# Native microphone transport proof
+# Native microphone and isolated Butler speech lab
 
-Scope: preserve Butler's current card UI and prove native Companion microphone audio can reach an isolated receiver over ordinary LAN HTTP. No Assist screen, DNS changes, certificates, beta changes, household credentials, device control or production deployment.
+Keep Butler's existing UI and use native iPhone Companion microphone capture over ordinary LAN HTTP. The user confirmed both a visible transcript and an audible assistant reply on 2026-11-14. This remains an isolated experiment: no beta deployment, household tools, household credentials, household data, DNS changes, certificates, or native Assist screen.
 
-The experiment uses the camera-specific bridge in Home Assistant iOS PR #5942. A clearly labelled, audio-only experimental camera endpoint exists solely because that upstream bridge currently requires camera WebRTC signaling. It is not a proposed production camera feature. Native capture capability must be detected, not inferred from an app version.
+There are two explicitly selected modes:
+
+- **Transport mode** (default): actual WebRTC audio is measured and fed into a LiveKit AudioSource; Send shows a receipt. There is no recognizer or reply engine.
+- **Speech mode** (`run.py --speech`): the same receiver streams PCM to a separate loopback process running a real LiveKit AgentSession with Butler's configured STT/LLM/TTS services. The existing UI displays real transcripts and answers, and plays real reply PCM through WebAudio. No LiveKit room or production worker is joined. This uses a lab session adapter and a tool-free Butler prompt, rather than the household agent's tool registrations.
+
+Phone-to-lab transport uses local HTTP. Speech/model services use their configured remote APIs over TLS. This does not make cloud speech recognition work offline. User audio and conversation history are kept in memory only; the lab does not record user audio or persist conversations. The synthetic test utterance is generated separately under `/tmp`.
+
+## Phone use
+
+Retain the existing household server. Add the disposable lab as a second server inside the iOS Home Assistant Companion app; use its generated test account. Select the lab, then **☰ → Overview**. Its only view opens Butler. No URL path needs typing inside the app.
+
+For speech mode, tap the microphone, speak a short question, then Send. Expect your recognized words, a text answer, and spoken playback. Cancel discards a turn. Stop reply audio mutes current playback. If iOS blocks playback, the existing Enable reply audio control can unlock it; the text conversation remains available.
+
+Safari/Chrome do not expose the native Companion bridge. The exact `webrtc.hasCameraMicrophoneStream` capability must be present in Companion; “latest” alone is not a capability check. The current lab login remains valid when switching between experiment modes.
 
 Acceptance:
 
-- The existing card's Start/Send/Cancel controls drive native capture; the Butler card remains visible.
-- Real audio frames reach a receiver and a LiveKit-compatible audio input; report measured frame/sample counts and levels, not invented transcripts.
-- No browser getUserMedia or native Assist launch is used on this path.
-- Cancellation, late permission grants, native interruption, unsupported apps and unmount do not leave capture running.
-- A separate disposable Home Assistant instance provides authentic frontend authentication and camera signaling. No existing HA instance is changed.
-- Automated bridge emulation, actual WebRTC audio, and actual iPhone capture are recorded as separate evidence. A bridge emulator cannot establish iPhone success.
+- Existing Butler Start/Send/Cancel controls and conversation UI remain visible.
+- Real native audio over HTTP reaches speech recognition; real assistant text and synthesized replies reach that same UI.
+- No browser microphone capture or native Assist launch substitutes for native capture.
+- Cancel/unmount/late grants release capture; disconnected services produce errors rather than invented success.
+- All execution stays in a marked disposable configuration, with no home controls or household state.
+- Browser bridge emulation, genuine WebRTC/model processing, and physical iPhone results remain distinct evidence.
 
-Implementation order: native bus contract and tests; real audio receiver and tests; opt-in card transport; isolated HA fixture and browser integration; physical phone check.
+## Prepare the disposable environment
 
-Sources:
-- https://github.com/home-assistant/iOS/pull/5942
-- https://github.com/home-assistant/core/blob/2026.11.1/homeassistant/components/camera/webrtc.py
-- https://github.com/home-assistant/core/blob/2026.11.1/homeassistant/components/camera/entity.py
-
-Local Python environment (isolated under /tmp): `/tmp/butler-native-audio-venv/bin/python`. Tests will use pytest; card checks use the existing TypeScript and Playwright suites. Runtime state and generated assets belong in a separate /tmp directory and must never be copied from household state. No new visual design is planned; existing components/styles remain the visual baseline.
-
-## Run the disposable lab
-
-Use Linux, Python 3.14, Node 22, and the dashboard card's installed dependencies (`npm ci` from `apps/dashboard-card`). Create a separate Python environment and install this directory's `requirements.txt`. HA may install additional component dependencies on first boot; native audio dependencies can require a C++ toolchain where wheels are unavailable. Do not reuse a household Python environment or HA configuration.
+Use Linux, Python 3.14 for HA, Node 22, and the dashboard card's installed dependencies (`npm ci` inside `apps/dashboard-card`). Use the voice worker's locked Python environment separately for the model process. Never install lab dependencies into household HA or change an existing worker environment.
 
 ```sh
 python3.14 -m venv /tmp/butler-native-audio-venv
@@ -32,52 +36,80 @@ python3.14 -m venv /tmp/butler-native-audio-venv
 /tmp/butler-native-audio-venv/bin/python experiments/native-audio/run.py --bind <LAN_IP>
 ```
 
-The launcher creates only `/tmp/butler-native-audio-lab`, binds port 18123, and builds only the experimental card asset there. It refuses an unmarked existing directory, ports below 18123, and an already running lab. HTTP storage initialization is specifically pinned to HA 2026.11.1. No production configuration, credentials, workers, repository bundles, or persistent data paths are used.
+HA may install component dependencies on first boot; some native dependencies require a C++ toolchain where wheels are unavailable. The launcher creates `/tmp/butler-native-audio-lab`, uses port 18123, and builds only the experiment asset there. It rejects unmarked existing directories, ports below 18123 and concurrent runtime preparation. Its HTTP storage initialization is pinned to HA 2026.11.1.
 
-In another terminal, create the disposable account:
+In another terminal:
 
 ```sh
 /tmp/butler-native-audio-venv/bin/python experiments/native-audio/onboard.py
 ```
 
-Its generated username/password and lab tokens stay in a mode-0600 file at `/tmp/butler-native-audio-lab/test-auth.json`. Use only its username/password to log in; never copy tokens into chat, source, or a household configuration. In the current prepared lab a separate `phone-login.txt` contains the login without any tokens.
+The generated synthetic account and lab tokens stay in mode-0600 `/tmp/butler-native-audio-lab/test-auth.json`. Use only its username/password to log in. Do not copy tokens into chat or source. In the currently prepared lab, `phone-login.txt` contains only the disposable login without tokens.
 
-Add `http://<LAN_IP>:18123` as a **second** server in the iOS Companion app and open `/lovelace/butler`. Retain the existing household server. Safari does not expose the native Companion bridge. The exact `webrtc.hasCameraMicrophoneStream` capability must be present in the app; “latest” alone does not establish availability.
+To enable speech, prepare a model-only file using the separate worker Python environment and an explicitly supplied environment file (or exported model variables):
 
-Phone acceptance checks:
+```sh
+<worker-python> experiments/native-audio/prepare_speech.py --env-file <model-settings-file>
+<worker-python> experiments/native-audio/model_session.py --config /tmp/butler-native-audio-lab/model-config.json
+```
 
-1. Tap the existing microphone button, speak for 3–5 seconds, then Send. Butler must remain visible; the audio receipt must report nonzero duration and LiveKit PCM frames. No Assist screen should open.
-2. Start again and Cancel. The iOS microphone indicator should turn off and the lab should stop receiving frames.
-3. During another capture, background the app, switch server, or navigate away. Verify the microphone indicator clears; retry on return. Native interruption must not leave the UI listening indefinitely.
-4. Revoke microphone permission on this test app only if deliberately testing denial; restore it afterward. Unsupported capability or denied capture must produce an honest error, never a false success.
+The preparer allowlists speech/model configuration, generates an independent service token, writes mode 0600, excludes HA/scheduler/tool credentials and refuses overwriting an existing configuration. No credentials reach the browser. The service listens only on `127.0.0.1:18952`, requires its token, permits one connection and has no tool registrations. It uses the same SDK and model configuration as the Butler worker with a lab-specific conversational prompt.
 
-This is a **transport proof**, not a voice assistant session. The experiment substitutes a small lab session adapter for the LiveKit React session package while mounting the real Butler Root/components/styles. It receives and measures actual WebRTC audio and feeds a real `livekit.rtc.AudioSource`, but has no LiveKit room connection, STT, model, reply audio, tools, typed-message responses, or household controls. The receipt is measured telemetry, not a transcription. No raw audio is recorded.
+Stop the existing lab, then start it in speech mode:
 
-## Verification and current evidence
+```sh
+/tmp/butler-native-audio-venv/bin/python experiments/native-audio/run.py --stop
+/tmp/butler-native-audio-venv/bin/python experiments/native-audio/run.py --bind <LAN_IP> --speech
+```
+
+This retains the disposable account and existing server entry. Fully close/reopen Companion to load a freshly built card. Nothing is installed as a system service or enabled at boot. The current prepared speech process runs independently of the test terminal; its PID and logs are in the same disposable directory.
+
+Recognition is disabled between turns. Capture has a 90-second lease; model sessions have a 20-minute maximum lifetime. Input and output queues are bounded. History is temporary and a new connection starts a new session. Speech mode also wires the SDK's STT endpoint mode for continuous turns, but the verified phone path is explicit tap-to-talk and Send.
+
+## Verification
+
+Card and playback checks:
 
 ```sh
 npm --prefix apps/dashboard-card test
 npm --prefix apps/dashboard-card run typecheck
-BUTLER_NATIVE_LAB=1 /tmp/butler-native-audio-venv/bin/python -m pytest -q experiments/native-audio/tests
-node experiments/native-audio/browser.cjs
+node experiments/native-audio/tests/reply-player.cjs
 ```
 
-The browser script expects the default `/tmp` environment and running loopback lab. It emulates the native bus with a synthetic tone peer using **real authenticated HA signaling and real WebRTC**, not browser `getUserMedia`. Its HTTP hostname is an insecure context with `navigator.mediaDevices` absent. It checks measured decoded/LiveKit frames, Send, Cancel, no Assist launch, retained UI and mobile overflow. This cannot verify iPhone hardware or native app behavior.
-
-On 2026-11-14, receiver and live HA protocol tests passed; the complete card passed on insecure HTTP with real decoded audio and LiveKit PCM frames through the emulated bridge. Actual HA login and Lovelace rendering also passed at 402px width with no page errors. Card lifecycle tests/typecheck passed. The subsequent physical iPhone Companion test over the isolated LAN HTTP server produced an “Audio received…” receipt, confirmed by the user. A read-only receiver snapshot during that test showed 371 decoded frames, 371 LiveKit SDK frames and 356,160 samples at 48 kHz (7.42 seconds), with capture inactive at inspection. This verifies basic native capture, delivery and the visible Send receipt on that device. Speech intelligibility was not tested: no recording or speech recognizer exists in this proof. Physical Cancel/background interruption checks and the exact installed app version remain unverified.
-
-A missing optional `libturbojpeg` library may log a camera snapshot warning in this audio-only lab. No camera images or video are requested. The stock HA onboarding flow may add stock integrations to this disposable instance only.
-
-## Boundaries before production
-
-The current upstream bridge is camera-specific. This lab's `camera.butler_native_audio_poc` entity exists only to prove feasibility and must never be installed in a household. Prepare/status/stop require an admin and bind a single test owner; core camera offer callbacks do not provide that request user's identity. This is **not production multi-user authorization**. Capture is audio-only, limited to one input and a 90-second lease, uses no STUN servers, and cleans up peer connections and SDK sources on stop.
-
-Production needs an approved native audio interface, authenticated owner/session binding at the signaling boundary, and a relay into the real Butler worker/session. It also needs actual-device acceptance and lifecycle testing. Do not ship the lab session adapter or claim that normal iOS/Android/browser users are supported by this proof.
-
-Stop only this lab with:
+Run receiver/launcher checks with the HA environment, and model-service checks with the worker environment:
 
 ```sh
-/tmp/butler-native-audio-venv/bin/python experiments/native-audio/run.py --stop
+/tmp/butler-native-audio-venv/bin/python -m pytest -q experiments/native-audio/tests/test_receiver.py experiments/native-audio/tests/test_launcher.py
+<worker-python> -m pytest -q experiments/native-audio/tests/test_model_session.py experiments/native-audio/tests/test_prepare_speech.py
 ```
 
-The stop command verifies that its recorded PID is the exact disposable HA process before signaling it. No service, cron entry, or boot configuration is installed. Runtime state under `/tmp` is disposable and is never committed.
+The original `test_ha_protocol.py` and `browser.cjs` target transport mode. For the opt-in real speech check, run the prepared speech-mode lab and generate a synthetic sample, then:
+
+```sh
+<worker-python> experiments/native-audio/make_speech.py
+node experiments/native-audio/speech-browser.cjs
+```
+
+The speech browser check uses a real authenticated HA connection and real WebRTC, recognition, model replies and TTS. Only native hardware capture is emulated by a paced synthetic speech peer. The browser uses an insecure HTTP hostname with `navigator.mediaDevices` absent. It checks the retained mobile UI, actual transcripts/answers, scheduling of actual TTS PCM for playback, cancellation after partial speech, and no Assist launch. Automated playback scheduling does not establish physical speaker audibility.
+
+Evidence on 2026-11-14:
+
+- The original physical native transport test received 371 decoded/SDK frames and 356,160 samples at 48 kHz (7.42 seconds), and the user confirmed the receipt.
+- Real speech integration transcribed the synthetic question and returned “Two plus two is four” with synthesized PCM. The complete HTTP card/browser test passed with real services and Cancel cleanup.
+- Card typecheck/unit checks, seven HA receiver/launcher tests, three speech-service tests, model-configuration isolation and playback lifecycle tests passed.
+- **The user subsequently confirmed “Transcript and spoken reply both work” inside iPhone Companion on local HTTP.** This verifies the basic phone-to-assistant-to-phone path. Physical background interruption, Bluetooth routing, continuous mode and broad app/platform compatibility remain unverified.
+
+## Experimental boundaries
+
+The upstream native bridge uses camera-specific HA signaling. This lab's audio-only `camera.butler_native_audio_poc` exists for that protocol and must never be installed in household HA. Prepare/control/events require an admin and bind a single disposable owner; core camera offer callbacks do not expose the request user to the entity. This is not production multi-user authorization. There are no STUN servers or camera images/video in the lab. A missing optional `libturbojpeg` may produce an unrelated snapshot-library warning.
+
+Speech mode retains the actual Butler Root/components/styles, while replacing the React session transport with an experiment adapter over authenticated HA messages. It does not alter the beta bundle, production integration or worker. Household actions, notifications, scheduler, memory services, external tools and persistent history are disconnected by construction.
+
+Production still needs an approved native audio interface, user/session authorization at the signaling boundary, lifecycle hardening and compatibility testing. Do not ship these lab adapters as a general iOS/Android/browser feature.
+
+Sources:
+
+- https://github.com/home-assistant/iOS/pull/5942
+- https://github.com/home-assistant/core/blob/2026.11.1/homeassistant/components/camera/webrtc.py
+- https://github.com/home-assistant/core/blob/2026.11.1/homeassistant/components/camera/entity.py
+- The installed voice worker SDK's `AgentSession`, `AudioInput` and `AudioOutput` interfaces, pinned by `apps/voice-worker/uv.lock`.

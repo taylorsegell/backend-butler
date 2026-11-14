@@ -6,6 +6,7 @@ getUserMedia, opens Assist, accesses the household, or uses provider credentials
 
 import asyncio
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -42,6 +43,32 @@ class SyntheticTone(AudioStreamTrack):
         return result
 
 
+class SyntheticSpeech(AudioStreamTrack):
+    def __init__(self, path):
+        super().__init__()
+        self.offset = 0
+        resampler = av.AudioResampler(format="s16", layout="mono", rate=8000)
+        chunks = [bytes(4800)]
+        with av.open(path) as source:
+            for frame in source.decode(audio=0):
+                chunks.extend(
+                    item.to_ndarray().tobytes() for item in resampler.resample(frame)
+                )
+            chunks.extend(
+                item.to_ndarray().tobytes() for item in resampler.resample(None)
+            )
+        chunks.append(bytes(16000))
+        self.data = b"".join(chunks)
+
+    async def recv(self):
+        frame = await super().recv()
+        size = frame.samples * 2
+        data = self.data[self.offset : self.offset + size].ljust(size, b"\0")
+        self.offset += size
+        frame.planes[0].update(data)
+        return frame
+
+
 class NativePeer:
     def __init__(self):
         self.counter = 0
@@ -50,6 +77,8 @@ class NativePeer:
         self.subscription = None
         self.session_id = None
         self.signal_error = None
+        self.event_subscription = None
+        self.on_event = lambda _event: None
 
     async def connect(self):
         assert (STATE / "BUTLER_NATIVE_AUDIO_POC").is_file()
@@ -107,11 +136,19 @@ class NativePeer:
                 elif event["type"] == "error":
                     self.signal_error = event.get("code", "signaling_failed")
 
+            elif (
+                value.get("type") == "event"
+                and value.get("id") == self.event_subscription
+            ):
+                self.on_event(value["event"])
+
     async def call(self, kind, **payload):
         self.counter += 1
         number = self.counter
         future = asyncio.get_running_loop().create_future()
         self.pending[number] = future
+        if kind == "butler_native_audio_poc/events":
+            self.event_subscription = number
         if kind == "camera/webrtc/offer":
             self.subscription = number
         await self.ws.send_json({"id": number, "type": kind, **payload})
@@ -119,7 +156,8 @@ class NativePeer:
 
     async def start(self):
         self.pc = RTCPeerConnection(RTCConfiguration(iceServers=[]))
-        self.pc.addTrack(SyntheticTone())
+        speech = os.getenv("BUTLER_NATIVE_TEST_WAV")
+        self.pc.addTrack(SyntheticSpeech(speech) if speech else SyntheticTone())
         await self.pc.setLocalDescription(await self.pc.createOffer())
         await self.call("camera/webrtc/get_client_config", entity_id=ENTITY)
         await self.call(
@@ -156,6 +194,7 @@ class NativePeer:
 async def main():
     peer = NativePeer()
     await peer.connect()
+    peer.on_event = lambda event: print(json.dumps({"event": event}), flush=True)
     try:
         while line := await asyncio.to_thread(sys.stdin.readline):
             message = json.loads(line)
@@ -166,7 +205,12 @@ async def main():
                     await peer.stop()
                     result = None
                 else:
-                    result = await peer.call(message["method"])
+                    method = message["method"]
+                    if isinstance(method, dict):
+                        method = method.copy()
+                        result = await peer.call(method.pop("type"), **method)
+                    else:
+                        result = await peer.call(method)
                 print(json.dumps({"id": message["id"], "result": result}), flush=True)
             except (
                 RuntimeError,
