@@ -1,5 +1,7 @@
 # Backend Butler for Home Assistant
 
+**Voice requires HTTPS in this beta.** The dashboard microphone, including dictation, does not work when Home Assistant is opened through an ordinary local HTTP address, including inside the Companion app. Home Wi-Fi is supported when the app or browser uses a trusted HTTPS URL; cellular is not a requirement. Text chat remains available over local HTTP. Native microphone support over local HTTP, while retaining Butler’s UI, is planned for a future release and is not included here.
+
 A Home Assistant **custom integration + Lovelace card**. The card runs your LiveKit voice
 agent *inside* the HA dashboard and behaves like a native card: **live device tiles you can
 tap to control**, plus voice, text chat, a transcript, and the agent's tool-call status.

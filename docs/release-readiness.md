@@ -1,5 +1,7 @@
 # Public snapshot handoff
 
+The fresh public repository is now established at `taylorsegell/backend-butler`; the old development repository remains private. The preparation steps below describe the original snapshot process. For current beta scope, including the accepted HTTPS microphone requirement and remaining phone checks, see [Public beta](public-beta.md).
+
 The development repository must remain private. Publish a new repository from the
 reviewed snapshot, without copying `.git`, discussions, Actions logs/artifacts,
 wiki content, private deployment configuration, task archives, or promo captures.
@@ -33,8 +35,7 @@ A clean pattern-based secret scan does not establish that all content is public.
    backups, and verify rollback. Create a beta tag only after those checks pass.
 
 The local snapshot does not create a remote, change visibility, create a release,
-or certify deployment behavior. Semver tags intentionally remain absent until
-validation is complete. The release workflow validates tags and creates drafts.
+or certify deployment behavior. Semver tags are created after the selected release checks pass. The release workflow validates tags and creates drafts.
 
 ## Deliberate limits
 

@@ -1,5 +1,13 @@
 # Phone beta checks
 
+## Current beta evidence
+
+On November 14, 2026, an iPhone 17 Companion app user confirmed that microphone startup worked over HTTPS on cellular. The same phone could not capture through its local HTTP connection. The exact OS/app versions were not recorded. Other rows below remain unverified on that phone; no complete phone acceptance pass is claimed.
+
+For this beta, use a trusted HTTPS Home Assistant URL for voice and dictation, including on home Wi-Fi. Local HTTP microphone support is deferred to a future release. Switching networks can change the Companion app’s selected URL; a switch back to HTTP cannot recover voice in this version. Text remains available.
+
+## Checks for beta testers
+
 Record the phone model, OS version, and whether you used the Home Assistant Companion
 app or a browser. Test the Companion app first if that is how you normally use Butler;
 repeat permission/audio/reconnect checks in your browser if you use that too.
@@ -31,4 +39,4 @@ comes from the expected output and capture stops when voice mode ends.
 Return results as: `phone / OS / app or browser / worker version`, followed by PASS/FAIL
 for the rows above. For failures, include the step and what happened. Do not include
 service tokens, real household transcripts, private device inventories or other users'
-conversations. Physical phone results must be recorded before beta signoff.
+conversations. Record each result individually; do not infer a full pass from successful microphone startup.
