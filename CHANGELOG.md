@@ -1,11 +1,16 @@
 # Changelog
 
+## 1.1.0-beta.3 — HTTPS voice beta
+
+- Ship the microphone-start repair merged after the beta.2 tag: acquire on tap, release on cancellation or removal, and show accurate diagnostics.
+- Document that voice and dictation require HTTPS, including in the Companion app. Text works over local HTTP. Native local-HTTP voice remains future work.
+- Record the confirmed iPhone HTTPS startup and explicitly retain the unverified phone checks.
+
 ## 1.1.0-beta.2 — canonical repository candidate
 
 - Use the canonical `taylorsegell/backend-butler` repository and migrated `apps/` source layout.
 - Preserve legacy data locations and explicit prompt/MCP overrides; add automated fresh/upgrade Compose migration checks.
 - Include the merged fix for reporting denied voice resumes after joining the room.
-- Request microphone capture from the initiating tap, release it on cancellation or card removal, and distinguish capture errors from missing permission.
 - Supersede the unpublished staging beta.1 candidate; keep the optional HA app version independent.
 
 ## 1.1.0-beta.1 — release candidate
@@ -17,4 +22,4 @@
 - Contributor/security documentation and a beta release/rollback checklist.
 - Patched OpenTelemetry 1.45.2 with parser and LiveKit telemetry regression tests.
 
-The Home Assistant integration/card and the separate Agent SDK HA app have independent versions. No public beta tag has been published by this preparation change.
+The Home Assistant integration/card and the separate Agent SDK HA app have independent versions.

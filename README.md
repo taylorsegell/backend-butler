@@ -15,6 +15,8 @@
 
 [![CI](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml/badge.svg)](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml)
 
+**Voice requires HTTPS in this beta.** The dashboard microphone, including dictation, does not work when Home Assistant is opened through an ordinary local HTTP address, including inside the Companion app. Home Wi-Fi is supported when the app or browser uses a trusted HTTPS URL; cellular is not a requirement. Text chat remains available over local HTTP. Native microphone support over local HTTP, while retaining Butler’s UI, is planned for a future release and is not included here.
+
 ## See Butler in action
 
 [![Watch the 22-second voice-first Backend Butler promo](media/backend-butler-promo.jpg)](https://github.com/taylorsegell/backend-butler/releases/download/v1.1.0-beta.2/backend-butler-promo.mp4)
@@ -43,7 +45,7 @@ Butler puts voice and chat inside Home Assistant. Speak naturally, follow the li
 
 Source for the four applications lives under `apps/`. See the [component and storage map](docs/architecture.md) for development paths and upgrade notes.
 
-**Beta candidate:** bring your own Home Assistant and LiveKit credentials. Inference can incur charges. Saved-session APIs are still evolving, so back up your state before upgrading. See the [beta guide](docs/public-beta.md) for the remaining release checks and limitations.
+**Public beta:** bring your own Home Assistant and LiveKit credentials. Inference can incur charges. Saved-session APIs are still evolving, so back up your state before upgrading. See the [beta guide](docs/public-beta.md) for the remaining release checks and limitations.
 
 ## Before you start
 
