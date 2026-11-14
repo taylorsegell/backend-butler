@@ -23,3 +23,12 @@ The user elected to release the current beta with an explicit caveat: dashboard 
 This research was copied into a dedicated managed worktree, branch `codex/native-local-audio`, based on public repository main at `6f0e6cc698db7c6f1ac3e339e20cbf9df28040a2`. The existing dirty development checkout and all data paths were preserved. No native-audio implementation exists in either checkout at the time of isolation.
 
 The next implementation step, when requested, is a narrowly scoped feasibility proof of native microphone audio reaching an isolated Butler session over local HTTP while Butler's existing UI remains visible. Validate the camera-specific bridge contract and installed-app capability before promising compatibility. Do not launch Assist as a substitute for the required UI, and do not change household services or DNS to claim success.
+
+
+## Isolated implementation evidence (2026-11-14)
+
+The authorized proof now lives in `experiments/native-audio/` on the isolated branch. The opt-in card transport uses the native bus while retaining Butler's Root and styles. The external bus's `webrtc/stream/stopped` notification becomes the frontend DOM event `webrtc-stream-stopped`; the card handles this DOM event.
+
+Automated checks demonstrated the existing card on insecure HTTP, with browser capture unavailable, sending native bridge commands to an emulated peer. Real authenticated HA camera signaling, WebRTC decoding and delivery into a LiveKit AudioSource passed, including Send/Cancel cleanup. A disposable HA login and Lovelace rendering passed at mobile width without page errors. Native capability remains checked at runtime; an unavailable native bridge now produces a lab-specific message rather than directing users to configure HTTPS.
+
+This is a transport feasibility proof with a synthetic session adapter: there is no production worker/room connection, STT, model or home control. The experimental camera receiver uses one disposable admin account and is not production multi-user authorization. Physical iPhone capture and lifecycle checks remain pending. See `experiments/native-audio/README.md` for the exact boundary, evidence and phone checklist. No beta bundle or household configuration was modified.

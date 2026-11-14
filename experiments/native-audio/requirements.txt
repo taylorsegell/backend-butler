@@ -1,0 +1,7 @@
+# Disposable Linux lab only; do not install into a household HA environment.
+homeassistant==2026.11.1
+home-assistant-frontend==20261028.5
+aiortc==1.14.0
+livekit==1.1.18
+pytest==8.4.2
+pytest-asyncio==1.2.0
