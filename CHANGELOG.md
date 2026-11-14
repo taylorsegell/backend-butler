@@ -5,6 +5,7 @@
 - Use the canonical `taylorsegell/backend-butler` repository and migrated `apps/` source layout.
 - Preserve legacy data locations and explicit prompt/MCP overrides; add automated fresh/upgrade Compose migration checks.
 - Include the merged fix for reporting denied voice resumes after joining the room.
+- Request microphone capture from the initiating tap, release it on cancellation or card removal, and distinguish capture errors from missing permission.
 - Supersede the unpublished staging beta.1 candidate; keep the optional HA app version independent.
 
 ## 1.1.0-beta.1 — release candidate
