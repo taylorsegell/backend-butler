@@ -28,9 +28,11 @@ jobs:
         working-directory: apps/dashboard-card
       - run: pnpm test
         working-directory: apps/dashboard-card
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium webkit
         working-directory: apps/dashboard-card
       - run: pnpm test:browser
+        working-directory: apps/dashboard-card
+      - run: ENGINE=webkit pnpm test:microphone
         working-directory: apps/dashboard-card
       - run: pnpm build
         working-directory: apps/dashboard-card
