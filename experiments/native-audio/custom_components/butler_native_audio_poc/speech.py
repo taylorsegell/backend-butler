@@ -7,7 +7,11 @@ import aiohttp
 
 
 class SpeechRelay:
-    def __init__(self, token):
+    def __init__(self, token, port=18952):
+        if not isinstance(port, int) or not 18952 <= port <= 65535:
+            raise ValueError("Use an isolated loopback speech port")
+        self.port = port
+        self.closed = False
         self.token = token
         self.lock = asyncio.Lock()
         self.client = None
@@ -22,6 +26,8 @@ class SpeechRelay:
 
     async def connect(self):
         async with self.lock:
+            if self.closed:
+                raise ConnectionError("Audio session is closed")
             if self.socket and not self.socket.closed:
                 return
             if self.client:
@@ -29,7 +35,7 @@ class SpeechRelay:
             self.client = aiohttp.ClientSession()
             try:
                 self.socket = await self.client.ws_connect(
-                    "http://127.0.0.1:18952/session",
+                    f"http://127.0.0.1:{self.port}/session",
                     headers={"Authorization": "Bearer " + self.token},
                     max_msg_size=200000,
                     heartbeat=20,
@@ -99,6 +105,7 @@ class SpeechRelay:
         await self.socket.send_bytes(bytes(frame.data))
 
     async def close(self):
+        self.closed = True
         if self.socket:
             await self.socket.close()
         if self.reader:

@@ -1,8 +1,9 @@
-"""Run only in a separate disposable HA instance; never install in a household."""
+"""Per-user native audio bridge, restricted to a disposable HA configuration."""
 
 import json
 from pathlib import Path
 
+import aiohttp
 import probatio
 from homeassistant.components import websocket_api
 from homeassistant.components.camera.const import DATA_COMPONENT
@@ -13,12 +14,26 @@ from homeassistant.exceptions import Unauthorized
 
 from .camera import NativeAudioCamera
 from .receiver import Receiver
+from .sessions import SessionRegistry
+from .signaling import install, owner
 from .speech import SpeechRelay
 
 DOMAIN = "butler_native_audio_poc"
 CONFIG_SCHEMA = probatio.Schema(
     {DOMAIN: {probatio.Required("enabled"): bool}}, extra=probatio.ALLOW_EXTRA
 )
+SESSION = {probatio.Required("session_id"): probatio.Match(r"^[0-9a-f]{32}$")}
+CONTROLS = {
+    "connect",
+    "disconnect",
+    "start_turn",
+    "end_turn",
+    "cancel_turn",
+    "get_conversation",
+    "text",
+    "set_audio_output",
+    "set_turn_mode",
+}
 
 
 async def async_setup(hass, config):
@@ -26,125 +41,156 @@ async def async_setup(hass, config):
         not config[DOMAIN]["enabled"]
         or not Path(hass.config.path("BUTLER_NATIVE_AUDIO_POC")).is_file()
     ):
-        raise ValueError(
-            "This experiment requires its separate disposable HA configuration"
-        )
-    speech_config = Path(hass.config.path("model-config.json"))
-    speech = (
-        SpeechRelay(
-            json.loads(await hass.async_add_executor_job(speech_config.read_text))[
-                "LAB_SERVICE_TOKEN"
-            ]
-        )
-        if speech_config.exists()
+        raise ValueError("Use only a separate disposable HA configuration")
+    config_file = Path(hass.config.path("model-config.json"))
+    token = None
+    port = 18952
+    if (
+        config_file.exists()
         and Path(hass.config.path("BUTLER_NATIVE_SPEECH")).is_file()
-        else None
+    ):
+        model_config = json.loads(
+            await hass.async_add_executor_job(config_file.read_text)
+        )
+        token = model_config["LAB_SERVICE_TOKEN"]
+        port = model_config.get("LAB_SPEECH_PORT", 18952)
+
+    async def add(session):
+        session.camera = NativeAudioCamera(session)
+        await hass.data[DATA_COMPONENT].async_add_entities([session.camera])
+
+    async def remove(session):
+        await session.camera.async_remove()
+
+    registry = SessionRegistry(
+        Receiver, lambda: SpeechRelay(token, port) if token else None, add, remove
     )
-    receiver = Receiver(speech)
-    hass.data[DOMAIN] = receiver
-    await hass.data[DATA_COMPONENT].async_add_entities([NativeAudioCamera(receiver)])
-    frontend = Path(__file__).parent / "frontend"
+    # Install the authenticated signaling guard before exposing any audio endpoints.
+    install(hass, registry)
+    hass.data[DOMAIN] = registry
     await hass.http.async_register_static_paths(
-        [StaticPathConfig("/butler-native-audio-poc", str(frontend), False)]
+        [
+            StaticPathConfig(
+                "/butler-native-audio-poc",
+                str(Path(__file__).parent / "frontend"),
+                False,
+            )
+        ]
     )
     add_extra_js_url(hass, "/butler-native-audio-poc/card.js")
 
     async def shutdown(_event):
-        await receiver.close()
-        if speech:
-            await speech.close()
+        await registry.shutdown()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, shutdown)
-    for command in [prepare, status, stop, control, events]:
+    for command in [open_session, prepare, status, stop, control, events]:
         websocket_api.async_register_command(hass, command)
     return True
 
 
-def _owned(hass, connection):
-    receiver = hass.data[DOMAIN]
-    if receiver.owner and receiver.owner != connection.user.id:
-        raise Unauthorized()
-    return receiver
+def owned(hass, connection, message):
+    try:
+        return hass.data[DOMAIN].owned(owner(connection), message["session_id"])
+    except PermissionError as error:
+        raise Unauthorized() from error
 
 
-@websocket_api.websocket_command({probatio.Required("type"): DOMAIN + "/prepare"})
-@websocket_api.require_admin
+@websocket_api.websocket_command({probatio.Required("type"): DOMAIN + "/open"})
+@websocket_api.async_response
+async def open_session(hass, connection, msg):
+    registry = hass.data[DOMAIN]
+    user_id = owner(connection)
+    try:
+        session = await registry.open(user_id)
+    except ValueError:
+        connection.send_error(
+            msg["id"],
+            "session_limit",
+            "Close an existing audio session before opening another",
+        )
+        return
+
+    def disconnected():
+        hass.async_create_task(registry.expire(session.id))
+
+    connection.subscriptions[msg["id"]] = disconnected
+    connection.send_result(msg["id"], {"session_id": session.id, "experiment": True})
+
+
+@websocket_api.websocket_command(
+    {probatio.Required("type"): DOMAIN + "/prepare", **SESSION}
+)
 @websocket_api.async_response
 async def prepare(hass, connection, msg):
-    receiver = _owned(hass, connection)
-    if receiver.speech:
-        await receiver.speech.connect()
-    await receiver.arm(connection.user.id)
+    session = owned(hass, connection, msg)
+    async with session.operation_lock:
+        if session.closed:
+            raise Unauthorized()
+        if session.speech:
+            await session.speech.connect()
+        if session.closed:
+            raise Unauthorized()
+        await session.receiver.arm(session.owner)
     connection.send_result(
-        msg["id"], {"entity_id": "camera.butler_native_audio_poc", "experiment": True}
+        msg["id"],
+        {"entity_id": session.entity_id, "session_id": session.id, "experiment": True},
     )
 
 
-@websocket_api.websocket_command({probatio.Required("type"): DOMAIN + "/status"})
-@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {probatio.Required("type"): DOMAIN + "/status", **SESSION}
+)
 @websocket_api.async_response
 async def status(hass, connection, msg):
-    connection.send_result(msg["id"], dict(_owned(hass, connection).stats))
+    connection.send_result(msg["id"], dict(owned(hass, connection, msg).receiver.stats))
 
 
-@websocket_api.websocket_command({probatio.Required("type"): DOMAIN + "/stop"})
-@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {probatio.Required("type"): DOMAIN + "/stop", **SESSION}
+)
 @websocket_api.async_response
 async def stop(hass, connection, msg):
-    receiver = _owned(hass, connection)
-    await receiver.close()
-    connection.send_result(msg["id"], dict(receiver.stats))
+    session = owned(hass, connection, msg)
+    await session.receiver.close()
+    connection.send_result(msg["id"], dict(session.receiver.stats))
 
 
 @websocket_api.websocket_command(
     {
         probatio.Required("type"): DOMAIN + "/control",
+        **SESSION,
         probatio.Required("command"): str,
         probatio.Optional("payload", default=""): str,
     }
 )
-@websocket_api.require_admin
 @websocket_api.async_response
 async def control(hass, connection, msg):
-    receiver = _owned(hass, connection)
-    if not receiver.speech:
-        connection.send_error(
-            msg["id"], "unavailable", "The lab speech service is not configured"
-        )
-        return
+    session = owned(hass, connection, msg)
     command = msg["command"]
-    if (
-        command
-        not in {
-            "connect",
-            "disconnect",
-            "start_turn",
-            "end_turn",
-            "cancel_turn",
-            "get_conversation",
-            "text",
-            "set_audio_output",
-            "set_turn_mode",
-        }
-        or len(msg["payload"]) > 2000
-    ):
+    if command not in CONTROLS or len(msg["payload"]) > 2000:
         connection.send_error(
             msg["id"], "invalid_command", "Invalid lab speech command"
         )
         return
-    receiver.owner = connection.user.id
+    if command == "disconnect":
+        await hass.data[DOMAIN].close(session.owner, session.id)
+        connection.send_result(msg["id"], {})
+        return
+    if not session.speech:
+        connection.send_error(
+            msg["id"], "unavailable", "The lab speech service is not configured"
+        )
+        return
     try:
         if command == "connect":
-            await receiver.speech.connect()
-            result = {"items": receiver.speech.items}
-        elif command == "disconnect":
-            await receiver.close()
-            await receiver.speech.close()
-            result = {}
+            await session.speech.connect()
+            result = {"items": session.speech.items}
         else:
-            result = await receiver.speech.control(command, msg["payload"])
-        connection.send_result(msg["id"], result)
-    except (ValueError, ConnectionError, TimeoutError):
+            result = await session.speech.control(command, msg["payload"])
+        if session.closed:
+            raise Unauthorized()
+        connection.send_result(msg["id"], {**result, "session_id": session.id})
+    except (ValueError, ConnectionError, TimeoutError, aiohttp.ClientError):
         connection.send_error(
             msg["id"],
             "speech_failed",
@@ -152,20 +198,24 @@ async def control(hass, connection, msg):
         )
 
 
-@websocket_api.websocket_command({probatio.Required("type"): DOMAIN + "/events"})
-@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {probatio.Required("type"): DOMAIN + "/events", **SESSION}
+)
 @websocket_api.async_response
 async def events(hass, connection, msg):
-    receiver = _owned(hass, connection)
-    if not receiver.speech:
+    session = owned(hass, connection, msg)
+    if not session.speech:
         connection.send_error(
             msg["id"], "unavailable", "The lab speech service is not configured"
         )
         return
-    receiver.owner = connection.user.id
-    listener = lambda event: connection.send_event(msg["id"], event)
-    receiver.speech.listeners.add(listener)
-    connection.subscriptions[msg["id"]] = lambda: receiver.speech.listeners.discard(
+
+    def listener(event):
+        if not session.closed:
+            connection.send_event(msg["id"], event)
+
+    session.speech.listeners.add(listener)
+    connection.subscriptions[msg["id"]] = lambda: session.speech.listeners.discard(
         listener
     )
     connection.send_result(msg["id"])
