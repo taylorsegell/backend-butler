@@ -156,7 +156,7 @@ class NativePeer:
             self.event_subscription = number
         if (
             kind.startswith("butler_native_audio_poc/")
-            and kind != "butler_native_audio_poc/open"
+            and kind not in {"butler_native_audio_poc/open", "butler_native_audio_poc/history"}
             and "session_id" not in payload
             and self.bridge_id
         ):

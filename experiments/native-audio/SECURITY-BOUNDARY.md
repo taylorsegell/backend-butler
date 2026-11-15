@@ -21,3 +21,12 @@ Required evidence:
 - Real HTTP card capture/Send/Cancel and independent model sessions remain functional.
 
 Use a new disposable HA directory/port and separate loopback speech port for live verification; do not replace the already verified phone lab. All account credentials and runtime state remain under /tmp and outside Git. No household/model calls are needed for most isolation tests; a bounded real-model smoke test may use only existing model configuration with no house tools.
+
+
+## Actual worker/history boundary
+
+In real-worker mode each bridge passes its immutable HA owner and selected conversation in a service-authenticated handshake. Per-message identity fields are rejected. The opt-in route uses `HomeAssistantAgent` and the existing `RemoteSession` authority, not a shadow history store. Knowing another conversation ID never grants its lease or history. Ordinary users can list/read/select/delete only their own histories; an additional connection cannot lease an already active conversation. SDK snapshots and usage go through the same authority as RTC sessions. Final close waits for save/release; persistence/heartbeat loss closes the agent. History response size, input sizes, queues, session count and lifetimes are bounded.
+
+The worker service token is trusted to select an owner, so host administrators and compromise of the HA integration/service secret remain outside this browser-user boundary. This experiment does not change household identity mapping or install a production HA integration. Its URL validator accepts only an explicitly configured isolated loopback worker, and the browser cannot select a target URL. Only a synthetic read-only HA fixture is configured in this worker, with a separate fresh history path.
+
+Required additional evidence: actual worker history and model context survive close/reopen and a restart; own conversation resume is visible in the existing drawer; known foreign IDs fail history list/read/switch/delete and native lease acquisition; original signaling/audio cross-user attacks still fail with actual worker mode enabled.

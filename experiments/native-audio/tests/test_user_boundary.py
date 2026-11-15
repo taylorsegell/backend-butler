@@ -177,7 +177,11 @@ async def test_two_ordinary_users_cannot_access_or_inject_foreign_sessions():
         await denied(alice, "camera/webrtc/get_client_config", entity_id=stale_entity)
         await alice.call(DOMAIN + "control", command="connect")
         fresh = await alice.call(DOMAIN + "control", command="get_conversation")
-        assert fresh["items"] == []
+        if fresh.get("conversation_id"):
+            assert "alice maple" in json.dumps(fresh["items"]).lower()
+            assert "bob cobalt" not in json.dumps(fresh["items"]).lower()
+        else:
+            assert fresh["items"] == []
         assert (await bob.call(DOMAIN + "status"))["active"]
         bob_history = await bob.call(DOMAIN + "control", command="get_conversation")
         assert "Alice maple".lower() not in json.dumps(bob_history).lower()

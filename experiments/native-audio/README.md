@@ -2,12 +2,14 @@
 
 Keep Butler's existing UI and use native iPhone Companion microphone capture over ordinary LAN HTTP. The user confirmed both a visible transcript and an audible assistant reply on 2026-11-14. This remains an isolated experiment: no beta deployment, household tools, household credentials, household data, DNS changes, certificates, or native Assist screen.
 
-There are two explicitly selected modes:
+There are three explicitly selected modes:
 
 - **Transport mode** (default): actual WebRTC audio is measured and fed into a LiveKit AudioSource; Send shows a receipt. There is no recognizer or reply engine.
 - **Speech mode** (`run.py --speech`): the same receiver streams PCM to a separate loopback process running a real LiveKit AgentSession with Butler's configured STT/LLM/TTS services. The existing UI displays real transcripts and answers, and plays real reply PCM through WebAudio. No LiveKit room or production worker is joined. This uses a lab session adapter and a tool-free Butler prompt, rather than the household agent's tool registrations.
 
-Phone-to-lab transport uses local HTTP. Speech/model services use their configured remote APIs over TLS. This does not make cloud speech recognition work offline. User audio and conversation history are kept in memory only; the lab does not record user audio or persist conversations. The synthetic test utterance is generated separately under `/tmp`.
+- **Real worker/history mode** (`--speech` plus server-side `LAB_WORKER_URL`): the same UI and HA-authenticated bridge connect to the actual worker's opt-in `/chat/native` endpoint, actual `HomeAssistantAgent`, configured speech services and existing `RemoteSession`/`VoiceAuthority` persistence. The lab runs a separate real worker with a fresh history directory and a read-only synthetic HA tool endpoint. This does not connect to the household worker or its database.
+
+Phone-to-lab transport uses local HTTP. Speech/model services use their configured remote APIs over TLS. This does not make cloud speech recognition work offline. Transport and prototype speech modes keep conversations in memory. Real worker mode persists conversation snapshots and ownership using the existing worker store, under a new disposable path; no user audio is recorded by this transport. The synthetic test utterance is generated separately under `/tmp`.
 
 ## Phone use
 
@@ -64,7 +66,7 @@ Stop the existing lab, then start it in speech mode:
 
 This retains the disposable account and existing server entry. Fully close/reopen Companion to load a freshly built card. Nothing is installed as a system service or enabled at boot. The current prepared speech process runs independently of the test terminal; its PID and logs are in the same disposable directory.
 
-Recognition is disabled between turns. Capture has a 90-second lease; model sessions have a 20-minute maximum lifetime. Input and output queues are bounded. History is temporary and a new connection starts a new session. Speech mode also wires the SDK's STT endpoint mode for continuous turns, but the verified phone path is explicit tap-to-talk and Send.
+Recognition is disabled between turns. Capture has a 90-second lease; model sessions have a 20-minute maximum lifetime. Input and output queues are bounded. In prototype speech mode history is temporary and a new connection starts a new session. In real worker mode the selected owner-checked conversation survives disconnect and worker restart; bridge IDs are still replaced on reconnect. Speech mode also wires the SDK's STT endpoint mode for continuous turns, but the verified phone path is explicit tap-to-talk and Send.
 
 ## Verification
 
@@ -103,7 +105,7 @@ Evidence on 2026-11-14:
 
 The upstream native bridge uses camera-specific HA signaling. Each lab session now owns a separate audio-only `camera.butler_native_audio_<session_id>` endpoint. Every command and subscription checks the actual authenticated active, non-system HA user; ordinary users are supported and administrators receive no cross-user bypass. The disposable adapter guards the installed camera signaling handlers, preserves unrelated-camera behavior, and propagates a request principal to receiver callbacks, which reject unguarded calls. This is a version-pinned candidate integration and must not be installed in household HA or shipped as a general upstream interface. There are no STUN servers or camera images/video in the lab. A missing optional `libturbojpeg` may produce an unrelated snapshot-library warning.
 
-Speech mode retains the actual Butler Root/components/styles, while replacing the React session transport with an experiment adapter over authenticated HA messages. It does not alter the beta bundle, production integration or worker. Household actions, notifications, scheduler, memory services, external tools and persistent history are disconnected by construction.
+Speech mode retains the actual Butler Root/components/styles, while replacing the React session transport with an experiment adapter over authenticated HA messages. It does not alter the beta bundle, production integration or worker. Household actions, notifications, scheduler, memory services and external tools are disconnected by construction. Real worker mode connects persistent history only in its fresh disposable directory.
 
 Production still needs an approved native audio interface, user/session authorization at the signaling boundary, lifecycle hardening and compatibility testing. Do not ship these lab adapters as a general iOS/Android/browser feature.
 
@@ -166,3 +168,39 @@ BUTLER_NATIVE_LAB_STATE=/tmp/butler-native-users-lab BUTLER_NATIVE_LAB_PORT=1812
 ```
 
 The experiment also typechecks with the card toolchain. Make its existing dependencies resolvable with an ignored `experiments/native-audio/node_modules` symlink to `../../apps/dashboard-card/node_modules`; include the experiment's TS/TSX and card src in a temporary configuration extending the card tsconfig. No dependency files or installed packages need changing.
+
+
+## Real worker and history integration
+
+The new worker route is disabled unless `NATIVE_AUDIO_ENABLED=1` and `TEXT_API_TOKEN` is configured. HA sends that service token and the immutable authenticated user ID in the WebSocket handshake; it never accepts a client user override. The optional selected conversation is checked by the existing authority. The service token is trusted to act for users, like the existing worker chat integration, and stays on the server. The prototype `/session` service remains available separately.
+
+`HistoryProxy` forwards only allowlisted conversation operations and always assigns the actual HA user. The existing drawer lists, previews, creates, resumes and deletes through the normal worker history API. Native sessions acquire the same SQLite-backed history leases as the existing RTC worker. Text-session warmup is intentionally skipped by the native card adapter to avoid racing that voice lease. Bridge close waits for the final SDK save and lease release before acknowledging, including overlapping cleanup calls. Late settings cannot reopen a closed session. Save/heartbeat failure stops the agent and disables input. Usage totals follow the worker's existing persistence scheme.
+
+Use the previously prepared candidate accounts/model-only configuration, then start the separate worker fixture:
+
+```sh
+<worker-python> experiments/native-audio/start_worker_lab.py
+/tmp/butler-native-audio-venv/bin/python experiments/native-audio/run.py --state /tmp/butler-native-users-lab --port 18124 --speech
+```
+
+Stop the candidate first if it is already running, so its runtime integration is recopied. Do not stop the original phone lab. The helper starts only its marked `/tmp/butler-native-worker-lab` fixture and worker, with loopback ports 18955 and 18954, a unique worker registration name, no idle job processes, model-only credentials, synthetic HA credentials and a fresh `history/` directory. It writes `LAB_WORKER_URL` into the candidate's mode-0600 model configuration. No production store is copied or migrated. The helper currently uses the existing worker interpreter read-only; adjust that explicit path on another machine rather than installing into a running worker environment.
+
+Run the actual owner/persistence tests with no other candidate sessions using those accounts:
+
+```sh
+/tmp/butler-native-audio-venv/bin/python -m pytest -q -s experiments/native-audio/tests/test_worker_history.py
+/tmp/butler-native-audio-venv/bin/python -m pytest -q -s experiments/native-audio/tests/test_user_boundary.py
+BUTLER_NATIVE_HISTORY=1 BUTLER_NATIVE_LAB_STATE=/tmp/butler-native-users-lab BUTLER_NATIVE_LAB_PORT=18124 BUTLER_NATIVE_AUTH_FILE=alice-auth.json node experiments/native-audio/speech-browser.cjs
+```
+
+The restart test verifies the marked worker's exact command line before restarting only that process. It demonstrates each ordinary user's own persisted context survives a worker restart and produces a real model answer using that context; known foreign conversation IDs fail list/read/select/delete/lease checks. The browser test exercises the existing history drawer along with actual WebRTC/STT/model/TTS on insecure HTTP. Native hardware is emulated in these automated tests. The earlier physical iPhone confirmation does not establish acceptance of this newer worker/history candidate. The beta, household services, original phone lab and original uncommitted changes remain outside this test deployment.
+
+
+Verified on 2026-11-15 in real worker mode:
+
+- 47 worker regression tests and 19 HA receiver/launcher/ownership/signaling/history-proxy tests passed.
+- Three live tests passed: two-owner persisted history, controlled worker restart with model-context recall for both owners, and 34 known-ID cross-user/admin audio/signaling attacks denied.
+- The existing drawer created a separate stored conversation, previewed the exact spoken conversation and resumed it. Real WebRTC/STT/model/TTS, scheduled reply playback and Cancel passed on insecure HTTP without browser microphone APIs or an Assist launch.
+- Card/experiment TypeScript checks, session-client, worker API mapping and playback lifecycle checks passed.
+
+Synthetic worker history remains under `/tmp/butler-native-worker-lab/history`; none of these results use or migrate household conversations. A physical iPhone test of this final candidate is still needed before promotion. Background interruptions and Bluetooth routing remain separate unverified acceptance checks.

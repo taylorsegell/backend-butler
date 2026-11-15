@@ -87,10 +87,37 @@ const { chromium } = requireCard('playwright');
     await wait(async () => !(await call('butler_native_audio_poc/status')).active);
     await new Promise(resolve => setTimeout(resolve, 1000));
     assert.equal(events.filter(e => e.type === 'conversation').at(-1).items.length, before, 'Cancel discards recognition without generating a reply');
+    if (process.env.BUTLER_NATIVE_HISTORY === '1') {
+      const listing = (await call({type:'butler_native_audio_poc/history',operation:'conversations',data:{}})).body;
+      assert.ok(listing.conversations.length);
+      await page.getByRole('button',{name:'Conversation history',exact:true}).click();
+      const drawer = page.getByRole('dialog',{name:'Conversations',exact:true});
+      await drawer.getByRole('button',{name:'New conversation',exact:true}).click();
+      await drawer.waitFor({state:'hidden',timeout:20000});
+      const next = (await call({type:'butler_native_audio_poc/history',operation:'conversations',data:{}})).body;
+      assert.notEqual(next.current,listing.current,'New conversation creates a real separate stored context');
+      await page.getByRole('button',{name:'Conversation history',exact:true}).click();
+      await wait(async () => JSON.stringify(await drawer.locator('.lk-taskrow-desc').allTextContents()) === JSON.stringify(next.conversations.map(row => row.title || 'New conversation')));
+      const target = next.conversations.findIndex(row => row.id === listing.current);
+      assert.ok(target >= 0);
+      await drawer.locator('.lk-taskrow .lk-taskrow-main').nth(target).click();
+      await drawer.getByRole('button',{name:'Continue this conversation',exact:true}).waitFor();
+      assert.doesNotMatch(await drawer.innerText(),/cobalt valley/i);
+      const spokenText=final.filter(item=>item.kind==='message' && item.role==='user').at(-1).text;
+      await drawer.getByText(spokenText,{exact:true}).last().waitFor();
+      await page.screenshot({path:'/tmp/butler-native-worker-history.png'});
+      await drawer.getByRole('button',{name:'Continue this conversation',exact:true}).click();
+      await drawer.waitFor({state:'hidden',timeout:20000});
+      assert.equal((await call({type:'butler_native_audio_poc/history',operation:'conversations',data:{}})).body.current,listing.current);
+      console.log('PASS: existing history drawer lists, previews, resumes and starts a new real worker conversation');
+    }
     await page.locator('backend-butler-native-poc').evaluate(element => element.remove());
     assert.deepEqual(errors, []);
     console.log('PASS: insecure HTTP + existing Butler UI + real HA WebRTC/STT/model/TTS, reply playback scheduled, Cancel, no browser mic or Assist');
     console.log('Synthetic transcript and reply:', JSON.stringify(final.map(item => ({ role: item.role, text: item.text }))));
+  } catch (error) {
+    console.error('UI alerts:', await page?.getByRole('alert').allTextContents());
+    throw error;
   } finally {
     closing = true;
     await delivery.catch(() => {}); await browser.close(); await new Promise(resolve => server.close(resolve)); child.stdin.end();
