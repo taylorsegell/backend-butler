@@ -105,7 +105,8 @@ def models(config):
         "llm": llm,
         "tts": inference.TTS(
             config.get("TTS_MODEL", "fishaudio/s2.1-pro"),
-            voice=config.get("TTS_VOICE", "5c353fdb312f4888836a9a5680099ef0"),
+            voice=config.get("TTS_VOICE", "b347db033a6549378b48d00acb0d06cd"),
+            language=config.get("TTS_LANGUAGE", "en"),
             **gateway,
         ),
     }

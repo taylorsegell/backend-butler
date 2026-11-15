@@ -133,3 +133,18 @@ async def test_two_backend_connections_have_independent_transcripts_and_reply_st
             {"text": "bob-private"}
         ]
         await bob.close()
+
+
+def test_prototype_model_factory_passes_explicit_voice_and_language(monkeypatch):
+    from unittest.mock import Mock
+
+    import model_session
+
+    for name in ["STT", "LLM", "TTS"]:
+        monkeypatch.setattr(model_session.inference, name, Mock())
+    model_session.models(
+        {"TTS_MODEL": "fishaudio/s2.1-pro", "TTS_VOICE": "chosen", "TTS_LANGUAGE": "en"}
+    )
+    options = model_session.inference.TTS.call_args.kwargs
+    assert options["voice"] == "chosen"
+    assert options["language"] == "en"

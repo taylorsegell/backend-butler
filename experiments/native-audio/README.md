@@ -221,3 +221,15 @@ The user then reported that all five requested checks passed on their iPhone 17 
 5. After fully quitting/reopening Companion, the saved conversation and its context were still available.
 
 This is user-reported physical acceptance of the worker/history candidate, distinct from the automated peer emulation and automated worker-restart proof. Exact Companion/iOS build numbers were not supplied. Lock-screen/background interruption, Bluetooth routing, continuous mode and other device/platform combinations remain unverified. This result does not promote or publish the experimental camera-based bridge.
+
+
+## Voice-quality correction (2026-11-15)
+
+After core phone acceptance, the user reported an unexpected accented voice and a noisy-room sound. Inspection found both model-only lab configurations had no TTS overrides; the running worker therefore used `fishaudio/s2.1-pro` with the repository's old reference `5c353fdb312f4888836a9a5680099ef0` and an empty language. That reference is publicly listed as [女大学生](https://fish.audio/m/5c353fdb312f4888836a9a5680099ef0/); no evidence tied it to the user's intended Butler voice. Functional speech delivery did not establish voice quality.
+
+The worktree's worker and prototype defaults now select Fish Audio **Selene**, `b347db033a6549378b48d00acb0d06cd`, and `en`, matching [LiveKit's English Fish Audio example](https://docs.livekit.io/agents/models/tts/fishaudio/). Explicit model/voice/language overrides remain authoritative; the prototype now forwards TTS_LANGUAGE instead of ignoring it. Selecting the voice is the accent correction; [Fish Audio's language parameter](https://docs.fish.audio/features/text-to-speech#language) affects text normalization and is not an accent/noise filter.
+
+Two short synthetic provider samples were generated outside the conversation flow. Both were mono 24 kHz with no clipped samples; PCM passed through the real worker's ReplyOutput matched the provider bytes exactly. This excludes corruption in that tested relay step, but does not establish that iPhone/WebAudio playback is artifact-free or confirm the cause of the reported noisy-room sound. Sample files and non-secret measurements remain in `/tmp/butler-voice-quality`; no user recording was captured. The voice replacement needs a brief subjective phone check; core transport/history acceptance remains recorded separately.
+
+
+The disposable phone/candidate model files now explicitly pin Selene/en, and only the marked real-worker lab was restarted. The lab HA/UI/login and history directory stayed in place. A direct actual-worker synthetic reply produced mono PCM and acknowledged durable close/release with the new settings. The updated worker/prototype regressions passed (55 tests total), including the previously failing defaults and language-forwarding checks. The beta and household worker were not reconfigured or restarted. Replacement voice quality on the physical phone remains pending user confirmation.
