@@ -227,7 +227,7 @@ class SpeechSession:
         await self.session.aclose()
 
 
-def create_app(config, factory=SpeechSession, provider_factory=models):
+def create_app(config, factory=SpeechSession, provider_factory=models, max_sessions=8):
     app = web.Application(client_max_size=20000)
     active = set()
 
@@ -237,9 +237,10 @@ def create_app(config, factory=SpeechSession, provider_factory=models):
             request.headers.get("Authorization", ""), expected
         ):
             raise web.HTTPUnauthorized()
-        if active:
+        if len(active) >= max_sessions:
             raise web.HTTPConflict(text="Only one isolated lab session is allowed")
-        active.add("session")
+        slot = object()
+        active.add(slot)
         socket = web.WebSocketResponse(max_msg_size=20000, heartbeat=20)
         speech = None
         pump = None
@@ -299,7 +300,7 @@ def create_app(config, factory=SpeechSession, provider_factory=models):
                 await asyncio.gather(pump, return_exceptions=True)
             for provider in providers.values():
                 await provider.aclose()
-            active.clear()
+            active.discard(slot)
         return socket
 
     app.router.add_get("/session", session)
@@ -311,6 +312,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--port", type=int, default=18952)
     args = parser.parse_args()
     config_path = args.config.resolve()
     if (
@@ -318,6 +320,8 @@ if __name__ == "__main__":
         or not (config_path.parent / "BUTLER_NATIVE_AUDIO_POC").is_file()
     ):
         parser.error("Use only a marked disposable lab directory")
+    if not 18952 <= args.port <= 65535:
+        parser.error("Use an isolated loopback speech port")
     config = json.loads(config_path.read_text())
     logging.basicConfig(level=logging.WARNING)
-    web.run_app(create_app(config), host="127.0.0.1", port=18952, access_log=None)
+    web.run_app(create_app(config), host="127.0.0.1", port=args.port, access_log=None)

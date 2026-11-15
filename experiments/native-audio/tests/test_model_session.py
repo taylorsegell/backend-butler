@@ -17,17 +17,19 @@ class FakeSpeech:
 
     def __init__(self, emit, _providers):
         self.emit = emit
+        self.items = []
 
     async def start(self):
         pass
 
     def push(self, _data):
-        pass
+        self.emit({"type": "audio", "marker": self.items[-1]["text"]})
 
     async def control(self, kind, payload):
         if kind == "text":
-            self.emit({"type": "conversation", "items": [{"text": payload}]})
-        return {"items": []}
+            self.items.append({"text": payload})
+            self.emit({"type": "conversation", "items": list(self.items)})
+        return {"items": list(self.items)}
 
     async def close(self):
         self.closed = True
@@ -37,7 +39,12 @@ class FakeSpeech:
 async def test_only_authenticated_single_lab_client_can_open_session():
     async with TestClient(
         TestServer(
-            create_app({"LAB_SERVICE_TOKEN": "synthetic"}, FakeSpeech, lambda _: {})
+            create_app(
+                {"LAB_SERVICE_TOKEN": "synthetic"},
+                FakeSpeech,
+                lambda _: {},
+                max_sessions=1,
+            )
         )
     ) as client:
         with pytest.raises(aiohttp.WSServerHandshakeError) as error:
@@ -92,3 +99,37 @@ async def test_reply_output_reports_audio_and_playback_completion():
     await output.capture_frame(rtc.AudioFrame(bytes(960), 24000, 1, 480))
     output.clear_buffer()
     assert completed[-1].interrupted is True
+
+
+@pytest.mark.asyncio
+async def test_two_backend_connections_have_independent_transcripts_and_reply_streams():
+    app = create_app(
+        {"LAB_SERVICE_TOKEN": "synthetic"}, FakeSpeech, lambda _: {}, max_sessions=2
+    )
+    async with TestClient(TestServer(app)) as client:
+        headers = {"Authorization": "Bearer synthetic"}
+        alice = await client.ws_connect("/session", headers=headers)
+        bob = await client.ws_connect("/session", headers=headers)
+        assert (await alice.receive_json())["type"] == "ready"
+        assert (await bob.receive_json())["type"] == "ready"
+        for socket, marker in [(alice, "alice-private"), (bob, "bob-private")]:
+            await socket.send_json(
+                {
+                    "id": 1,
+                    "type": "text",
+                    "payload": marker,
+                    "session_id": "foreign-id-is-not-a-router",
+                }
+            )
+            assert (await socket.receive_json())["items"] == [{"text": marker}]
+            assert (await socket.receive_json())["result"]["items"] == [
+                {"text": marker}
+            ]
+            await socket.send_bytes(bytes(1920))
+            assert (await socket.receive_json()) == {"type": "audio", "marker": marker}
+        await alice.close()
+        await bob.send_json({"id": 2, "type": "get_conversation"})
+        assert (await bob.receive_json())["result"]["items"] == [
+            {"text": "bob-private"}
+        ]
+        await bob.close()
