@@ -31,7 +31,10 @@ if __name__ == "__main__":
         "--state", type=Path, default=Path("/tmp/butler-native-audio-lab")
     )
     parser.add_argument("--env-file", type=Path)
+    parser.add_argument("--speech-port", type=int, default=18952)
     args = parser.parse_args()
+    if not 18952 <= args.speech_port <= 65535:
+        parser.error("Use an isolated loopback speech port")
     state = args.state.resolve()
     if (
         not state.is_relative_to("/tmp")
@@ -47,6 +50,7 @@ if __name__ == "__main__":
     ):
         parser.error("Configured LiveKit inference credentials are required")
     config["LAB_SERVICE_TOKEN"] = secrets.token_urlsafe(32)
+    config["LAB_SPEECH_PORT"] = args.speech_port
     target = state / "model-config.json"
     descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(descriptor, "w") as output:

@@ -30,6 +30,7 @@ def test_only_model_settings_are_written_privately_and_never_overwritten(tmp_pat
         "LIVEKIT_INFERENCE_API_KEY",
         "LIVEKIT_INFERENCE_API_SECRET",
         "LAB_SERVICE_TOKEN",
+        "LAB_SPEECH_PORT",
     }
     assert stat.S_IMODE(target.stat().st_mode) == 0o600
     assert "synthetic-key" not in result.stdout + result.stderr

@@ -70,7 +70,12 @@ class SyntheticSpeech(AudioStreamTrack):
 
 
 class NativePeer:
-    def __init__(self):
+    def __init__(self, state=STATE, url=URL, auth_file="test-auth.json"):
+        self.state = Path(state)
+        self.url = url
+        self.auth_file = auth_file
+        self.entity = ENTITY
+        self.bridge_id = None
         self.counter = 0
         self.pending = {}
         self.pc = None
@@ -81,16 +86,16 @@ class NativePeer:
         self.on_event = lambda _event: None
 
     async def connect(self):
-        assert (STATE / "BUTLER_NATIVE_AUDIO_POC").is_file()
-        auth = json.loads((STATE / "test-auth.json").read_text())
+        assert (self.state / "BUTLER_NATIVE_AUDIO_POC").is_file()
+        auth = json.loads((self.state / self.auth_file).read_text())
         self.client = aiohttp.ClientSession()
         try:
             async with self.client.post(
-                URL + "/auth/token",
+                self.url + "/auth/token",
                 data={
                     "grant_type": "refresh_token",
                     "refresh_token": auth["refresh_token"],
-                    "client_id": URL + "/",
+                    "client_id": self.url + "/",
                 },
             ) as response:
                 if response.status != 200:
@@ -98,7 +103,7 @@ class NativePeer:
                         "Disposable lab login expired; recreate its test account"
                     )
                 access_token = (await response.json())["access_token"]
-            self.ws = await self.client.ws_connect(URL + "/api/websocket")
+            self.ws = await self.client.ws_connect(self.url + "/api/websocket")
             assert (await self.ws.receive_json())["type"] == "auth_required"
             await self.ws.send_json({"type": "auth", "access_token": access_token})
             assert (await self.ws.receive_json())["type"] == "auth_ok"
@@ -149,19 +154,32 @@ class NativePeer:
         self.pending[number] = future
         if kind == "butler_native_audio_poc/events":
             self.event_subscription = number
-        if kind == "camera/webrtc/offer":
-            self.subscription = number
+        if (
+            kind.startswith("butler_native_audio_poc/")
+            and kind != "butler_native_audio_poc/open"
+            and "session_id" not in payload
+            and self.bridge_id
+        ):
+            payload["session_id"] = self.bridge_id
         await self.ws.send_json({"id": number, "type": kind, **payload})
-        return await asyncio.wait_for(future, 15)
+        result = await asyncio.wait_for(future, 30)
+        if kind == "butler_native_audio_poc/open":
+            self.bridge_id = result["session_id"]
+        if kind == "butler_native_audio_poc/prepare":
+            self.entity = result["entity_id"]
+        return result
 
     async def start(self):
         self.pc = RTCPeerConnection(RTCConfiguration(iceServers=[]))
         speech = os.getenv("BUTLER_NATIVE_TEST_WAV")
         self.pc.addTrack(SyntheticSpeech(speech) if speech else SyntheticTone())
         await self.pc.setLocalDescription(await self.pc.createOffer())
-        await self.call("camera/webrtc/get_client_config", entity_id=ENTITY)
+        await self.call("camera/webrtc/get_client_config", entity_id=self.entity)
+        self.subscription = self.counter + 1
         await self.call(
-            "camera/webrtc/offer", entity_id=ENTITY, offer=self.pc.localDescription.sdp
+            "camera/webrtc/offer",
+            entity_id=self.entity,
+            offer=self.pc.localDescription.sdp,
         )
         async with asyncio.timeout(8):
             while (
@@ -192,7 +210,16 @@ class NativePeer:
 
 
 async def main():
-    peer = NativePeer()
+    state = Path(os.getenv("BUTLER_NATIVE_LAB_STATE", str(STATE))).resolve()
+    port = int(os.getenv("BUTLER_NATIVE_LAB_PORT", "18123"))
+    auth_file = os.getenv("BUTLER_NATIVE_AUTH_FILE", "test-auth.json")
+    if (
+        not state.is_relative_to("/tmp")
+        or not 18123 <= port <= 65535
+        or Path(auth_file).name != auth_file
+    ):
+        raise ValueError("Use only a marked disposable lab and local auth filename")
+    peer = NativePeer(state, f"http://127.0.0.1:{port}", auth_file)
     await peer.connect()
     peer.on_event = lambda event: print(json.dumps({"event": event}), flush=True)
     try:

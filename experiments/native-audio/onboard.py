@@ -1,5 +1,6 @@
 """Create a synthetic lab account; credentials stay in a local mode-0600 file."""
 
+import argparse
 import asyncio
 import json
 import os
@@ -8,8 +9,14 @@ from pathlib import Path
 
 import aiohttp
 
-STATE = Path("/tmp/butler-native-audio-lab")
-BASE = "http://127.0.0.1:18123"
+parser = argparse.ArgumentParser()
+parser.add_argument("--state", type=Path, default=Path("/tmp/butler-native-audio-lab"))
+parser.add_argument("--port", type=int, default=18123)
+args = parser.parse_args()
+STATE = args.state.resolve()
+if not STATE.is_relative_to("/tmp") or not 18123 <= args.port <= 65535:
+    parser.error("Use only a disposable /tmp lab and isolated port")
+BASE = f"http://127.0.0.1:{args.port}"
 
 
 async def main():

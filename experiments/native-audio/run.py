@@ -96,6 +96,7 @@ configuration = {
         "time_zone": "UTC",
     },
     "frontend": {},
+    "config": {},
     "api": {},
     "mobile_app": {},
     "lovelace": {"mode": "yaml"},

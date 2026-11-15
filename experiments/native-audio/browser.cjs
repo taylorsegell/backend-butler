@@ -14,7 +14,8 @@ const {chromium} = requireCard('playwright');
  child.on('exit',code=>{for(const item of pending.values())item.reject(Error('Native peer exited: '+code));pending.clear()});
  const call=method=>new Promise((resolve,reject)=>{const id=++sequence;requests.push(method);pending.set(id,{resolve,reject});child.stdin.write(JSON.stringify({id,method})+'\n')});
  const waitStats=async predicate=>{const deadline=Date.now()+10000;for(;;){const stats=await call('butler_native_audio_poc/status');if(predicate(stats))return stats;if(Date.now()>deadline)throw Error('Audio metrics did not reach the required state: '+JSON.stringify(stats));await new Promise(resolve=>setTimeout(resolve,40))}};
- const bundle=fs.readFileSync('/tmp/butler-native-audio-lab/custom_components/butler_native_audio_poc/frontend/card.js');
+ const state=process.env.BUTLER_NATIVE_LAB_STATE || '/tmp/butler-native-audio-lab';
+ const bundle=fs.readFileSync(process.env.BUTLER_NATIVE_TEST_BUNDLE || state+'/custom_components/butler_native_audio_poc/frontend/card.js');
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/card.js'?'text/javascript':'text/html');res.end(req.url==='/card.js'?bundle:'<meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#181818"><script src="/card.js"></script>')});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  const port=server.address().port;
@@ -29,13 +30,13 @@ const {chromium} = requireCard('playwright');
   await page.evaluate(()=>{
    window.nativeCalls=[];
    const external={config:{webrtc:{hasCameraMicrophoneStream:true}},sendMessage:message=>{window.nativeCalls.push(message);return window.pocCall('start')},fireMessage:message=>{window.nativeCalls.push(message);void window.pocCall('stop')}};
-   const card=document.createElement('backend-butler-native-poc');card.setConfig({});card.hass={states:{},user:{id:'synthetic-test',is_admin:true},auth:{external},callWS:message=>window.pocCall(message.type)};document.body.append(card);
+   const card=document.createElement('backend-butler-native-poc');card.setConfig({});card.hass={states:{},user:{id:'synthetic-test',is_admin:true},auth:{external},callWS:message=>window.pocCall(message)};document.body.append(card);
   });
   await page.getByRole('button',{name:'Start talking',exact:true}).click();
   await page.waitForFunction(()=>window.nativeCalls.some(message=>message.type==='webrtc/stream/start'));
   await waitStats(stats=>stats.sdk_frames>=4);
   await page.getByRole('button',{name:'Send recording',exact:true}).click();
-  await page.getByText(/Audio received:.*LiveKit PCM frames/).last().waitFor({timeout:8000}).catch(async error=>{console.error('Card:',await page.locator('.lk-root').innerText());console.error('Bridge:',await page.evaluate(()=>window.nativeCalls));console.error('Requests:',requests.filter(method=>!method.endsWith('/status')));await page.screenshot({path:'/tmp/butler-native-audio-fail.png'});throw error});
+  await page.getByText(/Audio received:.*LiveKit PCM frames/).last().waitFor({timeout:8000}).catch(async error=>{console.error('Card:',await page.locator('.lk-root').innerText());console.error('Bridge:',await page.evaluate(()=>window.nativeCalls));console.error('Requests:',requests.filter(method=>!(typeof method==='string'?method:method.type).endsWith('/status')));await page.screenshot({path:'/tmp/butler-native-audio-fail.png'});throw error});
   assert.equal(await page.evaluate(()=>window.nativeCalls.some(message=>message.type==='assist/show')),false);
   assert.equal(new URL(page.url()).hostname,'butler-audio.test');
   assert.equal(await page.locator('backend-butler-native-poc').count(),1);
@@ -47,10 +48,16 @@ const {chromium} = requireCard('playwright');
   await page.getByRole('button',{name:'Start talking',exact:true}).click();
   await waitStats(stats=>stats.sdk_frames>=4);
   await page.evaluate(()=>document.querySelector('backend-butler-native-poc').remove());
-  await waitStats(stats=>!stats.active);
+  const closedDeadline=Date.now()+8000;
+  for(;;){
+   try{await call('butler_native_audio_poc/status')}
+   catch(error){if(/unauthorized/.test(String(error)))break;throw error}
+   if(Date.now()>closedDeadline)throw Error('Removed card session remained accessible');
+   await new Promise(resolve=>setTimeout(resolve,40));
+  }
   await page.evaluate(()=>{
    const card=document.createElement('backend-butler-native-poc');card.setConfig({});
-   card.hass={states:{},user:{id:'synthetic-test',is_admin:true},callWS:message=>window.pocCall(message.type)};
+   card.hass={states:{},user:{id:'synthetic-test',is_admin:true},callWS:message=>window.pocCall(message)};
    document.body.append(card);
   });
   const starts=await page.evaluate(()=>window.nativeCalls.filter(message=>message.type==='webrtc/stream/start').length);

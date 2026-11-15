@@ -19,11 +19,14 @@ async def test_native_camera_signaling_reaches_sdk_audio_and_stops():
     peer = NativePeer()
     await peer.connect()
     try:
+        opened = await peer.call("butler_native_audio_poc/open")
         prepared = await peer.call("butler_native_audio_poc/prepare")
-        assert prepared == {
-            "entity_id": "camera.butler_native_audio_poc",
-            "experiment": True,
-        }
+        assert prepared["session_id"] == opened["session_id"]
+        assert (
+            prepared["entity_id"]
+            == "camera.butler_native_audio_" + opened["session_id"]
+        )
+        assert prepared["experiment"] is True
         await peer.start()
         async with asyncio.timeout(8):
             while (stats := await peer.call("butler_native_audio_poc/status"))[

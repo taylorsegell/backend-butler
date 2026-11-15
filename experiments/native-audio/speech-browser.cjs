@@ -10,7 +10,7 @@ const requireCard = createRequire(path.resolve(__dirname, '../../apps/dashboard-
 const { chromium } = requireCard('playwright');
 
 (async () => {
-  const state = '/tmp/butler-native-audio-lab';
+  const state = process.env.BUTLER_NATIVE_LAB_STATE || '/tmp/butler-native-audio-lab';
   const child = spawn('/tmp/butler-native-audio-venv/bin/python', [path.join(__dirname, 'bridge_peer.py')], {
     env: { ...process.env, BUTLER_NATIVE_TEST_WAV: state + '/synthetic-speech.wav' }, stdio: ['pipe', 'pipe', 'inherit'],
   });

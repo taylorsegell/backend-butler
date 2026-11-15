@@ -53,7 +53,7 @@ To enable speech, prepare a model-only file using the separate worker Python env
 <worker-python> experiments/native-audio/model_session.py --config /tmp/butler-native-audio-lab/model-config.json
 ```
 
-The preparer allowlists speech/model configuration, generates an independent service token, writes mode 0600, excludes HA/scheduler/tool credentials and refuses overwriting an existing configuration. No credentials reach the browser. The service listens only on `127.0.0.1:18952`, requires its token, permits one connection and has no tool registrations. It uses the same SDK and model configuration as the Butler worker with a lab-specific conversational prompt.
+The preparer allowlists speech/model configuration, generates an independent service token, writes mode 0600, excludes HA/scheduler/tool credentials and refuses overwriting an existing configuration. No credentials reach the browser. The service listens only on `127.0.0.1:18952`, requires its token, permits up to eight independent connections and has no tool registrations. It uses the same SDK and model configuration as the Butler worker with a lab-specific conversational prompt.
 
 Stop the existing lab, then start it in speech mode:
 
@@ -101,7 +101,7 @@ Evidence on 2026-11-14:
 
 ## Experimental boundaries
 
-The upstream native bridge uses camera-specific HA signaling. This lab's audio-only `camera.butler_native_audio_poc` exists for that protocol and must never be installed in household HA. Prepare/control/events require an admin and bind a single disposable owner; core camera offer callbacks do not expose the request user to the entity. This is not production multi-user authorization. There are no STUN servers or camera images/video in the lab. A missing optional `libturbojpeg` may produce an unrelated snapshot-library warning.
+The upstream native bridge uses camera-specific HA signaling. Each lab session now owns a separate audio-only `camera.butler_native_audio_<session_id>` endpoint. Every command and subscription checks the actual authenticated active, non-system HA user; ordinary users are supported and administrators receive no cross-user bypass. The disposable adapter guards the installed camera signaling handlers, preserves unrelated-camera behavior, and propagates a request principal to receiver callbacks, which reject unguarded calls. This is a version-pinned candidate integration and must not be installed in household HA or shipped as a general upstream interface. There are no STUN servers or camera images/video in the lab. A missing optional `libturbojpeg` may produce an unrelated snapshot-library warning.
 
 Speech mode retains the actual Butler Root/components/styles, while replacing the React session transport with an experiment adapter over authenticated HA messages. It does not alter the beta bundle, production integration or worker. Household actions, notifications, scheduler, memory services, external tools and persistent history are disconnected by construction.
 
@@ -113,3 +113,56 @@ Sources:
 - https://github.com/home-assistant/core/blob/2026.11.1/homeassistant/components/camera/webrtc.py
 - https://github.com/home-assistant/core/blob/2026.11.1/homeassistant/components/camera/entity.py
 - The installed voice worker SDK's `AgentSession`, `AudioInput` and `AudioOutput` interfaces, pinned by `apps/voice-worker/uv.lock`.
+
+
+## Per-user boundary verified on 2026-11-15
+
+Sessions are server-created and owner-bound, with separate receivers, signaling peers, model connections, histories and reply listeners. There is a limit of two live sessions per user and eight total. Every protected API request carries a session ID; knowing one never grants access. The per-card client shares one open request between parallel microphone/session startup, closes once on overlapping end/unmount, and starts with a new ID after disconnect. The adapters use their own HA context rather than a global connection or transcript buffer. Closing, expiration and controller-WebSocket disconnection revoke that session and release its resources.
+
+Live evidence from a separate disposable instance:
+
+- Alice and Bob authenticated as ordinary non-admin users and simultaneously received genuine WebRTC audio in distinct receivers.
+- 34 requests using known foreign session/entity/peer IDs were denied: prepare, status, stop, subscriptions, history, text/audio controls, disconnect, SDP negotiation and ICE candidates, in both directions; administrator cross-user requests were also denied.
+- Both real model sessions produced independent synthetic transcripts and synthesized reply streams. Foreign markers never appeared in the other user's event stream/history.
+- Stopping Alice left Bob receiving audio. Closed IDs were rejected, Alice's replacement had empty history, and Bob's original conversation remained available.
+- Signaling callbacks without a matching principal failed closed; unrelated camera commands delegated unchanged. Missing upstream handlers failed setup.
+- The existing speech card passed on insecure HTTP as an ordinary user with genuine STT/model/TTS and scheduled reply playback. The measurement view also passed Send/Cancel/unmount and unsupported-app checks; unmount now expects denied access to the revoked session. Neither path uses a browser microphone or Assist launch.
+- Regression checks passed: 13 HA receiver/launcher/ownership/signaling tests, five backend/configuration tests, per-card lifecycle/playback tests, and card plus experiment TypeScript checks.
+
+The updated per-user protocol was verified through real HA and an emulated native peer. The earlier physical iPhone speech confirmation applies to the preceding single-user lab; this candidate has not replaced that working phone lab. The beta and household services remain unchanged. See [SECURITY-BOUNDARY.md](SECURITY-BOUNDARY.md) for the attack model and limits.
+
+To reproduce without touching the working phone lab, use a second marked directory and loopback ports:
+
+```sh
+/tmp/butler-native-audio-venv/bin/python experiments/native-audio/run.py --state /tmp/butler-native-users-lab --port 18124 --prepare-only
+<worker-python> experiments/native-audio/prepare_speech.py --state /tmp/butler-native-users-lab --speech-port 18953 --env-file <model-settings-file>
+<worker-python> experiments/native-audio/model_session.py --config /tmp/butler-native-users-lab/model-config.json --port 18953
+```
+
+Keep the speech process in its own terminal, then start the candidate and provision only its synthetic accounts:
+
+```sh
+/tmp/butler-native-audio-venv/bin/python experiments/native-audio/run.py --state /tmp/butler-native-users-lab --port 18124 --speech
+/tmp/butler-native-audio-venv/bin/python experiments/native-audio/onboard.py --state /tmp/butler-native-users-lab --port 18124
+/tmp/butler-native-audio-venv/bin/python experiments/native-audio/provision_users.py
+/tmp/butler-native-audio-venv/bin/python -m pytest -q -s experiments/native-audio/tests/test_user_boundary.py
+```
+
+The live boundary test deliberately makes bounded real model requests for synthetic markers; it never uses household tools or recordings. Model credentials, synthetic HA logins and generated assets stay outside Git in mode-0600 runtime files. The new candidate is separate from the original `/tmp/butler-native-audio-lab` and ports 18123/18952.
+
+Additional regression checks:
+
+```sh
+/tmp/butler-native-audio-venv/bin/python -m pytest -q experiments/native-audio/tests/test_receiver.py experiments/native-audio/tests/test_launcher.py experiments/native-audio/tests/test_sessions.py experiments/native-audio/tests/test_signaling.py
+<worker-python> -m pytest -q experiments/native-audio/tests/test_model_session.py experiments/native-audio/tests/test_prepare_speech.py
+node experiments/native-audio/tests/session-client.cjs
+node experiments/native-audio/tests/reply-player.cjs
+```
+
+For the real speech browser check, put the synthetic sample in the candidate directory with `make_speech.py --state /tmp/butler-native-users-lab`, then:
+
+```sh
+BUTLER_NATIVE_LAB_STATE=/tmp/butler-native-users-lab BUTLER_NATIVE_LAB_PORT=18124 BUTLER_NATIVE_AUTH_FILE=alice-auth.json node experiments/native-audio/speech-browser.cjs
+```
+
+The experiment also typechecks with the card toolchain. Make its existing dependencies resolvable with an ignored `experiments/native-audio/node_modules` symlink to `../../apps/dashboard-card/node_modules`; include the experiment's TS/TSX and card src in a temporary configuration extending the card tsconfig. No dependency files or installed packages need changing.
