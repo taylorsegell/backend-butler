@@ -1,6 +1,6 @@
 # Real worker/history integration contract
 
-Keep all deployment in a new disposable worker process, loopback ports and a fresh history directory. Do not change the beta, household integrations, original voice-worker environment, working phone lab or previous test databases. Use only model settings plus synthetic service credentials and a read-only mock HA MCP server.
+Keep all deployment in a new disposable worker process, loopback ports and a fresh history directory. Do not change the beta, household integrations, original voice-worker environment or previous test databases. The existing phone lab may be upgraded only with explicit authorization to reuse its login; that authorization was given for candidate testing on 2026-11-15. Use only model settings plus synthetic service credentials and a read-only mock HA MCP server.
 
 Enable the native PCM endpoint explicitly with NATIVE_AUDIO_ENABLED; default remains off. The endpoint lives in the real worker HTTP app alongside the existing VoiceAuthority/history routes and constructs HomeAssistantAgent with the worker's configured speech models. It uses RemoteSession to acquire an owner-checked, expiring history lease and the real SDK persistence. Persisted snapshots and lease heartbeats fail closed. No parallel shadow conversation store.
 

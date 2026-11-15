@@ -203,4 +203,21 @@ Verified on 2026-11-15 in real worker mode:
 - The existing drawer created a separate stored conversation, previewed the exact spoken conversation and resumed it. Real WebRTC/STT/model/TTS, scheduled reply playback and Cancel passed on insecure HTTP without browser microphone APIs or an Assist launch.
 - Card/experiment TypeScript checks, session-client, worker API mapping and playback lifecycle checks passed.
 
-Synthetic worker history remains under `/tmp/butler-native-worker-lab/history`; none of these results use or migrate household conversations. A physical iPhone test of this final candidate is still needed before promotion. Background interruptions and Bluetooth routing remain separate unverified acceptance checks.
+Synthetic worker history remains under `/tmp/butler-native-worker-lab/history`; none of these results use or migrate household conversations. The five core physical iPhone acceptance checks passed, as confirmed by the user below. Background interruptions and Bluetooth routing remain separate unverified acceptance checks.
+
+
+## Physical worker/history acceptance (2026-11-15)
+
+At the user's explicit request, the existing phone lab at port 18123 was upgraded to candidate `f31d338`, retaining its original login and server entry. Its prior component/configuration was backed up under a marked `/tmp/butler-native-phone-before-history-*` directory; the exact path is recorded in the lab's `worker-history-rollback.txt`. The phone lab now connects to the isolated actual worker on loopback 18954 and its separate test history store. The prototype speech service was left available for rollback. The beta, household HA/worker, household data paths and unrelated uncommitted changes were not changed.
+
+After setup, actual LAN Lovelace login and mobile controls passed using the retained credentials. Automated genuine WebRTC/STT/model/TTS and history new/preview/resume checks also passed through that login. Only smoke-created synthetic conversations were removed before handover.
+
+The user then reported that all five requested checks passed on their iPhone 17 in Companion with Wi-Fi on, over local HTTP:
+
+1. The retained lab login opened the existing Butler UI.
+2. Native capture produced a transcript and spoken reply for a conversation-local sample label.
+3. Cancel discarded the recording without a new message/reply and stopped capture.
+4. A separate new conversation worked; the original history could be previewed and resumed, and the model recalled its sample label.
+5. After fully quitting/reopening Companion, the saved conversation and its context were still available.
+
+This is user-reported physical acceptance of the worker/history candidate, distinct from the automated peer emulation and automated worker-restart proof. Exact Companion/iOS build numbers were not supplied. Lock-screen/background interruption, Bluetooth routing, continuous mode and other device/platform combinations remain unverified. This result does not promote or publish the experimental camera-based bridge.
