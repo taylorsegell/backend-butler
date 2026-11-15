@@ -32,6 +32,7 @@ from config import (
 )
 from conversations import A2A_ENDPOINT, conversations
 from history import render
+from session_idle import SessionIdle
 from utils import build_llm, parse_job_metadata, truncate
 from voice_persistence import RemoteSession
 
@@ -157,6 +158,17 @@ def _forward_butler_events(
     ctx.add_shutdown_callback(stop)
 
 
+async def _disconnect_voice_room(ctx: JobContext) -> None:
+    try:
+        # HA creates a separate room for each voice session. Removing only the
+        # agent would leave the card accruing participant minutes.
+        await ctx.api.room.delete_room(api.DeleteRoomRequest(room=ctx.room.name))
+    except Exception:
+        logger.exception("Could not delete idle voice room")
+    finally:
+        ctx.shutdown(reason="voice session idle timeout")
+
+
 @server.rtc_session(agent_name=settings.agent_name)
 async def entrypoint(ctx: JobContext) -> None:
     ctx.log_context_fields = {"room": ctx.room.name}
@@ -201,10 +213,23 @@ async def entrypoint(ctx: JobContext) -> None:
         await ctx.room.local_participant.publish_data(
             error, topic="ha.conversation_error", reliable=True
         )
-        # Remain available for get_conversation until the frontend receives the
-        # failure and disconnects; never start an unsaved voice conversation.
+
+        # Give the client time to receive the error, but never keep a failed
+        # startup room connected indefinitely if the client does not clean it up.
+        async def disconnect_denied() -> None:
+            await _disconnect_voice_room(ctx)
+
+        denied_idle = SessionIdle(
+            rtc.EventEmitter(), settings.voice_idle_timeout, disconnect_denied
+        )
+        ctx.add_shutdown_callback(denied_idle.aclose)
         return
-    await session.start(agent=agent, room=ctx.room, persist=persisted)
+    await session.start(
+        agent=agent,
+        room=ctx.room,
+        persist=persisted,
+        record={"audio": settings.cloud_audio_recording_enabled},
+    )
     # A seed contains only pre-existing items, never later live transcript updates.
     seed_items = render(list(session.history.items))[0][-100:]
     seed = json.dumps({"id": persisted.session_id, "items": seed_items})
@@ -261,8 +286,7 @@ async def entrypoint(ctx: JobContext) -> None:
                 json.dumps(
                     {
                         "message": (
-                            "Conversation could not be saved. "
-                            "Reconnect to continue."
+                            "Conversation could not be saved. Reconnect to continue."
                         )
                     }
                 ),
@@ -295,15 +319,59 @@ async def entrypoint(ctx: JobContext) -> None:
     save_task = asyncio.create_task(save_loop())
     heartbeat_task = asyncio.create_task(heartbeat_loop())
 
-    async def close_conversation() -> None:
+    close_task = None
+
+    async def save_and_release() -> None:
         save_task.cancel()
         heartbeat_task.cancel()
         await asyncio.gather(save_task, heartbeat_task, return_exceptions=True)
-        # SDK close saves and releases its HTTP adapter, even with no recent items.
-        await session.aclose()
-        await persisted.release()
+        try:
+            # SDK close saves the final snapshot; recording is independent.
+            await session.aclose()
+        finally:
+            await persisted.release()
 
-    ctx.add_shutdown_callback(close_conversation)
+    async def close_conversation() -> None:
+        nonlocal close_task
+        if close_task is None:
+            close_task = asyncio.create_task(save_and_release())
+        await asyncio.shield(close_task)
+
+    async def disconnect_idle() -> None:
+        failed = False
+        try:
+            await close_conversation()
+        except Exception:
+            failed = True
+            logger.exception("Could not close idle conversation cleanly")
+        try:
+            await ctx.room.local_participant.publish_data(
+                json.dumps(
+                    {
+                        "message": (
+                            "Conversation could not be saved. "
+                            "Reconnect to continue."
+                        )
+                    }
+                    if failed
+                    else {"reason": "idle_timeout"}
+                ),
+                topic="ha.conversation_error" if failed else "ha.session_idle",
+                reliable=True,
+            )
+        except Exception:
+            logger.warning("Could not deliver idle disconnect notice")
+        await _disconnect_voice_room(ctx)
+
+    idle = SessionIdle(session, settings.voice_idle_timeout, disconnect_idle)
+
+    async def shutdown_conversation() -> None:
+        # A user disconnect may overlap expiry. Cancelling the watchdog must not
+        # cancel its final SDK save or deadlock while waiting for that same save.
+        await idle.aclose()
+        await close_conversation()
+
+    ctx.add_shutdown_callback(shutdown_conversation)
 
     _forward_tool_events(ctx, session)
     _forward_butler_events(ctx, session, agent.user_id)
@@ -314,7 +382,7 @@ async def entrypoint(ctx: JobContext) -> None:
     # _set_audio_input) — live while audio input is on, torn down after STT_IDLE_TIMEOUT
     # once gated. TTS (audio output) and text chat are independent, so the agent can run
     # as pure text with zero speech cost. The card drives it all over RPCs; the agent
-    # boots dormant + text-only so an idle card costs only its connection. Same in both
+    # boots dormant + text-only; quiet room connections expire. Same in both
     # manual and auto modes.
     stt_enabled = True  # session boots with STT wired; torn down in the boot below
     audio_output_enabled = True  # session default; muted at boot
@@ -469,6 +537,7 @@ async def entrypoint(ctx: JobContext) -> None:
 
     @ctx.room.local_participant.register_rpc_method("start_turn")
     async def start_turn(data: rtc.RpcInvocationData) -> str:
+        idle.touch()
         session.interrupt()
         session.clear_user_turn()
         # listen only to the participant who started the turn (multi-user rooms)
@@ -478,12 +547,14 @@ async def entrypoint(ctx: JobContext) -> None:
 
     @ctx.room.local_participant.register_rpc_method("end_turn")
     async def end_turn(data: rtc.RpcInvocationData) -> str:
+        idle.touch()
         _set_audio_input(False)  # gate the mic; STT tears down after the idle timeout
         session.commit_user_turn()
         return "ok"
 
     @ctx.room.local_participant.register_rpc_method("cancel_turn")
     async def cancel_turn(data: rtc.RpcInvocationData) -> str:
+        idle.touch()
         _set_audio_input(False)
         session.clear_user_turn()
         logger.info("cancel turn")

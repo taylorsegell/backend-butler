@@ -7,6 +7,7 @@ the dataclass are fixed contract values shared with the scheduler and the fronte
 from __future__ import annotations
 
 import json
+import math
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -75,6 +76,8 @@ class Settings:
     text_reply_timeout: float
     native_audio_enabled: bool = False
     http_host: str = ""
+    cloud_audio_recording_enabled: bool = False
+    voice_idle_timeout: float = 120
 
 
 def _json_object(name: str) -> dict:
@@ -90,6 +93,9 @@ def _json_object(name: str) -> dict:
 
 
 def load_settings() -> Settings:
+    idle_timeout = float(os.getenv("VOICE_IDLE_TIMEOUT", "120"))
+    if not math.isfinite(idle_timeout) or idle_timeout <= 0:
+        raise SystemExit("VOICE_IDLE_TIMEOUT must be finite and greater than zero")
     return Settings(
         stt_model=os.getenv("STT_MODEL", "assemblyai/universal-3-5-pro"),
         stt_language=os.getenv("STT_LANGUAGE", "multi"),
@@ -129,6 +135,11 @@ def load_settings() -> Settings:
         native_audio_enabled=os.getenv("NATIVE_AUDIO_ENABLED", "").lower()
         in {"1", "true", "yes"},
         http_host=os.getenv("HTTP_HOST", ""),
+        cloud_audio_recording_enabled=os.getenv(
+            "CLOUD_AUDIO_RECORDING_ENABLED", ""
+        ).lower()
+        in {"1", "true", "yes"},
+        voice_idle_timeout=idle_timeout,
     )
 
 
