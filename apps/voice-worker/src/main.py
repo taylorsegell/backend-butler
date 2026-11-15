@@ -39,7 +39,9 @@ logger = logging.getLogger("ha-mcp-agent")
 
 
 # The HTTP process owns the store, including leased RTC conversations.
-server = AgentServer(port=settings.http_port, store=conversations.store)
+server = AgentServer(
+    host=settings.http_host, port=settings.http_port, store=conversations.store
+)
 
 if settings.text_api_token:
     # these routes act for a person or reveal the setup, so they need a token
@@ -64,6 +66,11 @@ if settings.text_api_token:
         """The MCP servers a person gets only when their Settings entry lists them."""
         return JSONResponse({"servers": mcp_clients.restricted()})
 
+
+if settings.native_audio_enabled:
+    import native_audio
+
+    native_audio.mount(server)
 
 text_chat.routes.mount(server)
 

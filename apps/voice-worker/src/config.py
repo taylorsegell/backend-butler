@@ -73,6 +73,8 @@ class Settings:
     text_max_items: int
     # Seconds a waiting /chat request waits for its reply, under the proxy's 90 s.
     text_reply_timeout: float
+    native_audio_enabled: bool = False
+    http_host: str = ""
 
 
 def _json_object(name: str) -> dict:
@@ -124,6 +126,9 @@ def load_settings() -> Settings:
         text_renew_after=float(os.getenv("TEXT_RENEW_AFTER", "0")),
         text_max_items=int(os.getenv("TEXT_MAX_ITEMS", "100")),
         text_reply_timeout=float(os.getenv("TEXT_REPLY_TIMEOUT", "80")),
+        native_audio_enabled=os.getenv("NATIVE_AUDIO_ENABLED", "").lower()
+        in {"1", "true", "yes"},
+        http_host=os.getenv("HTTP_HOST", ""),
     )
 
 
