@@ -233,3 +233,8 @@ Two short synthetic provider samples were generated outside the conversation flo
 
 
 The disposable phone/candidate model files now explicitly pin Selene/en, and only the marked real-worker lab was restarted. The lab HA/UI/login and history directory stayed in place. A direct actual-worker synthetic reply produced mono PCM and acknowledged durable close/release with the new settings. The updated worker/prototype regressions passed (55 tests total), including the previously failing defaults and language-forwarding checks. The beta and household worker were not reconfigured or restarted. Replacement voice quality on the physical phone remains pending user confirmation.
+
+
+## Idle session policy (worktree only)
+
+The worker/history candidate source now closes quiet sessions after `VOICE_IDLE_TIMEOUT` (120 seconds by default), while protecting speech, model replies and running tools. Native save/release precedes its idle event and socket close. HA revokes the corresponding camera/receiver without waiting for a browser, and the existing UI releases capture normally, retains history and resumes it on the next explicit action. See [voice session resource policy](../../docs/voice-session-policy.md) for exact behavior and limits. This policy has not been deployed to the currently running phone lab, beta or household worker. Its new physical iPhone idle acceptance is pending; prior five-check acceptance still describes the earlier candidate.

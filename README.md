@@ -127,6 +127,10 @@ The card sets the session while it is running, over RPCs the worker registers.
 
 The worker broadcasts its live speech-to-text and audio-output state on the `ha.speech_state` data channel so the card can mirror it (a sleeping indicator once speech-to-text is down, for example), and the tool-execution lifecycle on `ha.tool_call`.
 
+Voice sessions close after two minutes without conversation activity by default (`VOICE_IDLE_TIMEOUT`). Speaking, model replies and running tools keep them active; history polling does not. The worker saves the final conversation and releases its lease before disconnecting that session's room. The card releases capture, retains the transcript and reconnects to the selected conversation on your next send or microphone tap. Even an auto-connect card waits for an explicit action after an idle close. Text chat's separate unload timer is unchanged.
+
+Cloud **audio recordings** are off by default, independently of saved conversation history. To enable them for debugging, set `CLOUD_AUDIO_RECORDING_ENABLED=true` and allow recording in the LiveKit project. Other observability categories remain governed by the project setting. Existing uploaded recordings and quota usage are not removed or reset by this policy. See [voice session resource policy](docs/voice-session-policy.md) for behavior and verification.
+
 ## Text chat over HTTP
 
 `POST /chat` on port 8952 takes one line of text and answers in plain text. It is one conversation that persists across restarts until you renew it, which is what you want for an iPhone Shortcut. See [docs/text-chat.md](docs/text-chat.md) for the routes, tokens and settings.
