@@ -23,7 +23,8 @@ Object.defineProperty(devices,'getUserMedia',{configurable:true,writable:true,va
 fixture.captureInstalled=navigator.mediaDevices.getUserMedia===capture;
 const host=document.createElement('div');document.body.append(host);host.style.cssText='display:block;--primary-color:#FC6B02;--primary-text-color:#eee;--secondary-text-color:#aaa;--card-background-color:#181818';
 const shadow=host.attachShadow({mode:'open'});shadow.innerHTML='<style>'+CARD_STYLES+'</style><div class="lk-root"></div>';
-const store=new HassStore();store.setHost(host);store.setConfig({type:'backend-butler-card',input_mode:new URLSearchParams(location.search).get('mode')==='auto'?'auto':'push_to_talk',layout:new URLSearchParams(location.search).get('layout')==='voice'?'voice':'fullpage'});
+const store=new HassStore();store.setHost(host);store.setConfig({type:'backend-butler-card',auto_connect:new URLSearchParams(location.search).get('connect')==='auto',input_mode:new URLSearchParams(location.search).get('mode')==='auto'?'auto':'push_to_talk',layout:new URLSearchParams(location.search).get('layout')==='voice'?'voice':'fullpage'});
+fixture.currentConversation=()=>store.voiceConversationId;
 store.setHass({states:{},user:{id:'synthetic-alice',is_admin:true},callWS:async()=>[],callService:async()=>{},callApi:async(_m:string,path:string)=>path.includes('tasks')?[]:path.includes('history')?{items:[],busy:false}:path.includes('conversations')?{conversations:[]}:path.includes('approvals')?{items:[]}:{users:[],servers:[]}} as any);
 // Install synthetic capture before the SDK's WebKit adapter caches getUserMedia.
 void import('../../src/App').then(({Root}) => {

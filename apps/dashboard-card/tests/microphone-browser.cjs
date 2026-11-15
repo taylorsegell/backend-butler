@@ -49,6 +49,25 @@ const esbuild=require('node:module').createRequire(require.resolve('vite/package
   }
   await page.goto(base+'/?mode=auto');await page.getByRole('button',{name:'Start listening',exact:true}).click();await page.locator('.lk-recovery').waitFor();
   await page.waitForFunction(()=>window.serverMode==='manual');assert.equal(await page.locator('.lk-recovery').count(),1,'capture failure restores the dormant server mode');
+  for(const autoConnect of [false,true]){
+  await page.goto(base+'/?delay=0'+(autoConnect?'&connect=auto':''));await page.evaluate(()=>{window.failure=null});
+  await page.getByRole('button',{name:'Start talking',exact:true}).click();
+  await page.getByRole('button',{name:'Send recording',exact:true}).waitFor();
+  await page.getByText('A synthetic test conversation.',{exact:true}).first().waitFor();
+  await page.evaluate(()=>window.emitIdle());
+  await page.waitForFunction(()=>window.sessionEnds===1&&window.streams.every(s=>s.getTracks().every(t=>t.readyState==='ended')));
+  assert.equal(await page.locator('.lk-recovery').count(),0,'idle is a normal disconnect, not an error');
+  await page.getByText('A synthetic test conversation.',{exact:true}).first().waitFor();
+  assert.equal(await page.evaluate(()=>window.currentConversation()),'synthetic-conversation','idle preserves selected saved history');
+  await page.waitForTimeout(150);
+  assert.equal(await page.evaluate(()=>window.sessionStarts),1,'idle does not automatically reconnect');
+  await page.getByRole('button',{name:'Start talking',exact:true}).click();
+  await page.getByRole('button',{name:'Send recording',exact:true}).waitFor();
+  assert.equal(await page.evaluate(()=>window.sessionStarts),2,'the next explicit tap reconnects');
+  assert.equal(await page.evaluate(()=>window.currentConversation()),'synthetic-conversation');
+  await page.getByRole('button',{name:'Cancel recording',exact:true}).click();
+  }
+  console.log(engine+' PASS: idle releases microphone without errors, retains selected history, and reconnects only on request');
   assert.deepEqual(errors,[]);console.log(engine+' PASS: full card capture-in-tap, accurate failures, single recovery, text/retry/cancel and mobile widths');
  }finally{if(browser)await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exit(1)});

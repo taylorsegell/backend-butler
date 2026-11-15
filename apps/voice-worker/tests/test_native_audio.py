@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from livekit.rtc import EventEmitter
 from starlette.websockets import WebSocketDisconnect
 
 import native_audio
@@ -15,6 +16,7 @@ import native_audio
 
 class NativeSession:
     def __init__(self, emit, person, selected):
+        self.session = EventEmitter()
         self.person = person
         self.selected = selected
         self.items = []
@@ -38,7 +40,11 @@ def app(enabled=True):
     with patch.object(
         native_audio,
         "settings",
-        SimpleNamespace(native_audio_enabled=enabled, text_api_token="service-token"),
+        SimpleNamespace(
+            native_audio_enabled=enabled,
+            text_api_token="service-token",
+            voice_idle_timeout=120,
+        ),
     ):
         native_audio.mount(SimpleNamespace(http=result), factory=NativeSession)
     return result
@@ -94,7 +100,11 @@ def test_close_acknowledges_release_before_new_connection():
     with patch.object(
         native_audio,
         "settings",
-        SimpleNamespace(native_audio_enabled=True, text_api_token="service-token"),
+        SimpleNamespace(
+            native_audio_enabled=True,
+            text_api_token="service-token",
+            voice_idle_timeout=120,
+        ),
     ):
         native_audio.mount(SimpleNamespace(http=result), factory=Session)
     with TestClient(result) as client:
@@ -137,3 +147,59 @@ async def test_persistence_failure_stops_agent_and_waits_for_release():
     await asyncio.gather(other, speech.failure_task)
     speech.persisted.release.assert_awaited_once()
     speech.emit.assert_called_once_with({"type": "error", "message": "Could not save"})
+
+
+def test_idle_closes_after_save_and_polling_cannot_keep_socket_alive():
+    import time
+
+    saved = []
+    closed = []
+
+    class Session(NativeSession):
+        async def start(self):
+            self.items = list(saved)
+
+        async def control(self, command, payload):
+            if command == "text":
+                self.items.append({"role": "user", "text": payload})
+            return {"items": self.items}
+
+        async def close(self):
+            saved[:] = self.items
+            closed.append(self.person)
+
+    result = FastAPI()
+    with patch.object(
+        native_audio,
+        "settings",
+        SimpleNamespace(
+            native_audio_enabled=True,
+            text_api_token="service-token",
+            voice_idle_timeout=0.06,
+        ),
+    ):
+        native_audio.mount(SimpleNamespace(http=result), factory=Session)
+    headers = {"Authorization": "Bearer service-token", "X-Butler-User": "alice"}
+    with TestClient(result) as client:
+        with client.websocket_connect("/chat/native", headers=headers) as socket:
+            socket.receive_json()
+            socket.send_json({"id": 1, "type": "text", "payload": "Keep this context"})
+            socket.receive_json()
+            for number in range(2, 30):
+                time.sleep(0.015)
+                socket.send_json({"id": number, "type": "get_conversation"})
+                message = socket.receive_json()
+                if message["type"] == "idle":
+                    assert closed == ["alice"], "idle notice follows final save/release"
+                    break
+            else:
+                pytest.fail("History polling kept the idle native session alive")
+            with pytest.raises(WebSocketDisconnect):
+                socket.receive_json()
+        with client.websocket_connect("/chat/native", headers=headers) as socket:
+            assert socket.receive_json()["items"] == [
+                {"role": "user", "text": "Keep this context"}
+            ]
+            socket.send_json({"id": 1, "type": "close_session", "payload": ""})
+            assert socket.receive_json()["result"]["saved"]
+    assert closed == ["alice", "alice"]

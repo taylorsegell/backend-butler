@@ -69,6 +69,7 @@ export function useSession(_source: any, { room }: any) {
         unsubscribe = await hass().connection.subscribeMessage((event: any) => {
           if (disposed) return;
           if (event.type === 'conversation') { conversationId = event.conversation_id || conversationId; items = event.items; data('ha.conversation', seed()); }
+          if (event.type === 'idle') data('ha.session_idle', { reason: 'idle_timeout' });
           if (event.type === 'state') setAgentState(event.state);
           if (event.type === 'audio') player.push(event);
           if (event.type === 'audio_clear') player.stop();

@@ -20,6 +20,7 @@ from livekit.agents.metrics import LLMModelUsage
 from agent import HomeAssistantAgent
 from config import settings
 from history import render
+from session_idle import SessionIdle
 from utils import build_llm
 from voice_persistence import RemoteSession
 
@@ -271,6 +272,7 @@ def mount(server, factory=None):
         raise RuntimeError("Native audio requires the configured service token")
     factory = factory or NativeSession
     active = set()
+    idle_seconds = settings.voice_idle_timeout
 
     @server.http.websocket("/chat/native")
     async def endpoint(socket: WebSocket):
@@ -290,13 +292,19 @@ def mount(server, factory=None):
         active.add(slot)
         speech = None
         pump = None
+        idle = None
+        receiving = None
         try:
             await socket.accept()
             events = asyncio.Queue(maxsize=512)
 
             async def send():
                 while True:
-                    await socket.send_json(await events.get())
+                    event = await events.get()
+                    try:
+                        await socket.send_json(event)
+                    finally:
+                        events.task_done()
 
             pump = asyncio.create_task(send())
             async with utils.http_context.open():
@@ -309,9 +317,44 @@ def mount(server, factory=None):
                         "items": speech.items,
                     }
                 )
+
+                async def disconnect_idle():
+                    nonlocal speech
+                    current = speech
+                    await current.close()
+                    speech = None
+                    events.put_nowait(
+                        {"type": "idle", "conversation_id": current.conversation_id}
+                    )
+                    # Preserve event order, but do not wait forever if the client
+                    # disconnects and the sender has already stopped.
+                    drained = asyncio.create_task(events.join())
+                    try:
+                        done, _ = await asyncio.wait(
+                            [drained, pump],
+                            timeout=5,
+                            return_when=asyncio.FIRST_COMPLETED,
+                        )
+                        if not done:
+                            raise TimeoutError("Idle notice delivery timed out")
+                        if pump in done:
+                            await pump
+                    finally:
+                        drained.cancel()
+                        await asyncio.gather(drained, return_exceptions=True)
+
+                idle = SessionIdle(speech.session, idle_seconds, disconnect_idle)
                 async with asyncio.timeout(1200):
                     while True:
-                        message = await socket.receive()
+                        receiving = asyncio.create_task(socket.receive())
+                        await asyncio.wait(
+                            [receiving, idle.task], return_when=asyncio.FIRST_COMPLETED
+                        )
+                        if idle.expired:
+                            await idle.task
+                            break
+                        message = receiving.result()
+                        receiving = None
                         if message["type"] == "websocket.disconnect":
                             break
                         if message.get("bytes") is not None:
@@ -341,6 +384,13 @@ def mount(server, factory=None):
                                 }
                             )
                             break
+                        if command["type"] in {
+                            "start_turn",
+                            "end_turn",
+                            "cancel_turn",
+                            "text",
+                        }:
+                            idle.touch()
                         try:
                             result = await speech.control(
                                 command["type"], command.get("payload", "")
@@ -376,6 +426,11 @@ def mount(server, factory=None):
                     }
                 )
         finally:
+            if receiving:
+                receiving.cancel()
+                await asyncio.gather(receiving, return_exceptions=True)
+            if idle:
+                await idle.aclose()
             try:
                 if speech:
                     await speech.close()

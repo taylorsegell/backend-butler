@@ -99,3 +99,30 @@ async def test_close_revokes_immediately_then_waits_for_inflight_setup_cleanup()
     session.operation_lock.release()
     await closing
     assert session.receiver.closed
+
+
+@pytest.mark.asyncio
+async def test_worker_idle_revokes_only_its_bridge_without_a_browser_cleanup():
+    import asyncio
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    registry = module.SessionRegistry(
+        Receiver,
+        lambda _owner, _selected: SimpleNamespace(listeners=set(), close=AsyncMock()),
+    )
+    alice = await registry.open("alice")
+    bob = await registry.open("bob")
+    try:
+        for listener in list(alice.speech.listeners):
+            listener({"type": "idle"})
+        async with asyncio.timeout(1):
+            while not alice.receiver.closed:
+                await asyncio.sleep(0)
+        with pytest.raises(PermissionError):
+            registry.owned("alice", alice.id)
+        assert not bob.receiver.closed
+        assert registry.owned("bob", bob.id) is bob
+        alice.speech.close.assert_awaited_once()
+    finally:
+        await registry.shutdown()

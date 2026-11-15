@@ -602,11 +602,11 @@ function CardShell() {
 
   // --- connection lifecycle ---
   // Connect on open only when auto_connect is set; otherwise the card stays static until the
-  // first send/speak. The connection is media-free (no mic/subscribe until a turn), so it's
-  // cheap to keep alive: we deliberately do NOT tear it down on background / tab-visibility
+  // first send/speak. The connection starts media-free and is subject to the worker's
+  // idle timeout. Active work stays connected on background / tab-visibility
   // changes, on switching between our Chat/Schedules tabs, or on lovelace-view switches —
   // returning shows the same state, with no refresh. We only release it when the page is
-  // actually unloaded (pagehide) or the card is removed (unmount).
+  // actually unloaded (pagehide), the card is removed, or the worker reports idle.
   const [autoTried, setAutoTried] = useState(false);
   useEffect(() => {
     if (!autoConnect || autoTried || !hass || connected || document.hidden) return;
@@ -657,6 +657,11 @@ function CardShell() {
     replyAudio.restore();
     requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLButtonElement>('[aria-label="Start talking"], [aria-label="Start listening"]')?.focus());
   };
+  const endVoiceRef = useRef(endVoice);
+  endVoiceRef.current = endVoice;
+  const onSessionIdle = useCallback(() => { setAutoTried(true); void endVoiceRef.current(); }, []);
+  useRoomDataTopic(session.room, 'ha.session_idle', onSessionIdle);
+
   const stopReplyAudio = () => {
     replyAudio.stop();
     requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());

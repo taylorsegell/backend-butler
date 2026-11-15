@@ -12,6 +12,7 @@ export function useSession(_source:any,{room}:any) {
  const [connected,setConnected]=useState(false);
  const methods=useMemo(()=>{
   let publication:any;let sequence=0;
+  (window as any).emitIdle=()=>room.emit(RoomEvent.DataReceived,new TextEncoder().encode(JSON.stringify({reason:'idle_timeout'})),undefined,undefined,'ha.session_idle');
   const state=(stt=false)=>room.emit(RoomEvent.DataReceived,new TextEncoder().encode(JSON.stringify({stt_enabled:stt,audio_output:false})),undefined,undefined,'ha.speech_state');
   room.localParticipant.getTrackPublication=()=>publication;
   room.localParticipant.publishTrack=async(track:any)=>{
@@ -28,13 +29,14 @@ export function useSession(_source:any,{room}:any) {
   };
   return {
    start:async()=>{
+    (window as any).sessionStarts=((window as any).sessionStarts||0)+1;
     (window as any).connectionStarted=true;
     await new Promise(r=>setTimeout(r,Number(new URLSearchParams(location.search).get('delay')||150)));
     room.state=ConnectionState.Connected;
     room.remoteParticipants.set('synthetic-agent',{identity:'synthetic-agent',kind:ParticipantKind.AGENT,isAgent:true,audioTrackPublications:new Map()});
     setConnected(true);room.emit(RoomEvent.ConnectionStateChanged,ConnectionState.Connected);
    },
-   end:async()=>{room.state=ConnectionState.Disconnected;setConnected(false);room.emit(RoomEvent.ConnectionStateChanged,ConnectionState.Disconnected)},room,
+   end:async()=>{(window as any).sessionEnds=((window as any).sessionEnds||0)+1;room.state=ConnectionState.Disconnected;setConnected(false);room.emit(RoomEvent.ConnectionStateChanged,ConnectionState.Disconnected)},room,
   };
  },[room]);
  return {...methods,isConnected:connected};

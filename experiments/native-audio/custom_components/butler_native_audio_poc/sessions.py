@@ -70,6 +70,13 @@ class SessionRegistry:
                 if speech:
                     await speech.close()
                 raise
+            if speech:
+
+                def expire_idle(event):
+                    if event.get("type") == "idle":
+                        asyncio.create_task(self.expire(session.id))
+
+                speech.listeners.add(expire_idle)
             session.expiry = asyncio.get_running_loop().call_later(
                 1200, lambda: asyncio.create_task(self.expire(session.id))
             )

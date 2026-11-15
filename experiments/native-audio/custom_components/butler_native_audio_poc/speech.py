@@ -18,6 +18,7 @@ class SpeechRelay:
         self.conversation_id = None
         self.worker_url = worker_url
         self.closed = False
+        self.idle = False
         self.token = token
         self.lock = asyncio.Lock()
         self.client = None
@@ -54,6 +55,7 @@ class SpeechRelay:
                     heartbeat=20,
                 )
                 self.items = []
+                self.idle = False
                 self.ready = asyncio.get_running_loop().create_future()
                 self.reader = asyncio.create_task(self._read())
                 await asyncio.wait_for(asyncio.shield(self.ready), 30)
@@ -81,6 +83,8 @@ class SpeechRelay:
                         else:
                             future.set_result(event["result"])
                 else:
+                    if kind == "idle":
+                        self.idle = True
                     if kind == "conversation":
                         self.items = event["items"]
                     if kind == "state":
@@ -94,7 +98,8 @@ class SpeechRelay:
                 if not future.done():
                     future.set_exception(error)
             self.pending.clear()
-            self.publish({"type": "error", "message": str(error)})
+            if not self.idle and not self.closed:
+                self.publish({"type": "error", "message": str(error)})
 
     def publish(self, event):
         for listener in list(self.listeners):
@@ -124,6 +129,7 @@ class SpeechRelay:
         try:
             if (
                 self.worker_url
+                and not self.idle
                 and self.socket
                 and not self.socket.closed
                 and self.ready
