@@ -15,6 +15,7 @@ class BridgeSession:
     owner: str
     receiver: object
     speech: object = None
+    conversation_id: str | None = None
     camera: object = None
     closed: bool = False
     expiry: object = None
@@ -31,7 +32,11 @@ class BridgeSession:
 
 class SessionRegistry:
     def __init__(
-        self, receiver_factory, speech_factory=lambda: None, add=None, remove=None
+        self,
+        receiver_factory,
+        speech_factory=lambda _owner, _conversation: None,
+        add=None,
+        remove=None,
     ):
         self.receiver_factory = receiver_factory
         self.speech_factory = speech_factory
@@ -40,16 +45,20 @@ class SessionRegistry:
         self.sessions = {}
         self.lock = asyncio.Lock()
 
-    async def open(self, owner):
+    async def open(self, owner, conversation_id=None):
         async with self.lock:
             if (
                 len(self.sessions) >= 8
                 or sum(s.owner == owner for s in self.sessions.values()) >= 2
             ):
                 raise ValueError("Audio session limit reached")
-            speech = self.speech_factory()
+            speech = self.speech_factory(owner, conversation_id)
             session = BridgeSession(
-                secrets.token_hex(16), owner, self.receiver_factory(speech), speech
+                secrets.token_hex(16),
+                owner,
+                self.receiver_factory(speech),
+                speech,
+                conversation_id=conversation_id,
             )
             self.sessions[session.id] = session
             try:

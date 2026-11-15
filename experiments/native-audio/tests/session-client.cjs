@@ -16,7 +16,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../se
  const a=make(),b=make();
  await Promise.all([a.call({type:'butler_native_audio_poc/prepare'}),a.call({type:'butler_native_audio_poc/control',command:'connect'})]);
  assert.equal(opened,1,'parallel mic and connect share exactly one session');
- await b.call({type:'butler_native_audio_poc/status'});
+ await b.call({type:'butler_native_audio_poc/prepare'});
  assert.equal(opened,2,'separate cards open independent sessions');
  const status=await a.message({type:'butler_native_audio_poc/status',session_id:'spoofed'});
  assert.equal(status.session_id,'1'.padStart(32,'0'),'caller cannot override the card session');
@@ -24,6 +24,10 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../se
  assert.notEqual(status.session_id,other.session_id);
  await Promise.all([a.call({type:'butler_native_audio_poc/control',command:'disconnect'}),a.call({type:'butler_native_audio_poc/control',command:'disconnect'})]);
  assert.equal(calls.filter(message=>message.command==='disconnect').length,1,'concurrent unmount/end only close once');
+ const countBeforeLate=opened;
+ await a.call({type:'butler_native_audio_poc/control',command:'set_audio_output',payload:'on'});
+ assert.equal(opened,countBeforeLate,'late settings updates cannot resurrect a closed conversation');
+ await a.call({type:'butler_native_audio_poc/prepare'});
  const next=await a.message({type:'butler_native_audio_poc/status'});
  assert.notEqual(next.session_id,status.session_id,'new connection cannot reuse closed session');
  console.log('PASS: per-card sessions, single-flight open, request binding, disposal and replacement');

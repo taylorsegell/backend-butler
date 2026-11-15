@@ -13,6 +13,7 @@ from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.exceptions import Unauthorized
 
 from .camera import NativeAudioCamera
+from .history import HistoryProxy, worker_url
 from .receiver import Receiver
 from .sessions import SessionRegistry
 from .signaling import install, owner
@@ -45,6 +46,7 @@ async def async_setup(hass, config):
     config_file = Path(hass.config.path("model-config.json"))
     token = None
     port = 18952
+    target_worker = None
     if (
         config_file.exists()
         and Path(hass.config.path("BUTLER_NATIVE_SPEECH")).is_file()
@@ -54,6 +56,8 @@ async def async_setup(hass, config):
         )
         token = model_config["LAB_SERVICE_TOKEN"]
         port = model_config.get("LAB_SPEECH_PORT", 18952)
+        if model_config.get("LAB_WORKER_URL"):
+            target_worker = worker_url(model_config["LAB_WORKER_URL"])
 
     async def add(session):
         session.camera = NativeAudioCamera(session)
@@ -63,11 +67,27 @@ async def async_setup(hass, config):
         await session.camera.async_remove()
 
     registry = SessionRegistry(
-        Receiver, lambda: SpeechRelay(token, port) if token else None, add, remove
+        Receiver,
+        lambda user, selected: (
+            SpeechRelay(
+                token,
+                port,
+                owner=user,
+                conversation_id=selected,
+                worker_url=target_worker,
+            )
+            if token
+            else None
+        ),
+        add,
+        remove,
     )
     # Install the authenticated signaling guard before exposing any audio endpoints.
     install(hass, registry)
     hass.data[DOMAIN] = registry
+    hass.data[DOMAIN + "_history"] = (
+        HistoryProxy(target_worker, token) if target_worker else None
+    )
     await hass.http.async_register_static_paths(
         [
             StaticPathConfig(
@@ -83,7 +103,7 @@ async def async_setup(hass, config):
         await registry.shutdown()
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, shutdown)
-    for command in [open_session, prepare, status, stop, control, events]:
+    for command in [open_session, prepare, status, stop, control, events, history]:
         websocket_api.async_register_command(hass, command)
     return True
 
@@ -95,13 +115,20 @@ def owned(hass, connection, message):
         raise Unauthorized() from error
 
 
-@websocket_api.websocket_command({probatio.Required("type"): DOMAIN + "/open"})
+@websocket_api.websocket_command(
+    {
+        probatio.Required("type"): DOMAIN + "/open",
+        probatio.Optional("conversation_id"): probatio.All(
+            str, probatio.Length(min=1, max=200)
+        ),
+    }
+)
 @websocket_api.async_response
 async def open_session(hass, connection, msg):
     registry = hass.data[DOMAIN]
     user_id = owner(connection)
     try:
-        session = await registry.open(user_id)
+        session = await registry.open(user_id, msg.get("conversation_id"))
     except ValueError:
         connection.send_error(
             msg["id"],
@@ -184,7 +211,10 @@ async def control(hass, connection, msg):
     try:
         if command == "connect":
             await session.speech.connect()
-            result = {"items": session.speech.items}
+            result = {
+                "items": session.speech.items,
+                "conversation_id": session.speech.conversation_id,
+            }
         else:
             result = await session.speech.control(command, msg["payload"])
         if session.closed:
@@ -219,3 +249,28 @@ async def events(hass, connection, msg):
         listener
     )
     connection.send_result(msg["id"])
+
+
+@websocket_api.websocket_command(
+    {
+        probatio.Required("type"): DOMAIN + "/history",
+        probatio.Required("operation"): str,
+        probatio.Optional("data", default={}): dict,
+    }
+)
+@websocket_api.async_response
+async def history(hass, connection, msg):
+    user = owner(connection)
+    proxy = hass.data[DOMAIN + "_history"]
+    if proxy is None:
+        connection.send_error(
+            msg["id"], "unavailable", "Worker history is not configured"
+        )
+        return
+    try:
+        result = await proxy.request(user, msg["operation"], msg["data"])
+        connection.send_result(msg["id"], result)
+    except (ValueError, aiohttp.ClientError, TimeoutError):
+        connection.send_error(
+            msg["id"], "history_failed", "Conversation request failed"
+        )

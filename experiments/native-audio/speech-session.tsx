@@ -1,4 +1,4 @@
-/** Existing Butler UI backed by a real, tool-free LiveKit AgentSession over HA auth. */
+/** Existing Butler UI backed by a real LiveKit AgentSession over HA auth. */
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ConnectionState, ParticipantKind, RoomEvent } from 'livekit-client';
 import { useHass } from '../../apps/dashboard-card/src/hass/context';
@@ -22,7 +22,7 @@ export function useSession(_source: any, { room }: any) {
   const hassRef = useRef(currentHass);
   hassRef.current = currentHass;
   const hass = () => hassRef.current!;
-  const [connected, setConnected] = useState(false);
+  const [, setConnected] = useState(false);
   const [agentState, setAgentState] = useState('disconnected');
   const [playing, setPlaying] = useState(false);
   const methods = useMemo(() => {
@@ -31,11 +31,12 @@ export function useSession(_source: any, { room }: any) {
     let unsubscribe: (() => void) | undefined;
     let items: any[] = [];
     let sessionId = '';
+    let conversationId = '';
     let listening = false;
     let audioOutput = true;
     let disposed = false;
     const data = (topic: string, message: any) => room.emit(RoomEvent.DataReceived, new TextEncoder().encode(JSON.stringify(message)), undefined, undefined, topic);
-    const seed = () => ({ id: sessionId, items });
+    const seed = () => ({ id: conversationId || sessionId, items });
     const state = () => data('ha.speech_state', { stt_enabled: listening, audio_output: audioOutput });
     const control = (command: string, payload = '') => hass().callWS({ type: 'butler_native_audio_poc/control', command, payload });
     const fail = (message: string) => data('ha.conversation_error', { message });
@@ -67,7 +68,7 @@ export function useSession(_source: any, { room }: any) {
         void room.startAudio().catch(() => room.emit(RoomEvent.AudioPlaybackStatusChanged, false));
         unsubscribe = await hass().connection.subscribeMessage((event: any) => {
           if (disposed) return;
-          if (event.type === 'conversation') { items = event.items; data('ha.conversation', seed()); }
+          if (event.type === 'conversation') { conversationId = event.conversation_id || conversationId; items = event.items; data('ha.conversation', seed()); }
           if (event.type === 'state') setAgentState(event.state);
           if (event.type === 'audio') player.push(event);
           if (event.type === 'audio_clear') player.stop();
@@ -78,6 +79,7 @@ export function useSession(_source: any, { room }: any) {
           if (disposed) { await control('disconnect'); unsubscribe?.(); return; }
           items = result.items;
           sessionId = result.session_id;
+          conversationId = result.conversation_id || sessionId;
           room.state = ConnectionState.Connected;
           room.remoteParticipants.set('native-speech', { identity: 'native-speech', kind: ParticipantKind.AGENT, isAgent: true, audioTrackPublications: new Map() });
           setConnected(true);
@@ -97,5 +99,5 @@ export function useSession(_source: any, { room }: any) {
     };
   }, [room]);
   useEffect(() => () => { void methods.end(); }, [methods]);
-  return { ...methods, isConnected: connected, agentState, playing };
+  return { ...methods, get isConnected() { return room.state === ConnectionState.Connected; }, agentState, playing };
 }

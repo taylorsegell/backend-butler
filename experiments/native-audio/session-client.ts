@@ -3,13 +3,14 @@ export class SessionClient {
   private id: string | undefined;
   private opening: Promise<string> | undefined;
   private closing: Promise<unknown> | undefined;
-  constructor(private readonly send: (message: Record<string, unknown>) => Promise<any>) {}
+  constructor(private readonly send: (message: Record<string, unknown>) => Promise<any>, private readonly selected: () => string | null = () => null) {}
 
-  private async ensure(): Promise<string> {
+  private async ensure(open = true): Promise<string | undefined> {
     await this.closing;
     if (this.id) return this.id;
     if (!this.opening) {
-      this.opening = this.send({ type: 'butler_native_audio_poc/open' }).then(result => {
+      if (!open) return undefined;
+      this.opening = this.send({ type: 'butler_native_audio_poc/open', ...(this.selected() ? {conversation_id: this.selected()} : {}) }).then(result => {
         if (!/^[0-9a-f]{32}$/.test(result?.session_id)) throw new Error('Invalid audio session');
         this.id = result.session_id;
         return this.id;
@@ -34,6 +35,10 @@ export class SessionClient {
       this.closing = closing;
       return closing;
     }
-    return this.send(await this.message(message));
+    const starts = message.type === 'butler_native_audio_poc/prepare' ||
+      (message.type === 'butler_native_audio_poc/control' && message.command === 'connect');
+    const id = await this.ensure(starts);
+    if (!id) return {};
+    return this.send({ ...message, session_id: id });
   }
 }
