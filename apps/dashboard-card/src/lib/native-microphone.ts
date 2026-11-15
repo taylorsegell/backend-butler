@@ -34,7 +34,7 @@ export class NativeMicrophone {
     if (!this.external?.config.webrtc?.hasCameraMicrophoneStream) {
       throw new DOMException('This Companion app does not expose native microphone streaming', 'NotSupportedError');
     }
-    if (this.entityId !== 'camera.butler_native_audio_poc') {
+    if (!/^camera\.butler_native_audio_[0-9a-f]{32}$/.test(this.entityId)) {
       throw new DOMException('The experimental microphone receiver is not configured', 'NotSupportedError');
     }
     this.target.addEventListener('webrtc-stream-stopped', this.interruptedByApp);

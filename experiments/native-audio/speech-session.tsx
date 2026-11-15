@@ -1,11 +1,11 @@
 /** Existing Butler UI backed by a real, tool-free LiveKit AgentSession over HA auth. */
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ConnectionState, ParticipantKind, RoomEvent } from 'livekit-client';
+import { useHass } from '../../apps/dashboard-card/src/hass/context';
 import { ReplyPlayer } from './reply-player';
 
 const Context = createContext<any>(null);
 const transcriptions: any[] = [];
-const hass = () => (window as any).__nativePocHass;
 export const SessionProvider = ({ session, children }: any) => <Context.Provider value={session}>{children}</Context.Provider>;
 export const useSessionContext = () => useContext(Context);
 export const useAgent = () => { const session = useSessionContext(); return { state: session.playing ? 'speaking' : session.agentState, isConnected: session.isConnected }; };
@@ -18,6 +18,10 @@ export function RoomAudioRenderer({ muted }: { muted?: boolean }) {
 export const useChat = () => { const session = useSessionContext(); return { send: async (text: string) => session.control('text', text) }; };
 
 export function useSession(_source: any, { room }: any) {
+  const currentHass = useHass() as ReturnType<typeof useHass> & { connection: { subscribeMessage(callback: (event: any) => void, message: any): Promise<() => void> } };
+  const hassRef = useRef(currentHass);
+  hassRef.current = currentHass;
+  const hass = () => hassRef.current!;
   const [connected, setConnected] = useState(false);
   const [agentState, setAgentState] = useState('disconnected');
   const [playing, setPlaying] = useState(false);
@@ -26,11 +30,12 @@ export function useSession(_source: any, { room }: any) {
     player.onPlaying = setPlaying;
     let unsubscribe: (() => void) | undefined;
     let items: any[] = [];
+    let sessionId = '';
     let listening = false;
     let audioOutput = true;
     let disposed = false;
     const data = (topic: string, message: any) => room.emit(RoomEvent.DataReceived, new TextEncoder().encode(JSON.stringify(message)), undefined, undefined, topic);
-    const seed = () => ({ id: 'isolated-native-speech', items });
+    const seed = () => ({ id: sessionId, items });
     const state = () => data('ha.speech_state', { stt_enabled: listening, audio_output: audioOutput });
     const control = (command: string, payload = '') => hass().callWS({ type: 'butler_native_audio_poc/control', command, payload });
     const fail = (message: string) => data('ha.conversation_error', { message });
@@ -72,6 +77,7 @@ export function useSession(_source: any, { room }: any) {
           const result = await control('connect');
           if (disposed) { await control('disconnect'); unsubscribe?.(); return; }
           items = result.items;
+          sessionId = result.session_id;
           room.state = ConnectionState.Connected;
           room.remoteParticipants.set('native-speech', { identity: 'native-speech', kind: ParticipantKind.AGENT, isAgent: true, audioTrackPublications: new Map() });
           setConnected(true);
