@@ -14,7 +14,6 @@ import logging
 import time
 
 from aiohttp import ClientError, ClientTimeout, web
-
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
@@ -23,12 +22,12 @@ from homeassistant.util import slugify
 
 from .const import (
     CHAT_CANCEL_URL,
-    CHAT_WARM_URL,
     CHAT_CONVERSATIONS_URL,
     CHAT_DELETE_URL,
     CHAT_HISTORY_URL,
     CHAT_SWITCH_URL,
     CHAT_URL,
+    CHAT_WARM_URL,
     CONF_CHAT_TOKEN,
     CONF_CHAT_URL,
     CONF_SCHEDULER_TOKEN,
@@ -98,7 +97,10 @@ async def _json_body(request: web.Request) -> object | None:
 
 
 # each HA login's person, as last resolved, and when; a settings save clears it
-_RESOLVED: dict[str, tuple[float, str | None]] = {}
+def clear_person_cache(hass):
+    hass.data.get(DOMAIN, {}).pop("person_cache", None)
+
+
 _RESOLVED_TTL = 60.0
 
 
@@ -107,12 +109,17 @@ async def user_id(hass: HomeAssistant, request: web.Request) -> str | None:
 
     The agent and the scheduler know a person only by that id. The Text tab polls every
     second, so each login's answer is reused for a minute."""
-    user = request.get("hass_user")
+    return await person_id_for_user(hass, request.get("hass_user"))
+
+
+async def person_id_for_user(hass, user) -> str | None:
+    """Resolve an authenticated HA identity to the worker's history owner."""
     config = hass.data.get(DOMAIN, {}).get(DATA_CONFIG) or {}
     base = config.get(CONF_SCHEDULER_URL)
     if user is None or not base:
         return None
-    if (cached := _RESOLVED.get(user.id)) and time.monotonic() - cached[0] < _RESOLVED_TTL:
+    resolved_cache = hass.data.setdefault(DOMAIN, {}).setdefault("person_cache", {})
+    if (cached := resolved_cache.get(user.id)) and time.monotonic() - cached[0] < _RESOLVED_TTL:
         return cached[1]
     token = config.get(CONF_SCHEDULER_TOKEN)
     headers = {"Authorization": f"Bearer {token}"} if token else None
@@ -121,13 +128,14 @@ async def user_id(hass: HomeAssistant, request: web.Request) -> str | None:
             f"{base.rstrip('/')}/users/resolve",
             params={"ha_user_id": user.id},
             headers=headers,
+            timeout=ClientTimeout(total=10),
         ) as resp:
             resp.raise_for_status()
             resolved = (await resp.json()).get("id")
-    except (ClientError, ValueError) as err:
+    except (ClientError, ValueError, TimeoutError) as err:
         _LOGGER.warning("could not resolve the person of HA user %s: %s", user.id, err)
         return None
-    _RESOLVED[user.id] = (time.monotonic(), resolved)
+    resolved_cache[user.id] = (time.monotonic(), resolved)
     return resolved
 
 
@@ -268,11 +276,22 @@ class LiveKitSettingsView(HomeAssistantView):
         # a login reaches, so only an admin may change them
         if not request["hass_user"].is_admin:
             return web.json_response({"detail": "admin only"}, status=403)
-        # a person's HA login may have changed
-        _RESOLVED.clear()
-        return await _forward(
-            self._hass, "PUT", "/settings", json_body=await _json_body(request)
-        )
+        # Freeze opens while the administrator changes HA-to-person authorization.
+        bridge = self._hass.data.get(DOMAIN, {}).get("native_audio")
+        if bridge:
+            bridge.paused = True
+            bridge.generation += 1
+        try:
+            if bridge:
+                await bridge.registry.shutdown()
+            return await _forward(
+                self._hass, "PUT", "/settings", json_body=await _json_body(request)
+            )
+        finally:
+            clear_person_cache(self._hass)
+            if bridge:
+                bridge.paused = False
+
 
 
 class LiveKitChatView(HomeAssistantView):

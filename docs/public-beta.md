@@ -47,3 +47,14 @@ Stop rollout immediately for cross-user access, lost conversations, or unintende
 ## Beta.2 candidate
 
 Use the canonical repository and read [migration verification](beta2-migration.md) before upgrading an older checkout. Integration/card version is `1.1.0-beta.2`; the optional configuration app keeps its independent version. The beta.1 draft in the archived staging repository is superseded.
+
+## Native audio integration candidate
+
+The native-audio worktree packages Companion capture into the standard integration
+and card, with local HTTP, Grok Rex through LiveKit Inference, and existing linked
+person history. Native capture remains opt-in on both HA and the worker. See
+[native audio setup and evidence](native-audio.md). The packaged standard path is
+covered by real disposable HA signaling and the production compiled-card tests;
+a physical iPhone pass on this packaged path is still a release gate. The earlier
+experimental lab phone pass does not replace it. No beta/house deployment is part
+of packaging this candidate.

@@ -1,4 +1,4 @@
-/** Experimental iOS camera-microphone bridge; never launches native Assist. */
+/** Companion camera-microphone bridge; never launches native Assist. */
 export interface NativeExternalMessaging {
   config: { webrtc?: { hasCameraMicrophoneStream?: boolean } };
   sendMessage(message: { type: string; payload: Record<string, string> }): Promise<{ session_id: string }>;
@@ -34,8 +34,8 @@ export class NativeMicrophone {
     if (!this.external?.config.webrtc?.hasCameraMicrophoneStream) {
       throw new DOMException('This Companion app does not expose native microphone streaming', 'NotSupportedError');
     }
-    if (!/^camera\.butler_native_audio_[0-9a-f]{32}$/.test(this.entityId)) {
-      throw new DOMException('The experimental microphone receiver is not configured', 'NotSupportedError');
+    if (!/^camera\.(?:backend_butler_native_audio_|butler_native_audio_)[0-9a-f]{32}$/.test(this.entityId)) {
+      throw new DOMException('The native microphone receiver is not configured', 'NotSupportedError');
     }
     this.target.addEventListener('webrtc-stream-stopped', this.interruptedByApp);
     try {

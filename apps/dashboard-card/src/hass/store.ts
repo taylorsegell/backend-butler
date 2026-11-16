@@ -28,6 +28,7 @@ export interface Hass {
   user?: { id: string; name: string; is_admin: boolean; is_owner?: boolean };
   callService: (domain: string, service: string, data?: Record<string, any>) => Promise<any>;
   callApi: <T = any>(method: string, path: string, parameters?: any) => Promise<T>;
+  connection?: { subscribeMessage(callback: (event: any) => void, message: any): Promise<() => void> };
   callWS?: <T = any>(msg: any) => Promise<T>;
 }
 

@@ -141,6 +141,12 @@ Cloud **audio recordings** are off by default, independently of saved conversati
 
 The integration in `custom_components/backend_butler` is a HACS custom integration and Lovelace card with native device tiles you can tap, plus voice, text chat, a transcript, and tool-call status. It mints LiveKit tokens for logged-in HA users and dispatches this worker by `AGENT_NAME`. Install it as in the [Quickstart](#quickstart); [docs/home-assistant.md](docs/home-assistant.md) has the card options and how to build the card.
 
+The standard integration also packages an opt-in **Companion native microphone**
+bridge for local HTTP, keeping Butler's card and saved conversations. See
+[native audio setup and candidate validation](docs/native-audio.md). Browser voice
+continues using LiveKit RTC. Packaged-path iPhone acceptance is pending.
+
+
 Install the card, point it at this worker, and talk to the house. Name the room if you want the right light.
 
 ### Butler approval requests

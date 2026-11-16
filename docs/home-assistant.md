@@ -9,6 +9,11 @@ The voice **worker** — the agent brain (STT / LLM / TTS + Home Assistant MCP) 
 logged-in Home Assistant users, proxies the scheduler and the text chat for the card, and
 serves the card that runs the voice session in the HA frontend.
 
+For **Companion microphone capture over local HTTP**, the standard integration also
+includes an opt-in per-user native bridge. It keeps this card and saved history;
+see [native audio setup and support](native-audio.md). This candidate path still
+needs its packaged-installation iPhone acceptance pass before release.
+
 ## What the card does
 
 - **Native device tiles from `hass.states`** — live status, **tap to toggle**, long-press /

@@ -16,6 +16,7 @@
   "integration_type": "service",
   "iot_class": "local_push",
   "requirements": [
+    "aiortc==1.14.0",
     "livekit-api>=1.0.0"
   ]
 }

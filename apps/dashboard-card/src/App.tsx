@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ConnectionState, createLocalAudioTrack, ParticipantKind, type LocalAudioTrack, type RemoteParticipant, Room, RoomEvent, Track } from 'livekit-client';
 import {
+  NativeSessionProvider,
   RoomAudioRenderer,
   SessionProvider,
   useAgent,
   useChat,
   useSession,
   useSessionContext,
-} from '@livekit/components-react';
+} from './lib/voice-session';
 import { Conversation } from './components/Conversation';
 import { DeviceTiles } from './components/DeviceTiles';
 import { Dock } from './components/Dock';
@@ -52,6 +53,28 @@ export function Root({ store }: { store: HassStore }) {
 }
 
 function SessionRoot() {
+  const hass = useHass();
+  const config = useCardConfig();
+  const companion = !config.experimental_native_microphone && hass?.auth?.external?.config.webrtc?.hasCameraMicrophoneStream === true;
+  const [native, setNative] = useState<boolean | null>(companion ? null : false);
+  useEffect(() => {
+    let disposed = false;
+    if (!companion) { setNative(false); return; }
+    void hass!.callApi<{ enabled: boolean }>('GET', 'backend_butler/native/config')
+      .then(result => { if (!disposed) setNative(result.enabled === true); })
+      .catch(() => { if (!disposed) setNative(false); });
+    return () => { disposed = true; };
+  }, [companion]);
+  if (native === null) return <div role="status">Loading Butler…</div>;
+  return native ? <NativeSessionRoot /> : <RTCSessionRoot />;
+}
+
+function NativeSessionRoot() {
+  const room = useMemo(() => new Room({ publishDefaults: { stopMicTrackOnMute: true } }), []);
+  return <NativeSessionProvider room={room}><CardShell /></NativeSessionProvider>;
+}
+
+function RTCSessionRoot() {
   const store = useStore();
   const tokenSource = useMemo(() => new HassTokenSource(store), [store]);
   // Own the Room so we can set stopMicTrackOnMute: muting the mic (ending/cancelling a turn,
@@ -142,7 +165,8 @@ function CardShell() {
   const voiceSendInFlight = useRef(false);
   const [voiceDraft, setVoiceDraft] = useState('');
   const [tilesVisible, toggleTiles] = useTilesVisible();
-  const textChat = useTextChat(false);
+  const nativeCapture = Boolean(session.nativeClient) || config.experimental_native_microphone;
+  const textChat = useTextChat(false, !nativeCapture);
   // the text conversation schedules tasks too, so its calls refresh the list as well
   const allToolCalls = useMemo(
     () => [...toolCalls, ...textChat.toolCalls],
@@ -349,14 +373,16 @@ function CardShell() {
   const openTurn = useCallback(() => {
     const generation = voiceGeneration.current;
     const room = sessionRef.current.room!;
-    if (config.experimental_native_microphone) {
-      // The isolated lab must authenticate and arm its receiver before native capture.
+    if (nativeCapture) {
+      // Authenticate and arm the owner-bound receiver before native capture.
       return startMicrophone({
         acquire: async () => {
           try {
-            const prepared = await hassRef.current?.callWS?.<{ experiment: boolean; entity_id: string }>({ type: 'butler_native_audio_poc/prepare' });
+            const prepared = sessionRef.current.nativeClient
+              ? await sessionRef.current.nativeClient.call({ type: 'backend_butler/native/prepare' })
+              : await hassRef.current?.callWS?.<{ experiment: boolean; entity_id: string }>({ type: 'butler_native_audio_poc/prepare' });
             if (generation !== voiceGeneration.current) throw new VoiceStartError('cancelled');
-            if (prepared?.experiment !== true) throw new DOMException('The isolated native microphone receiver is unavailable', 'NotSupportedError');
+            if (!prepared?.entity_id) throw new DOMException('The native microphone receiver is unavailable', 'NotSupportedError');
             const microphone = new NativeMicrophone(hassRef.current?.auth?.external, prepared.entity_id, setNativeMicActive, () => {
               setTurnActive(false); setAutoPaused(true);
               setMicrophoneError(microphoneFailure(new DOMException('Native microphone session ended', 'AbortError')));
@@ -375,7 +401,7 @@ function CardShell() {
         unpublish: async microphone => microphone.stop(),
         start: () => {
           const identity = agentIdentity(room);
-          if (!identity) throw new Error('Audio test session is unavailable');
+          if (!identity) throw new Error('Native audio session is unavailable');
           return room.localParticipant.performRpc({ destinationIdentity: identity, method: 'start_turn', payload: '' });
         },
       });
@@ -404,7 +430,7 @@ function CardShell() {
         return room.localParticipant.performRpc({ destinationIdentity: identity, method: 'start_turn', payload: '' });
       },
     });
-  }, [connectSession, config.experimental_native_microphone, rpc]);
+  }, [connectSession, nativeCapture, rpc]);
 
   const beginTurn = useCallback(
     (onFail: () => void) => {
@@ -422,7 +448,7 @@ function CardShell() {
         if (generation !== voiceGeneration.current || (error instanceof VoiceStartError && error.stage === 'cancelled')) return;
         console.error('open turn failed', error);
         if (error instanceof VoiceStartError && error.stage === 'capture') {
-          setMicrophoneError(microphoneFailure(error.reason, config.experimental_native_microphone));
+          setMicrophoneError(microphoneFailure(error.reason, nativeCapture));
           setFailure('microphone');
         } else {
           setFailure('connection');
@@ -435,7 +461,7 @@ function CardShell() {
         }
       });
     },
-    [openTurn, clearSuggestions, config.experimental_native_microphone],
+    [openTurn, clearSuggestions, nativeCapture],
   );
 
   // Close the mic side of a turn: clear `micStarting`, tell the agent (commit or discard), and

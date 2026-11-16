@@ -30,6 +30,33 @@ jobs:
         if: matrix.project == 'apps/voice-worker'
       - run: uv run --no-sync pytest -q
 
+  home-assistant:
+    name: Standard HA integration and native audio
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: '0.13.0'
+          python-version: '3.14'
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 12
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: uv venv --python 3.14 /tmp/butler-ha-ci
+      - run: uv pip install --python /tmp/butler-ha-ci/bin/python -r tests/ha/requirements.txt
+      - run: pnpm --dir apps/dashboard-card install --frozen-lockfile
+      - run: pnpm --dir apps/dashboard-card exec playwright install --with-deps chromium
+      - run: /tmp/butler-ha-ci/bin/python -m pytest tests/ha -q
+      - name: Test copied HACS component, production card and two ordinary users
+        run: /tmp/butler-ha-ci/bin/python tests/ha/package_check.py
+        env:
+          BUTLER_PACKAGE_BROWSER: '1'
+
   compose:
     name: Compose validation
     runs-on: ubuntu-latest
