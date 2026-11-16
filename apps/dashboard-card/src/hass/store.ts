@@ -1,3 +1,5 @@
+import type { NativeExternalMessaging } from '../lib/native-microphone';
+
 // External store bridging Home Assistant's imperative `hass`/`config` setters to React.
 // HA sets `card.hass` on every state change; the store notifies React via
 // useSyncExternalStore so tiles reflect live state.
@@ -11,6 +13,7 @@ export interface HassEntity {
 }
 
 export interface Hass {
+  auth?: { external?: NativeExternalMessaging };
   states: Record<string, HassEntity>;
   /** Entity registry: entity_id -> { area_id, device_id, ... } */
   entities?: Record<string, any>;
@@ -25,13 +28,14 @@ export interface Hass {
   user?: { id: string; name: string; is_admin: boolean; is_owner?: boolean };
   callService: (domain: string, service: string, data?: Record<string, any>) => Promise<any>;
   callApi: <T = any>(method: string, path: string, parameters?: any) => Promise<T>;
+  connection?: { subscribeMessage(callback: (event: any) => void, message: any): Promise<() => void> };
   callWS?: <T = any>(msg: any) => Promise<T>;
 }
 
 export interface CardConfig {
   type: string;
   title?: string;
-  /** Turn mode to boot in. Default 'push_to_talk'. */
+  /** Turn mode to boot in. Default 'auto'; microphone still requires an explicit start. */
   input_mode?: 'push_to_talk' | 'auto';
   /** Let the agent speak replies aloud (TTS). Default false — text-only, zero TTS cost. */
   audio_output?: boolean;

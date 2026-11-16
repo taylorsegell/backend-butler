@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import urlsplit
 
 import voluptuous as vol
-
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -16,18 +16,34 @@ from homeassistant.core import callback
 
 from .const import (
     CONF_AGENT_NAME,
-    CONF_CHAT_TOKEN,
-    CONF_CHAT_URL,
     CONF_API_KEY,
     CONF_API_SECRET,
+    CONF_CHAT_TOKEN,
+    CONF_CHAT_URL,
     CONF_LIVEKIT_URL,
     CONF_MUSIC_URL,
+    CONF_NATIVE_AUDIO,
     CONF_SCHEDULER_TOKEN,
     CONF_SCHEDULER_URL,
     DEFAULT_AGENT_NAME,
     DOMAIN,
 )
 from .legacy import legacy_defaults
+
+
+def native_config_errors(config):
+    if not config.get(CONF_NATIVE_AUDIO, False):
+        return {}
+    if not all(config.get(key) for key in (CONF_CHAT_TOKEN, CONF_SCHEDULER_URL, CONF_SCHEDULER_TOKEN)):
+        return {"base": "native_connection_required"}
+    try:
+        parsed = urlsplit(config.get(CONF_CHAT_URL, ""))
+        valid = parsed.scheme in {"http", "https"} and parsed.hostname and not (
+            parsed.username or parsed.password or parsed.query or parsed.fragment
+        )
+    except ValueError:
+        valid = False
+    return {} if valid else {"base": "native_connection_required"}
 
 
 class LiveKitVoiceConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -39,13 +55,14 @@ class LiveKitVoiceConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle the initial setup step."""
-        if user_input is not None:
+        errors = native_config_errors(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             return self.async_create_entry(
                 title="Backend Butler", data=user_input
             )
 
         # pre-fill from an older install's entry when one exists
-        prev = legacy_defaults(self.hass)
+        prev = user_input or legacy_defaults(self.hass)
 
         def _required(key: str) -> vol.Required:
             return vol.Required(key, default=prev[key]) if key in prev else vol.Required(key)
@@ -64,11 +81,12 @@ class LiveKitVoiceConfigFlow(ConfigFlow, domain=DOMAIN):
                 # Optional: enables the card's Text tab.
                 vol.Optional(CONF_CHAT_URL, default=prev.get(CONF_CHAT_URL, "")): str,
                 vol.Optional(CONF_CHAT_TOKEN, default=prev.get(CONF_CHAT_TOKEN, "")): str,
+                vol.Optional(CONF_NATIVE_AUDIO, default=prev.get(CONF_NATIVE_AUDIO, False)): bool,
                 # Optional: adds a media_player for the music server.
                 vol.Optional(CONF_MUSIC_URL, default=prev.get(CONF_MUSIC_URL, "")): str,
             }
         )
-        return self.async_show_form(step_id="user", data_schema=schema)
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
     @staticmethod
     @callback
@@ -89,10 +107,11 @@ class LiveKitVoiceOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        if user_input is not None:
+        errors = native_config_errors(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             return self.async_create_entry(title="", data=user_input)
 
-        current = {**self._entry.data, **self._entry.options}
+        current = user_input or {**self._entry.data, **self._entry.options}
         schema = vol.Schema(
             {
                 vol.Required(
@@ -116,9 +135,10 @@ class LiveKitVoiceOptionsFlow(OptionsFlow):
                 vol.Optional(
                     CONF_CHAT_TOKEN, default=current.get(CONF_CHAT_TOKEN, "")
                 ): str,
+                vol.Optional(CONF_NATIVE_AUDIO, default=current.get(CONF_NATIVE_AUDIO, False)): bool,
                 vol.Optional(
                     CONF_MUSIC_URL, default=current.get(CONF_MUSIC_URL, "")
                 ): str,
             }
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)

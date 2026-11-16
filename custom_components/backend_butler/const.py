@@ -50,3 +50,7 @@ PROGRESS_URL = "/api/backend_butler/progress"
 DATA_CONFIG = "config"
 DATA_REGISTERED = "registered"
 DATA_PROGRESS = "progress"
+
+# Opt-in Companion microphone bridge (worker must also enable native audio).
+CONF_NATIVE_AUDIO = "native_audio_enabled"
+DATA_NATIVE_AUDIO = "native_audio"

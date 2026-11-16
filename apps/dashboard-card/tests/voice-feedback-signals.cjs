@@ -12,6 +12,7 @@ const sandbox={exports:{},require(name){return name==='react'?React:{ConnectionS
 vm.runInNewContext(code,sandbox);const {resolveVoiceFeedback:resolve,useVoiceAudioLevels:levels}=sandbox.exports;
 const base={connected:true,connecting:false,reconnecting:false,micActive:false,micStarting:false,agentState:'listening',audioOutput:true};
 assert.equal(resolve({...base,connected:false}).phase,'idle');
+assert.equal(resolve({...base,connected:false,idleEnded:true}).label,'Session ended after inactivity');
 assert.equal(resolve(base).phase,'paused','agent listening does not imply an open microphone');
 assert.equal(resolve({...base,micActive:true}).phase,'listening');
 assert.equal(resolve({...base,agentState:'speaking',audioOutput:false}).label,'Replying in text');

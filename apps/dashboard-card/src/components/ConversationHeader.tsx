@@ -1,3 +1,5 @@
+import { CallIcon } from './CallIcon';
+import { BUTLER_JACKET_PATHS, BUTLER_LOGO_VIEWBOX, BUTLER_TIE_PATH } from '../lib/logo';
 export interface ConversationHeaderProps {
   title: string;
   stateLabel: string;
@@ -19,7 +21,7 @@ export function ConversationHeader({ title, stateLabel, connected, orbState, ann
       <div className="lk-conversation-identity">
         <span className="lk-conversation-dot" data-connected={connected ? '1' : '0'} data-phase={orbState} aria-hidden="true" />
         <div className="lk-conversation-heading">
-          <span className="lk-conversation-title">{title}</span>
+          <span className="lk-conversation-title"><svg className="lk-call-header-mark" viewBox={BUTLER_LOGO_VIEWBOX} aria-hidden="true" focusable="false">{BUTLER_JACKET_PATHS.map((d, i) => <path key={i} d={d} fill="#f2f2f3" />)}<path d={BUTLER_TIE_PATH} fill="#FC6B02" /></svg>{title}</span>
           <span className="lk-conversation-status" role={announceState ? 'status' : undefined}
             aria-live={announceState ? 'polite' : 'off'} aria-atomic="true">{stateLabel}</span>
         </div>
@@ -27,15 +29,15 @@ export function ConversationHeader({ title, stateLabel, connected, orbState, ann
       <nav className="lk-conversation-actions" aria-label="Conversation options">
         <button type="button" className="lk-conversation-upcoming" onClick={onUpcoming}
           aria-label={`Upcoming tasks, ${count} ${count === 1 ? 'task' : 'tasks'}`} title="Upcoming tasks">
-          <ha-icon icon="mdi:calendar-clock-outline" aria-hidden="true" />
+          <CallIcon name="upcoming" />
           <span className="lk-conversation-upcoming-label">Upcoming</span>
           <span className="lk-conversation-count" aria-hidden="true">{count}</span>
         </button>
         <button type="button" className="lk-conversation-action" onClick={onHistory} aria-label="Conversation history" title="Conversation history">
-          <ha-icon icon="mdi:history" aria-hidden="true" />
+          <CallIcon name="history" />
         </button>
         <button type="button" className="lk-conversation-action" onClick={onSettings} aria-label="Settings" title="Settings">
-          <ha-icon icon="mdi:cog-outline" aria-hidden="true" />
+          <CallIcon name="settings" />
         </button>
       </nav>
     </header>

@@ -1,6 +1,6 @@
 # Backend Butler for Home Assistant
 
-**Voice requires HTTPS in this beta.** The dashboard microphone, including dictation, does not work when Home Assistant is opened through an ordinary local HTTP address, including inside the Companion app. Home Wi-Fi is supported when the app or browser uses a trusted HTTPS URL; cellular is not a requirement. Text chat remains available over local HTTP. Native microphone support over local HTTP, while retaining Butler’s UI, is planned for a future release and is not included here.
+**Beta.4 candidate:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
 
 A Home Assistant **custom integration + Lovelace card**. The card runs your LiveKit voice
 agent *inside* the HA dashboard and behaves like a native card: **live device tiles you can
@@ -10,6 +10,11 @@ The voice **worker** — the agent brain (STT / LLM / TTS + Home Assistant MCP) 
 `apps/voice-worker/` in this repo. The integration is the HA-side glue: it mints LiveKit tokens for
 logged-in Home Assistant users, proxies the scheduler and the text chat for the card, and
 serves the card that runs the voice session in the HA frontend.
+
+For **Companion microphone capture over local HTTP**, the standard integration also
+includes an opt-in per-user native bridge. It keeps this card and saved history;
+see [native audio setup and support](native-audio.md). The tester confirmed logo rendering and continuous calls on the packaged iPhone
+candidate; the remaining [phone checks](phone-beta-checklist.md) still need signoff.
 
 ## What the card does
 
@@ -68,7 +73,7 @@ Two independent control paths that both end at HA and reflect back into the card
    connected to the same LiveKit project.
 5. Add the card to a dashboard (Edit dashboard → Add card → “Backend Butler”, or
    in YAML — see options below).
-6. Open the dashboard **over HTTPS** and tap **Start voice**.
+6. Open the dashboard in Companion with native capture enabled, or in a browser over HTTPS, and tap **Call**.
 
 When a new version is released, HACS offers the update; restart HA and reload the
 dashboard to pick up the new card.
@@ -121,7 +126,7 @@ HA pushes state changes into the card's `hass` object, so tiles update themselve
 
 ## Caveats
 
-- **Microphone needs a secure context.** Open the dashboard over HTTPS (or `localhost`). A
+- **Browser microphones need a secure context.** Open browser voice over HTTPS (or `localhost`); Companion can use the configured native bridge over HTTP. A
   LAN-IP `http://…:8123` origin cannot use the mic.
 - **Reload requires a restart.** HA has no runtime unregister for HTTP views / static
   paths / frontend modules, so reconfiguring updates the token config live, but fully
@@ -191,7 +196,7 @@ start talking, then Send to finish the recording; Cancel discards it. Replies an
 transcript stay in the card. Spoken replies are enabled by default for this variant;
 set `audio_output: false` for text replies. The microphone stays dormant until tapped.
 It uses the same authenticated connection and permission/error recovery as full-page
-Voice. HTTPS and browser microphone permission are required. Use one Butler session
+Voice. Browser capture requires HTTPS and microphone permission; supported Companion capture can use the enabled native bridge over HTTP. Use one Butler session
 card per dashboard view; its session is shared with the full-page Butler interface.
 
 The equivalent option on `custom:backend-butler-card` is `layout: voice` (set

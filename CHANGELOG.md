@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0-beta.4 — Live call and native audio candidate
+
+- Add caption-first Live calls with a transparent glowing Butler logo and the same conversation's transcript on demand.
+- Default to explicitly started continuous conversation, with automatic turn endings, Pause/Resume, Interrupt and End; retain optional manual mode.
+- Package owner-bound Companion native microphone capture over local HTTP in the standard integration; preserve linked-person history and browser HTTPS voice.
+- Use Grok Rex by default through LiveKit Inference, honor explicit voice settings, disable cloud audio recordings by default, and close idle sessions while retaining saved history.
+- Require HA 2026.11.1 or newer and document matching worker/integration upgrades and remaining physical-phone acceptance.
+
 ## 1.1.0-beta.3 — HTTPS voice beta
 
 - Ship the microphone-start repair merged after the beta.2 tag: acquire on tap, release on cancellation or removal, and show accurate diagnostics.

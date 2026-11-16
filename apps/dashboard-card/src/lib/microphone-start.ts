@@ -52,7 +52,7 @@ export async function startMicrophone<T extends { stop(): void }>(options: {
 
 export interface MicrophoneFailure { title: string; message: string; code: string; diagnostic: string }
 
-export function microphoneFailure(error: unknown): MicrophoneFailure {
+export function microphoneFailure(error: unknown, native = false): MicrophoneFailure {
   const code = error && typeof error === 'object' && 'name' in error && typeof error.name === 'string'
     ? error.name : 'UnknownError';
   const fallback = {
@@ -80,6 +80,10 @@ export function microphoneFailure(error: unknown): MicrophoneFailure {
       title: 'Microphone capture is unavailable',
       message: 'Open Home Assistant over HTTPS in the app or a supported browser. You can still type.',
     },
+  };
+  if (native) failures.NotSupportedError = {
+    title: 'Native microphone is unavailable',
+    message: 'This Companion app build does not expose the native microphone bridge required by this experiment. Share the diagnostic details from this lab.',
   };
   const detail = error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
     ? error.message.replace(/\s+/g, ' ').slice(0, 180) : '';

@@ -1,42 +1,26 @@
-# Phone beta checks
+# Beta.4 iPhone checks
 
-## Current beta evidence
+Use the existing isolated candidate in Home Assistant Companion on Wi-Fi/local
+HTTP. Keep synthetic conversations and do not request household actions. The user
+has already confirmed that the logo renders correctly and continuous calls work.
+Do not repeat those as uncompleted gates.
 
-On November 14, 2026, an iPhone 17 Companion app user confirmed that microphone startup worked over HTTPS on cellular. The same phone could not capture through its local HTTP connection. The exact OS/app versions were not recorded. Other rows below remain unverified on that phone; no complete phone acceptance pass is claimed.
-
-For this beta, use a trusted HTTPS Home Assistant URL for voice and dictation, including on home Wi-Fi. Local HTTP microphone support is deferred to a future release. Switching networks can change the Companion app’s selected URL; a switch back to HTTP cannot recover voice in this version. Text remains available.
-
-## Checks for beta testers
-
-Record the phone model, OS version, and whether you used the Home Assistant Companion
-app or a browser. Test the Companion app first if that is how you normally use Butler;
-repeat permission/audio/reconnect checks in your browser if you use that too.
-
-The installed card has been verified against the candidate bundle. The candidate
-worker is tested separately in an isolated stack; the household worker has not been
-upgraded or restarted. These phone checks verify physical microphone, playback and
-mobile connection behavior on your installation. Record the installed worker version
-alongside results rather than claiming an unperformed candidate deployment.
-
-Use a new disposable conversation and synthetic phrases. Do not request device
-changes, send notifications, delete existing conversations, or stop shared services.
-Stop testing if a voice control performs an unintended action.
-
-| Check | Action | Pass condition |
+| Remaining check | Action | Pass condition |
 | --- | --- | --- |
-| Text-only idle | Play music on the phone, open Butler and send a typed greeting without enabling voice. | No microphone indicator or permission prompt; music remains uninterrupted. |
-| Microphone permission | Deny microphone access, attempt voice, then restore permission and retry. | Clear recoverable microphone error; no false Listening state; typing still works; retry succeeds. |
-| Manual speech and captions | Use manual/push-to-talk controls to say “Remember blue lantern.” Finish the turn with the card's send control. | First words are captured, captions are readable, and the reply is coherent. No stuck spinner or doubled reply. |
-| Reply audio and stop | Enable spoken replies. Ask “Count from one to twenty,” then press **Stop reply audio** while it speaks. | Audible reply at normal phone volume, then prompt silence. Text may continue; stopping audio does not cancel unrelated actions. |
-| Continuous mode and end | Enable continuous listening, ask a harmless question, then end voice mode. | Speech is detected automatically; the correct listening/speaking states appear; after ending, the OS microphone indicator clears. |
-| Mobile reconnect | Switch Wi-Fi to cellular and back during the disposable conversation; also background/lock and reopen the app. | Honest reconnect/error state and recovery; the same conversation remains available; no duplicate send or replayed old audio. |
-| History and text handoff | End voice, type “What phrase did I ask you to remember?”, then reopen the saved test conversation. | “Blue lantern” and the test transcript survive; older conversations remain intact. |
-| Two accounts, if available | With a second account you control or a consenting test user, open Butler and attempt to resume only the disposable first-account conversation. | First-account history is unavailable; no transcript or audio is exposed. |
+| Pause/Resume/End | During a call, Pause, Resume, then End. | Pause/End clear the OS microphone indicator; Resume restarts only after the tap. |
+| Interrupt and sound | Ask for a longer reply; Interrupt, then speak again. Also toggle Silence/Sound. | Interrupt stops reply audio while keeping capture open; the next spoken turn works; sound settings behave as labeled. |
+| Transcript and draft | Open Transcript during capture/reply; type an unsent draft and toggle Live/Transcript. Scroll older messages and return. | Voice continues; draft and reading position remain. |
+| History after app restart | In a test conversation, remember a made-up label. End, quit/reopen Companion, resume that conversation and ask for the label. | Saved context and transcript remain; existing conversations are intact. |
+| Idle expiry | After the reply finishes, leave it untouched for about two minutes; then Call again. | Distinct inactivity-ended state, capture stopped, explicit restart retains the conversation. |
+| Background/network recovery | Background or lock/unlock the phone; separately interrupt Wi-Fi during a test call and reconnect to the lab. | Honest stopped/recovery state, no stuck microphone or repeated old reply, saved history remains. Cellular need not reach this LAN-only lab. |
+| Permission recovery | If still unverified, deny Companion microphone access, try Call, restore permission and retry. | Clear recoverable error, typing remains usable, retry captures only after a tap. |
 
-Bluetooth/headset routing is an additional check if you normally use it. Verify speech
-comes from the expected output and capture stops when voice mode ends.
+Report PASS/FAIL with iOS and Companion versions. For failures, include the step
+and redacted diagnostic text. Never include tokens, household transcripts or other
+people's conversations. Bluetooth/headset behavior is optional unless it is to be
+claimed as supported. Automated two-user tests cover cross-user isolation; no
+second phone login is required for this checklist.
 
-Return results as: `phone / OS / app or browser / worker version`, followed by PASS/FAIL
-for the rows above. For failures, include the step and what happened. Do not include
-service tokens, real household transcripts, private device inventories or other users'
-conversations. Record each result individually; do not infer a full pass from successful microphone startup.
+A passing checklist is acceptance evidence, not automatic permission to publish or
+upgrade the household installation. Before that update, back up actual deployed
+history and configuration and retain the previous worker/integration versions.

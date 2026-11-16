@@ -18,5 +18,8 @@ const deferred=()=>{let resolve,reject;const promise=new Promise((yes,no)=>{reso
  assert.doesNotMatch(microphoneFailure({name:'NotReadableError'}).message,/allow microphone|permission/i);
  assert.match(microphoneFailure({name:'AbortError'}).title,/interrupted/i,'capture abort must not be confused with deliberate cancellation');
  assert.equal(microphoneFailure({name:'NotReadableError'}).code,'NotReadableError');
+ assert.match(microphoneFailure({name:'NotSupportedError'},true).title,/Native/);
+ assert.doesNotMatch(microphoneFailure({name:'NotSupportedError'},true).message,/HTTPS/);
+ assert.match(microphoneFailure({name:'NotSupportedError'}).message,/HTTPS/);
  console.log('PASS: gesture-first capture, cancellation, failed/late cleanup and accurate microphone failures');
 })().catch(e=>{console.error(e);process.exit(1)});

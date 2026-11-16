@@ -7,6 +7,7 @@ the dataclass are fixed contract values shared with the scheduler and the fronte
 from __future__ import annotations
 
 import json
+import math
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -73,6 +74,10 @@ class Settings:
     text_max_items: int
     # Seconds a waiting /chat request waits for its reply, under the proxy's 90 s.
     text_reply_timeout: float
+    native_audio_enabled: bool = False
+    http_host: str = ""
+    cloud_audio_recording_enabled: bool = False
+    voice_idle_timeout: float = 120
 
 
 def _json_object(name: str) -> dict:
@@ -88,6 +93,9 @@ def _json_object(name: str) -> dict:
 
 
 def load_settings() -> Settings:
+    idle_timeout = float(os.getenv("VOICE_IDLE_TIMEOUT", "120"))
+    if not math.isfinite(idle_timeout) or idle_timeout <= 0:
+        raise SystemExit("VOICE_IDLE_TIMEOUT must be finite and greater than zero")
     return Settings(
         stt_model=os.getenv("STT_MODEL", "assemblyai/universal-3-5-pro"),
         stt_language=os.getenv("STT_LANGUAGE", "multi"),
@@ -96,9 +104,9 @@ def load_settings() -> Settings:
         llm_api_key=os.getenv("LLM_API_KEY", ""),
         llm_extra_body=_json_object("LLM_EXTRA_BODY"),
         max_tool_steps=int(os.getenv("MAX_TOOL_STEPS", "6")),
-        tts_model=os.getenv("TTS_MODEL", "fishaudio/s2.1-pro"),
-        tts_voice=os.getenv("TTS_VOICE", "5c353fdb312f4888836a9a5680099ef0"),
-        tts_language=os.getenv("TTS_LANGUAGE", ""),
+        tts_model=os.getenv("TTS_MODEL", "xai/tts-1"),
+        tts_voice=os.getenv("TTS_VOICE", "rex"),
+        tts_language=os.getenv("TTS_LANGUAGE", "en"),
         agent_name=os.getenv("AGENT_NAME", "ha-agent"),
         prompt_file=os.getenv("PROMPT_FILE", os.path.join(_AGENT_ROOT, "prompt.yaml")),
         stt_idle_timeout=float(os.getenv("STT_IDLE_TIMEOUT", "120")),
@@ -124,6 +132,14 @@ def load_settings() -> Settings:
         text_renew_after=float(os.getenv("TEXT_RENEW_AFTER", "0")),
         text_max_items=int(os.getenv("TEXT_MAX_ITEMS", "100")),
         text_reply_timeout=float(os.getenv("TEXT_REPLY_TIMEOUT", "80")),
+        native_audio_enabled=os.getenv("NATIVE_AUDIO_ENABLED", "").lower()
+        in {"1", "true", "yes"},
+        http_host=os.getenv("HTTP_HOST", ""),
+        cloud_audio_recording_enabled=os.getenv(
+            "CLOUD_AUDIO_RECORDING_ENABLED", ""
+        ).lower()
+        in {"1", "true", "yes"},
+        voice_idle_timeout=idle_timeout,
     )
 
 
