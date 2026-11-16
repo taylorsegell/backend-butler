@@ -14,7 +14,9 @@ pass before release; the prior phone pass covered the experimental component.
 1. Install the standard `custom_components/backend_butler` directory, including its
    compiled frontend and `native_audio` package. No experimental integration, lab
    card, marker files, secondary HA login, or prototype model service is required.
-2. On the Butler worker, enable `NATIVE_AUDIO_ENABLED=true`. Keep the existing
+2. Use the matching Butler worker source/image from this candidate commit and
+   enable `NATIVE_AUDIO_ENABLED=true`. The HA-only ZIP does not update the worker.
+   Keep the existing
    history volume/data directory and `TEXT_API_TOKEN`. Do not create another worker
    against the same writable history store.
 3. In **Settings → Devices & services → Backend Butler → Configure**, set the
