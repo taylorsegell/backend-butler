@@ -127,7 +127,7 @@ HA pushes state changes into the card's `hass` object, so tiles update themselve
 ## Caveats
 
 - **Browser microphones need a secure context.** Open browser voice over HTTPS (or `localhost`); Companion can use the configured native bridge over HTTP. A
-  LAN-IP `http://…:8123` origin cannot use the mic.
+  browser opened at a LAN-IP `http://…:8123` address cannot use its microphone.
 - **Reload requires a restart.** HA has no runtime unregister for HTTP views / static
   paths / frontend modules, so reconfiguring updates the token config live, but fully
   removing the integration needs a restart.
