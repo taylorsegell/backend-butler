@@ -1,33 +1,57 @@
-# Backend Butler 1.1.0-beta.5
+# Backend Butler 1.1.0-beta.6
 
-Beta.5 corrects the HAOS installation failure in the withdrawn beta.4: aiortc 1.16.0 supports HA 2026.11.1's AV 19 constraint. The package is now tested under official core constraints, without downgrading shared HA media dependencies.
-
-Live calls now use the glowing Butler logo, with the transcript available on demand. Tap Call once to start continuous conversation; spoken turns no longer require Send. Pause/Resume, Interrupt, Sound and End remain in the same UI.
-
-Supported Home Assistant Companion apps can use their native microphone over **local HTTP**, without opening Assist or configuring local HTTPS. The bridge is opt-in and requires **Home Assistant 2026.11.1 or newer** plus the matching worker. Web browsers still require HTTPS or localhost for microphone capture.
+Beta.6 fixes the Home Assistant integration's settings and branding. It keeps the
+Live call UI, native Companion microphone over local HTTP, Grok Rex through
+LiveKit, and saved conversation history from beta.5.
 
 ## Changes
 
-- Keep voice, transcript, draft, reading position and saved conversation context together when switching views.
-- Use Grok Rex through LiveKit Inference as the default voice (`TTS_MODEL=xai/tts-1`, `TTS_VOICE=rex`, `TTS_LANGUAGE=en`). Explicit worker voice settings take precedence.
-- Disable cloud audio recordings by default and close inactive voice sessions after 120 seconds, saving and releasing the conversation before disconnecting. Saved conversation history remains available.
-- Enforce per-user ownership of native sessions, camera signaling and saved conversations, including during settings changes, reload and cleanup.
-- Correct logo transparency and retain an SVG fallback when the browser cannot provide the required WebGL output.
+- Remove **Music server URL** from first-time setup and Configure. Previously
+  saved connections remain intact when other settings are edited.
+- Preserve stored options when saving the smaller form, and validate native
+  audio against the merged settings.
+- Show the existing Butler logo on the integration page instead of “icon not
+  available.” Package transparent light/dark icons with high-resolution variants
+  through Home Assistant's local brands API.
+- Require full HACS validation, including branding, plus Home Assistant Hassfest
+  validation for catalog readiness. Default-catalog inclusion requires a separate
+  upstream submission and approval; this release does not claim it is listed.
 
 ## Install or upgrade
 
-Select `v1.1.0-beta.5` from the `taylorsegell/backend-butler` HACS Integration repository with prereleases enabled. **HACS updates the integration/card only; update the worker from this same tag separately.** The optional configuration app keeps its independent version.
+Add `https://github.com/taylorsegell/backend-butler` to HACS as an **Integration**
+custom repository, then select `v1.1.0-beta.6` in the version picker. Restart Home
+Assistant and reload the frontend after installation. Requires **HA 2026.11.1 or
+newer**. Keep the existing integration entry and settings.
 
-Before upgrading, back up actual deployed configuration/history and retain the old worker image and integration. Preserve existing `agent-data/`, `ha-notify-scheduler/data/`, configuration-app data, tokens, linked people and custom prompt/MCP files. Do not run two workers against one writable history store. See [migration guidance](https://github.com/taylorsegell/backend-butler/blob/v1.1.0-beta.5/docs/beta2-migration.md).
+HACS installs the integration/card only. Worker source is unchanged from beta.5;
+an existing beta.5 worker remains compatible. A fresh installation still needs the
+worker and household service configured separately. Enable native audio on both
+the worker and integration for supported Companion microphone capture over local
+HTTP. Browsers still require HTTPS/localhost for microphone access. See
+[native audio setup](https://github.com/taylorsegell/backend-butler/blob/v1.1.0-beta.6/docs/native-audio.md).
 
-To enable local HTTP voice, set `NATIVE_AUDIO_ENABLED=true` on the matching worker, then enable **Companion native microphone** in the existing Backend Butler integration's Configure options. Keep the existing worker chat URL/service token and scheduler URL/token. Link the HA login to its existing person in Butler Settings. Enable spoken replies in the card and reload Companion. See [native audio setup](https://github.com/taylorsegell/backend-butler/blob/v1.1.0-beta.5/docs/native-audio.md) for network and capability requirements.
+Back up actual deployment configuration/history before updating. Preserve existing
+history and scheduler data paths, linked people, tokens and prompt/MCP overrides.
+Do not run two workers against the same writable history store. This update does
+not migrate history or change runtime data paths. The optional configuration app
+keeps its independent version.
 
-## Validation and beta limits
+## Validation and limits
 
-The iPhone 17 tester confirmed the logo and continuous calls over local HTTP in Companion, then reported all seven acceptance checks passed: capture controls, interrupt/sound, transcript/draft continuity, saved context after app restart, idle expiry/reconnect, background/network recovery and permission recovery. Exact iOS/Companion build numbers were not recorded. These results do not establish Android, Bluetooth/headset or universal background compatibility.
+The settings patch passed 20 HA tests, copied-package native WebRTC/PCM/playback
+and history tests, 30 cross-user access checks, and reload/idle/remapping/uninstall
+cleanup. Real isolated HA browser checks confirm the correct logo and Configure
+form without the music field. Release validation also runs Chromium/WebKit,
+worker/service/app tests, dependency audits, history secret scanning, Compose
+checks, three Linux AMD64 image builds, HACS and Hassfest.
 
-The release tag passed Chromium/WebKit checks, worker and scheduler tests, standard-package native WebRTC/history/ownership/reload tests, Compose validation, all three Linux AMD64 image builds, dependency audits, full-history secret scanning and HACS validation. Two-user authorization tests reject cross-user access. Physical phone acceptance used an isolated installation with household controls disconnected.
+The user accepted the seven iPhone checks on the isolated standard integration
+and confirmed a successful call after beta.5 was installed on HAOS. Beta.6 does
+not change the voice transport. Exact iOS/Companion build numbers were not recorded.
+Android, Bluetooth/headsets, ARM64 and universal background compatibility remain
+outside the verified matrix. Draft persistence APIs and provider costs remain beta
+limitations. Cloud audio recordings stay off by default; saved history remains.
 
-Linux AMD64 is the validated image target; ARM64 is outside this matrix. Draft LiveKit persistence APIs, inference/provider charges and the configuration app's bundle-size warning remain beta limitations. Disabling recordings does not erase prior usage or remove separate provider quotas.
-
-Report the release, HA/app/browser versions, HTTP versus HTTPS and redacted reproduction details. Do not include credentials or private conversation transcripts.
+Report release, HA/app/browser versions and redacted reproduction details. Do not
+include credentials or private conversations.

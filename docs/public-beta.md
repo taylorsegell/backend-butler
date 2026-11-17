@@ -1,7 +1,9 @@
 # Public beta
 
-Beta.5 includes the Live call UI and opt-in Home Assistant Companion native
-microphone, with an HAOS-compatible audio dependency. Beta.4 was withdrawn after
+Beta.6 includes the Live call UI and opt-in Home Assistant Companion native
+microphone, with an HAOS-compatible audio dependency. It also fixes integration
+branding and removes the music URL from setup and Configure while retaining any
+previously saved connection. Beta.4 was withdrawn after
 the deployed HAOS resolver rejected its older aiortc pin. The canonical repository is
 `taylorsegell/backend-butler`; the development repository remains private.
 
@@ -25,7 +27,7 @@ shows the same conversation, selected history and draft.
 - Require a reviewed release PR and `CI required`:
   card/browser checks, worker/service/app tests, security audits, image builds,
   Compose migration checks, repository hygiene, and HACS validation.
-- Keep integration/card versions at `1.1.0-beta.5`, regenerate the card bundle and
+- Keep integration/card versions at `1.1.0-beta.6`, regenerate the card bundle and
   build the matching worker. Do not change the optional app's independent version.
 - The iPhone tester confirmed logo rendering, continuous calls and all seven
   [physical phone checks](phone-beta-checklist.md) on the standard isolated

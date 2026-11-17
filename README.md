@@ -15,7 +15,7 @@
 
 [![CI](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml/badge.svg)](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml)
 
-**Beta.4 candidate:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](docs/native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
+**Public beta:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](docs/native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
 
 ## See Butler in action
 
