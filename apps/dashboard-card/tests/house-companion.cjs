@@ -1,6 +1,6 @@
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {chromium,webkit}=require('playwright');
-const esbuild=require('node:module').createRequire(require.resolve('vite/package.json'))('esbuild');
+const esbuild=require('esbuild');
 const script=esbuild.buildSync({entryPoints:[path.join(__dirname,'fixtures/house-companion.tsx')],bundle:true,write:false,format:'iife',jsx:'automatic',logLevel:'silent'}).outputFiles[0].contents;
 const server=http.createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/fixture.js'?'text/javascript':'text/html');res.end(req.url==='/fixture.js'?script:'<meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:16px;background:#181818;color:#eee}</style><body><script src="/fixture.js"></script></body>')});
 (async()=>{await new Promise(r=>server.listen(8772,'127.0.0.1',r));const engine=process.env.ENGINE||'chromium';const browser=await(engine==='webkit'?webkit:chromium).launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));try{
