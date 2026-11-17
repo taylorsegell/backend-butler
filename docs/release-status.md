@@ -21,6 +21,10 @@
 
 Complete native audits report this advisory in build/test tooling. Production-only audits are clean. On November 17, the maintainer explicitly approved a seven-day exception limited to this advisory. The [exception record](security-audit-exception.md) defines exposure, mitigation, review owner and automatic expiry on November 24, 2026 at 19:32:35 UTC. Production high/critical findings, unrelated advisories and audit errors still fail. Required checks and branch protection remain enforced.
 
+## Local security mitigation
+
+Both JavaScript toolchains now select the [reviewed local picomatch patch](../apps/configuration-app/vendor/README.md) through native, integrity-pinned overrides. Required checks verify installed bytes and run bounded security/compatibility regressions. Upstream version metadata and the approved November 24 deadline remain unchanged. Refresh publication source snapshots after this patch merges.
+
 ## Final verification after unblock
 
 1. Run all PR checks again and merge reviewed PRs into `main` without bypassing required checks.

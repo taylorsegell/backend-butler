@@ -1,0 +1,130 @@
+diff --git a/lib/parse.js b/lib/parse.js
+index 2920751..cc9ec38 100644
+--- a/lib/parse.js
++++ b/lib/parse.js
+@@ -284,7 +284,54 @@ const repeatedExtglobRecursion = pattern => {
+   return depth;
+ };
+ 
+-const analyzeRepeatedExtglob = (body, options) => {
++// Flat, slash-free glob sequences containing a star are closed under
++// concatenation: one star can absorb all intervening copies. Collapse their
++// repetition to one copy instead of nesting an unbounded regex quantifier.
++// Unknown group/regex syntax uses the existing literal fallback.
++const canFlattenStarBranch = (input, options) => {
++  if (options.regex === true || options.unescape === true) return false;
++  let quoted = false;
++  for (let i = 0; i < input.length; i++) {
++    const ch = input[i];
++    if (ch === '\\') {
++      if (!input[i + 1] || /[/\\\r\n]/.test(input[i + 1])) return false;
++      i++;
++      continue;
++    }
++    if (/[/\r\n]/.test(ch)) return false;
++    if (ch === '"') { quoted = !quoted; continue; }
++    if (quoted) continue;
++    if (ch === '[') {
++      const end = input.indexOf(']', i + 1);
++      // These classes cannot introduce a slash or newline into the sequence.
++      if (end < 0 || !/^[a-zA-Z0-9_-]+$/.test(input.slice(i + 1, end))) return false;
++      i = end;
++      continue;
++    }
++    if (/[+(){}|\]]/.test(ch) || (ch === '?' && options.bash === true)) return false;
++  }
++  return !quoted;
++};
++
++// Preserve literal alternatives beside one literal-prefix/star branch. A
++// disjoint literal prefix makes the split deterministic (e.g. a*|b -> b*a*).
++const disjointStarAlternatives = (branches, options) => {
++  const tails = branches.filter(branch => /^[a-zA-Z0-9_]\*$/.test(branch));
++  if (tails.length !== 1) return;
++  const prefix = tails[0][0];
++  const fold = options.nocase === true || (typeof options.flags === 'string' && options.flags.includes('i'));
++  const normalize = value => fold ? value.toLowerCase() : value;
++  const others = [];
++  for (const branch of branches) {
++    if (branch === tails[0]) continue;
++    if (!/^[a-zA-Z0-9_]$/.test(branch)) return;
++    // The prefixed-star branch already contains this one-character alternative.
++    if (normalize(branch) !== normalize(prefix)) others.push(branch);
++  }
++  return { prefix, others: [...new Set(others)].join('') };
++};
++
++const analyzeRepeatedExtglob = (body, options, hasUnboundedToken) => {
+   if (options.maxExtglobRecursion === false) {
+     return { risky: false };
+   }
+@@ -343,6 +390,11 @@ const analyzeRepeatedExtglob = (body, options) => {
+       : { risky: true };
+   }
+ 
++  if (hasUnboundedToken) {
++    return { risky: true, flatten: branches.length === 1 && canFlattenStarBranch(body, options),
++      disjoint: branches.length > 1 ? disjointStarAlternatives(splitTopLevel(body), options) : undefined };
++  }
++
+   return { risky: false };
+ };
+ 
+@@ -539,11 +591,25 @@ const parse = (input, options) => {
+   const extglobClose = token => {
+     const literal = input.slice(token.startIndex, state.index + 1);
+     const body = input.slice(token.startIndex + 2, state.index);
+-    const analysis = analyzeRepeatedExtglob(body, opts);
++    const analysis = analyzeRepeatedExtglob(body, opts, token.hasUnboundedToken);
+ 
+     if ((token.type === 'plus' || token.type === 'star') && analysis.risky) {
+-      const safeOutput = analysis.safeOutput
+-        ? (token.output ? '' : ONE_CHAR) + (opts.capture ? `(${analysis.safeOutput})` : analysis.safeOutput)
++      let rewritten = analysis.safeOutput;
++      if (analysis.disjoint) {
++        const { prefix, others } = analysis.disjoint;
++        const tail = prefix + (opts.bash === true ? '.*?' : star);
++        const head = others.length === 1 ? others : `[${others}]`;
++        rewritten = others.length === 0
++          ? (token.type === 'star' ? `(?:${tail})?` : tail)
++          : (token.type === 'star' ? `${head}*(?:${tail})?` : `(?:${head}+|${head}*${tail})`);
++      }
++      if (analysis.flatten) {
++        const prefix = token.output + (token.output ? '' : ONE_CHAR) + (opts.capture ? '(' : '') + token.open;
++        const branch = state.output.slice(prefix.length);
++        rewritten = token.type === 'star' ? `(?:${branch})?` : branch;
++      }
++      const safeOutput = rewritten
++        ? (token.output ? '' : ONE_CHAR) + (opts.capture ? `(${rewritten})` : rewritten)
+         : undefined;
+       const open = tokens[token.tokensIndex];
+ 
+@@ -700,6 +766,9 @@ const parse = (input, options) => {
+ 
+       if (opts.unescape === true) {
+         value = advance();
++        if (value === '*' || value === '+') {
++          for (const extglob of extglobs) extglob.hasUnboundedToken = true;
++        }
+       } else {
+         value += advance();
+       }
+@@ -1080,6 +1149,7 @@ const parse = (input, options) => {
+       }
+ 
+       if ((prev && (prev.type === 'bracket' || prev.type === 'paren' || prev.type === 'brace')) || state.parens > 0) {
++        for (const extglob of extglobs) extglob.hasUnboundedToken = true;
+         push({ type: 'plus', value });
+         continue;
+       }
+@@ -1252,6 +1322,10 @@ const parse = (input, options) => {
+       continue;
+     }
+ 
++    // Use tokenizer state: quoted/class/escaped stars never reach this branch.
++    // Propagate through nested extglobs so rewrites cannot hide a wildcard.
++    for (const extglob of extglobs) extglob.hasUnboundedToken = true;
++
+     const token = { type: 'star', value, output: star };
+ 
+     if (opts.bash === true) {

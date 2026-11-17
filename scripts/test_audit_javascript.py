@@ -1,5 +1,6 @@
 """Release-gate regressions: one temporary development-only advisory exception."""
 import importlib.util
+import json
 from pathlib import Path
 import unittest
 from datetime import datetime, timezone
@@ -83,6 +84,23 @@ class AuditGateTests(unittest.TestCase):
             with patch.object(gate.subprocess, 'run', return_value=subprocess.CompletedProcess([], code, output, 'network error')):
                 with self.assertRaises(ValueError):
                     gate.audit('npm', production=False)
+
+    def test_registry_witness_uses_native_script_free_locking(self):
+        def install(command, **kwargs):
+            self.assertIn('--ignore-scripts', command)
+            self.assertIn('--package-lock-only', command)
+            data = json.loads((Path(kwargs['cwd']) / 'package.json').read_text())
+            self.assertEqual(data['devDependencies'], {'picomatch': '4.0.7'})
+            return subprocess.CompletedProcess(command, 0, '', '')
+        with patch.object(gate.subprocess, 'run', side_effect=install):
+            with patch.object(gate, 'audit', side_effect=[report('npm'), clean('npm')]):
+                full, production = gate.registry_audit()
+                gate.validate('npm', full, production, NOW)
+
+    def test_registry_witness_install_errors_are_not_ignored(self):
+        with patch.object(gate.subprocess, 'run', side_effect=subprocess.CalledProcessError(1, ['npm'])):
+            with self.assertRaises(subprocess.CalledProcessError):
+                gate.registry_audit()
 
 
 if __name__ == '__main__':
