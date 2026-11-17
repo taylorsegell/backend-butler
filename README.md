@@ -4,7 +4,7 @@
 
 <h1 align="center">Backend Butler</h1>
 <p align="center"><strong>Your home. Your approval.</strong></p>
-<p align="center">Voice first. Chat when you want. Home Assistant at your service.</p>
+<p align="center">Voice first. Chat when you want. For Home Assistant. Powered by LiveKit.</p>
 
 <p align="center">
   <a href="#quickstart">Get started</a> ·
@@ -19,9 +19,11 @@
 
 ## See Butler in action
 
-[![Watch the 22-second voice-first Backend Butler promo](media/backend-butler-promo.jpg)](https://github.com/taylorsegell/backend-butler/releases/download/v1.1.0-beta.2/backend-butler-promo.mp4)
+[![Watch the 24-second Backend Butler voice conversation demo](media/backend-butler-promo.jpg)](media/backend-butler-promo.mp4)
 
-[Watch or download the promo · MP4, 22 seconds](https://github.com/taylorsegell/backend-butler/releases/download/v1.1.0-beta.2/backend-butler-promo.mp4) · [Music and media credits](media/README.md)
+[Watch or download the promo · MP4, 24 seconds](media/backend-butler-promo.mp4) · [Music and media credits](media/README.md)
+
+The demo shows a spoken request, Butler’s spoken reply, and a follow-up in one live conversation. Animated audio bars and speaking labels identify each turn; the mobile wireframe illustrates fictional requests and responses.
 
 ## Talk to the house
 

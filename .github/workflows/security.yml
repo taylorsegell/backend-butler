@@ -25,18 +25,20 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
+      - name: Test the expiring audit policy
+        run: python3 -m unittest discover -s scripts -p test_audit_javascript.py
       - name: Audit locked card dependencies
         if: matrix.project == 'apps/dashboard-card'
         working-directory: apps/dashboard-card
         run: |
           pnpm install --frozen-lockfile --ignore-scripts
-          pnpm audit --audit-level high
+          python3 ../../scripts/audit-javascript.py pnpm
       - name: Audit locked app dependencies
         if: matrix.project == 'apps/configuration-app'
         working-directory: apps/configuration-app
         run: |
           npm ci --ignore-scripts
-          npm audit --audit-level=high
+          python3 ../../scripts/audit-javascript.py npm
 
   python:
     name: Python audit (${{ matrix.project }})
