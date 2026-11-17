@@ -106,7 +106,9 @@ the header speaker to hear replies. Set `audio_output: true` and/or `start_on_co
 to speak and start listening the moment it connects; `input_mode: auto` makes it hands-free.
 `areas`/`entities` pin a fixed set of tiles that are always visible (like any native HA card).
 
-With a **Music server URL** set in the integration's options (a [music-mcp-server](https://github.com/taylorsegell/music-mcp-server), which plays Apple Music on a Mac and its AirPlay speakers), the integration adds a `media_player` for it, and the card shows a now-playing bar with play/pause, previous/next, stop and volume while it plays or is paused.
+The setup and Configure forms do not expose a music server URL. Existing installations
+with a saved music-server connection retain that value when other settings are edited.
+Their existing media player and now-playing controls continue to use it.
 
 ## Why tiles render by `entity_id`/area, not by device name
 

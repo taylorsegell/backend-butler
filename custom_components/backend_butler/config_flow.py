@@ -21,7 +21,6 @@ from .const import (
     CONF_CHAT_TOKEN,
     CONF_CHAT_URL,
     CONF_LIVEKIT_URL,
-    CONF_MUSIC_URL,
     CONF_NATIVE_AUDIO,
     CONF_SCHEDULER_TOKEN,
     CONF_SCHEDULER_URL,
@@ -82,8 +81,6 @@ class LiveKitVoiceConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_CHAT_URL, default=prev.get(CONF_CHAT_URL, "")): str,
                 vol.Optional(CONF_CHAT_TOKEN, default=prev.get(CONF_CHAT_TOKEN, "")): str,
                 vol.Optional(CONF_NATIVE_AUDIO, default=prev.get(CONF_NATIVE_AUDIO, False)): bool,
-                # Optional: adds a media_player for the music server.
-                vol.Optional(CONF_MUSIC_URL, default=prev.get(CONF_MUSIC_URL, "")): str,
             }
         )
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
@@ -107,11 +104,14 @@ class LiveKitVoiceOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        errors = native_config_errors(user_input) if user_input is not None else {}
+        current = {**self._entry.data, **self._entry.options, **(user_input or {})}
+        errors = native_config_errors(current) if user_input is not None else {}
         if user_input is not None and not errors:
-            return self.async_create_entry(title="", data=user_input)
+            # Preserve saved settings which are no longer exposed by the form.
+            return self.async_create_entry(
+                title="", data={**self._entry.options, **user_input}
+            )
 
-        current = user_input or {**self._entry.data, **self._entry.options}
         schema = vol.Schema(
             {
                 vol.Required(
@@ -136,9 +136,6 @@ class LiveKitVoiceOptionsFlow(OptionsFlow):
                     CONF_CHAT_TOKEN, default=current.get(CONF_CHAT_TOKEN, "")
                 ): str,
                 vol.Optional(CONF_NATIVE_AUDIO, default=current.get(CONF_NATIVE_AUDIO, False)): bool,
-                vol.Optional(
-                    CONF_MUSIC_URL, default=current.get(CONF_MUSIC_URL, "")
-                ): str,
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
