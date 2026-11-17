@@ -15,9 +15,9 @@ For Home Assistant. Powered by LiveKit. Voice first; chat when you want.
 
 ## Install or upgrade after publication
 
-Add `https://github.com/taylorsegell/backend-butler` to HACS as an **Integration** custom repository. Once published, choose `v1.1.0-beta.7`, restart Home Assistant and reload the frontend. Requires **Home Assistant 2026.11.1 or newer**. Keep the existing integration entry and settings.
+In **Settings → Marketplace → Add from link**, add `https://github.com/taylorsegell/backend-butler` as an **Integration** (connect GitHub if prompted). Follow the [beta version instructions](home-assistant.md#beta-versions-and-updates) to enable prereleases. Once published, choose `v1.1.0-beta.7`, restart Home Assistant and reload the frontend. Requires **Home Assistant 2026.11.1 or newer**. Keep the existing integration entry and settings.
 
-HACS installs the integration/card only. This candidate changes neither the voice-worker nor household-service source; existing beta.5/beta.6 matching worker setups remain compatible. A fresh installation still needs both services configured separately. Enable native audio on the worker and integration for supported Companion microphone capture over local HTTP. Ordinary browsers require HTTPS/localhost for microphone access. See [native audio setup](native-audio.md).
+Marketplace installs the integration/card only. This candidate changes neither the voice-worker nor household-service source; existing beta.5/beta.6 matching worker setups remain compatible. A fresh installation still needs both services configured separately. Enable native audio on the worker and integration for supported Companion microphone capture over local HTTP. Ordinary browsers require HTTPS/localhost for microphone access. See [native audio setup](native-audio.md).
 
 Back up actual deployment configuration/history before updating. Preserve linked people, tokens, prompt/MCP overrides and existing history/scheduler data paths. Do not run two workers against the same writable history store. There is no history migration in this candidate. The optional configuration app retains its independent version.
 

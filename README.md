@@ -56,16 +56,22 @@ You need four things in place.
 - Home Assistant with the **MCP Server** integration enabled, and a long-lived access token.
 - A LiveKit server (self-hosted or LiveKit Cloud) for the realtime transport.
 - LiveKit Inference credentials for speech-to-text, the model, and text-to-speech (LiveKit Cloud).
-- [HACS](https://hacs.xyz/), to install the integration and card from this repo.
+- Home Assistant’s built-in [Marketplace](https://www.home-assistant.io/integrations/marketplace/) to install the integration and card. Connect GitHub when prompted to add this custom repository; a separate HACS installation is not needed.
 
 ## Quickstart
+
+[![Open Backend Butler in the Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=taylorsegell&repository=backend-butler&category=integration)
+
+The button opens Butler in your Home Assistant Marketplace; review the repository and choose **Install**. It installs the integration and bundled card. Run the worker and scheduler separately as below.
 
 1. Copy `.env.example` to `.env` and fill in Home Assistant, LiveKit and LiveKit Inference.
 2. Generate two secrets with `openssl rand -hex 32` and set them as `SCHEDULER_TOKEN` and `TEXT_API_TOKEN`. The scheduler refuses every request without its token.
 3. Start the worker and the scheduler with `docker compose up -d --build`. The worker's HTTP app is on port 8952 and the scheduler's on 8951.
-4. In HACS, add this repository as a custom repository of type **Integration**, install **Backend Butler**, and restart Home Assistant.
+4. Open **Settings → Marketplace → Add from link** and enter `https://github.com/taylorsegell/backend-butler` (or use the button above). Accept the Marketplace warning and connect GitHub if prompted. Choose **Integration** if asked, open **Backend Butler**, and select **Install**. Restart Home Assistant after installation. See [beta versions and updates](docs/home-assistant.md#beta-versions-and-updates) for prerelease selection.
 5. Add the integration under **Settings → Devices & services**. Give it the same LiveKit project and `AGENT_NAME`, the scheduler at `http://<docker-host>:8951` with `SCHEDULER_TOKEN`, and the agent chat at `http://<docker-host>:8952` with `TEXT_API_TOKEN`.
 6. Add the **Backend Butler** card to a dashboard, and in its Settings tab add the people in the house and link their HA logins.
+
+**Beta releases:** Marketplace normally offers stable releases. For beta updates, enable Butler’s **Pre-release** entity on its Marketplace device page, then turn on the switch. Use **⋮ → Install another version** on the repository page to select a published beta when needed. `1.1.0-beta.7` remains an unpublished candidate until its release is published. See the [setup guide](docs/home-assistant.md#beta-versions-and-updates) for the full steps.
 
 [docs/home-assistant.md](docs/home-assistant.md) covers the integration and card in detail.
 
@@ -143,7 +149,7 @@ Cloud **audio recordings** are off by default, independently of saved conversati
 
 ## The dashboard
 
-The integration in `custom_components/backend_butler` is a HACS custom integration and Lovelace card with native device tiles you can tap, plus voice, text chat, a transcript, and tool-call status. It mints LiveKit tokens for logged-in HA users and dispatches this worker by `AGENT_NAME`. Install it as in the [Quickstart](#quickstart); [docs/home-assistant.md](docs/home-assistant.md) has the card options and how to build the card.
+The integration in `custom_components/backend_butler` is a Marketplace custom integration and Lovelace card with native device tiles you can tap, plus voice, text chat, a transcript, and tool-call status. It mints LiveKit tokens for logged-in HA users and dispatches this worker by `AGENT_NAME`. Install it as in the [Quickstart](#quickstart); [docs/home-assistant.md](docs/home-assistant.md) has the card options and how to build the card.
 
 The standard integration also packages an opt-in **Companion native microphone**
 bridge for local HTTP, keeping Butler's card and saved conversations. See

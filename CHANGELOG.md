@@ -2,6 +2,8 @@
 
 ## 1.1.0-beta.7 — release candidate (unpublished)
 
+- Update installation for Home Assistant’s built-in Marketplace, with an install button and published-beta selection/update instructions.
+
 - Pin a local picomatch parser patch in both JavaScript toolchains, with tokenizer-based repeated-extglob guards, clean-install integrity verification and bounded security regressions.
 
 - Refresh the card’s Motion/Vite tooling and configuration-app JavaScript dependencies; retain TypeScript compiler APIs required by the card tests and Node types matching Node 22.
