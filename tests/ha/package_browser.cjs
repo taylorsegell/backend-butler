@@ -59,6 +59,9 @@ const { chromium } = requireCard('playwright');
   });
   await page.getByRole('button',{name:'Start talking',exact:true}).click();
   await page.getByRole('button',{name:'Send recording',exact:true}).waitFor();
+  // The button appears optimistically while HA is still opening the native session.
+  // Establish the baseline only after the real bridge start has arrived.
+  await wait(()=>page.evaluate(()=>window.nativeCalls.some(message=>message.type==='webrtc/stream/start')));
   const captureCount=await page.evaluate(()=>window.nativeCalls.length);
   await page.getByRole('button',{name:'Transcript',exact:true}).click();
   await page.locator('textarea').fill('Keep my native draft');
