@@ -1,7 +1,7 @@
 {
   "domain": "backend_butler",
   "name": "Backend Butler",
-  "version": "1.1.0-beta.3",
+  "version": "1.1.0-beta.4",
   "documentation": "https://github.com/taylorsegell/backend-butler",
   "issue_tracker": "https://github.com/taylorsegell/backend-butler/issues",
   "codeowners": [
@@ -16,6 +16,7 @@
   "integration_type": "service",
   "iot_class": "local_push",
   "requirements": [
+    "aiortc==1.14.0",
     "livekit-api>=1.0.0"
   ]
 }

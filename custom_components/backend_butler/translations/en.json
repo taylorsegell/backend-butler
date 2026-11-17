@@ -13,7 +13,8 @@
           "scheduler_token": "Scheduler token",
           "chat_url": "Agent chat URL (optional)",
           "chat_token": "Agent chat token (optional)",
-          "music_url": "Music server URL (optional)"
+          "music_url": "Music server URL (optional)",
+          "native_audio_enabled": "Enable Companion native microphone (worker native audio required)"
         },
         "data_description": {
           "livekit_url": "e.g. wss://your-project.livekit.cloud",
@@ -22,12 +23,16 @@
           "scheduler_token": "Must match SCHEDULER_TOKEN in the scheduler's .env; the scheduler refuses requests without it",
           "chat_url": "Base URL of the worker's HTTP app, e.g. http://192.168.1.50:8952. Enables the Text tab.",
           "chat_token": "Must match TEXT_API_TOKEN in the worker's .env",
-          "music_url": "Base URL of the music server, e.g. http://192.168.1.50:8961. Adds a media player for the music it plays."
+          "music_url": "Base URL of the music server, e.g. http://192.168.1.50:8961. Adds a media player for the music it plays.",
+          "native_audio_enabled": "Use the Companion app microphone inside Butler over local HTTP. Requires a supported app, HA camera WebRTC support, and NATIVE_AUDIO_ENABLED=true on the worker. Browsers continue using LiveKit RTC."
         }
       }
     },
     "abort": {
       "single_instance_allowed": "Backend Butler is already configured."
+    },
+    "error": {
+      "native_connection_required": "Native audio requires an agent chat HTTP(S) URL, chat token, and scheduler URL/token. Link your HA login to a person in Butler Settings."
     }
   },
   "options": {
@@ -44,7 +49,8 @@
           "scheduler_token": "Scheduler token",
           "chat_url": "Agent chat URL (optional)",
           "chat_token": "Agent chat token (optional)",
-          "music_url": "Music server URL (optional)"
+          "music_url": "Music server URL (optional)",
+          "native_audio_enabled": "Enable Companion native microphone (worker native audio required)"
         },
         "data_description": {
           "livekit_url": "e.g. wss://your-project.livekit.cloud",
@@ -53,9 +59,13 @@
           "scheduler_token": "Must match SCHEDULER_TOKEN in the scheduler's .env; the scheduler refuses requests without it",
           "chat_url": "Base URL of the worker's HTTP app, e.g. http://192.168.1.50:8952. Enables the Text tab.",
           "chat_token": "Must match TEXT_API_TOKEN in the worker's .env",
-          "music_url": "Base URL of the music server, e.g. http://192.168.1.50:8961. Adds a media player for the music it plays."
+          "music_url": "Base URL of the music server, e.g. http://192.168.1.50:8961. Adds a media player for the music it plays.",
+          "native_audio_enabled": "Use the Companion app microphone inside Butler over local HTTP. Requires a supported app, HA camera WebRTC support, and NATIVE_AUDIO_ENABLED=true on the worker. Browsers continue using LiveKit RTC."
         }
       }
+    },
+    "error": {
+      "native_connection_required": "Native audio requires an agent chat HTTP(S) URL, chat token, and scheduler URL/token. Link your HA login to a person in Butler Settings."
     }
   }
 }

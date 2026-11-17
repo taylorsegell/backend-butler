@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranscriptions } from '@livekit/components-react';
+import { useTranscriptions } from './voice-session';
 import { SCHEDULING_TOOLS } from './tasks';
 import type { ToolCall } from './tool-feed';
 

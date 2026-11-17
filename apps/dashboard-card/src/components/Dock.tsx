@@ -1,4 +1,5 @@
 import { type Dispatch, type SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { CallIcon } from './CallIcon';
 import type { TurnMode } from '../lib/turn-mode';
 
 /**
@@ -10,6 +11,8 @@ import type { TurnMode } from '../lib/turn-mode';
  * Presentational — all behaviour (including connecting) comes in via props.
  */
 export interface DockProps {
+  /** LiveCall owns voice controls; this composer only sends text. */
+  textOnly?: boolean;
   connected: boolean;
   draft?: string;
   onDraftChange?: Dispatch<SetStateAction<string>>;
@@ -65,7 +68,7 @@ export function Dock(props: DockProps) {
   // Manual turn in progress: the composer becomes a focused listening bar. While the mic is
   // still warming up (cold-start), show "Starting…" with a spinner and hold the Send button —
   // there's no captured audio to commit yet, and the user shouldn't talk into a dead mic.
-  if (mode === 'manual' && turnActive) {
+  if (!props.textOnly && mode === 'manual' && turnActive) {
     return (
       <div className="lk-dock" ref={dockRef}>
         <div className="lk-listen" data-starting={micStarting ? '1' : '0'}>
@@ -94,7 +97,7 @@ export function Dock(props: DockProps) {
             disabled={micStarting}
           >
             <span>Send</span>
-            <ha-icon icon="mdi:arrow-up" />
+            <CallIcon name="send" />
           </button>
         </div>
       </div>
@@ -122,7 +125,7 @@ export function Dock(props: DockProps) {
       )}
       <div className="lk-bar" data-paused={paused ? '1' : '0'}>
         <Composer value={text} placeholder={placeholder} onChange={setText} onSubmit={submit} disabled={sending || connecting} />
-        <TrailingButton
+        {props.textOnly ? <button className="lk-send lk-send--accent" aria-label="Send" title="Send" disabled={!canSend} onClick={submit}><CallIcon name="send" /></button> : <TrailingButton
           canSend={canSend}
           busy={sending || micStarting || connecting}
           mode={mode}
@@ -131,7 +134,7 @@ export function Dock(props: DockProps) {
           onTurnStart={onTurnStart}
           onPause={onPause}
           onResume={onResume}
-        />
+        />}
       </div>
     </div>
   );
@@ -222,7 +225,7 @@ function TrailingButton({
   if (canSend) {
     return (
       <button className="lk-send lk-send--accent" aria-label="Send" title="Send" onClick={onSubmit}>
-        <ha-icon icon="mdi:arrow-up" />
+        <CallIcon name="send" />
       </button>
     );
   }

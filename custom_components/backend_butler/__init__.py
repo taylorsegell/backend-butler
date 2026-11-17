@@ -17,7 +17,6 @@ import logging
 from pathlib import Path
 
 from aiohttp import web
-
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.config_entries import ConfigEntry
@@ -27,25 +26,32 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CARD_FILENAME,
     CARD_URL,
+    CONF_CHAT_TOKEN,
+    CONF_CHAT_URL,
     CONF_MUSIC_URL,
+    CONF_NATIVE_AUDIO,
+    CONF_SCHEDULER_TOKEN,
+    CONF_SCHEDULER_URL,
     DATA_CONFIG,
+    DATA_NATIVE_AUDIO,
     DATA_REGISTERED,
     DOMAIN,
 )
 from .legacy import LEGACY_ENTRY_WARNING, legacy_entry
 from .progress import LiveKitProgressView
 from .tasks import (
+    ButlerApprovalsView,
     LiveKitChatCancelView,
-    LiveKitChatWarmView,
     LiveKitChatConversationsView,
     LiveKitChatDeleteView,
     LiveKitChatHistoryView,
     LiveKitChatSwitchView,
     LiveKitChatView,
-    ButlerApprovalsView,
+    LiveKitChatWarmView,
     LiveKitSettingsView,
-    LiveKitTaskView,
     LiveKitTasksView,
+    LiveKitTaskView,
+    clear_person_cache,
 )
 from .token import LiveKitTokenView
 
@@ -78,6 +84,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Backend Butler from a config entry."""
     store = hass.data.setdefault(DOMAIN, {})
     store[DATA_CONFIG] = _merged_config(entry)
+    clear_person_cache(hass)
 
     # The HTTP view, static path, and frontend module can only be registered once per
     # HA process (they cannot be cleanly torn down), so guard behind a flag that
@@ -102,13 +109,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.http.register_view(LiveKitChatSwitchView(hass))
         hass.http.register_view(LiveKitChatDeleteView(hass))
         hass.http.register_view(LiveKitProgressView(hass))
+        from .native_audio import register
+        register(hass)
         store[DATA_REGISTERED] = True
         _LOGGER.debug("registered token, tasks, settings, chat and progress views + card at %s", CARD_URL)
 
     if legacy_entry(hass) is not None:
         _LOGGER.warning(LEGACY_ENTRY_WARNING)
 
-    await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
+    platforms = list(_PLATFORMS)
+    bridge = None
+    if store[DATA_CONFIG].get(CONF_NATIVE_AUDIO, False):
+        from .native_audio import NativeAudioBridge
+        bridge = NativeAudioBridge(hass, store[DATA_CONFIG])
+        store[DATA_NATIVE_AUDIO] = bridge
+        platforms.append(Platform.CAMERA)
+    try:
+        await hass.config_entries.async_forward_entry_setups(entry, platforms)
+        if bridge:
+            bridge.activate()
+    except BaseException:
+        if bridge:
+            await bridge.close()
+            store.pop(DATA_NATIVE_AUDIO, None)
+        await hass.config_entries.async_unload_platforms(entry, platforms)
+        raise
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
 
@@ -119,7 +144,9 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
     previous = hass.data[DOMAIN].get(DATA_CONFIG, {})
     hass.data[DOMAIN][DATA_CONFIG] = config
     # the media player is built from the music URL, so a new one needs a reload
-    if config.get(CONF_MUSIC_URL, "") != previous.get(CONF_MUSIC_URL, ""):
+    keys = (CONF_MUSIC_URL, CONF_NATIVE_AUDIO, CONF_CHAT_URL, CONF_CHAT_TOKEN,
+            CONF_SCHEDULER_URL, CONF_SCHEDULER_TOKEN)
+    if any(config.get(key) != previous.get(key) for key in keys):
         await hass.config_entries.async_reload(entry.entry_id)
 
 
@@ -130,6 +157,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     (Home Assistant offers no runtime unregister for them); we only drop the config so
     the token endpoint reports "not configured" until set up again.
     """
-    unloaded = await hass.config_entries.async_unload_platforms(entry, _PLATFORMS)
+    store = hass.data.get(DOMAIN, {})
+    bridge = store.pop(DATA_NATIVE_AUDIO, None)
+    platforms = list(_PLATFORMS)
+    if bridge:
+        await bridge.close()
+        platforms.append(Platform.CAMERA)
+    unloaded = await hass.config_entries.async_unload_platforms(entry, platforms)
     hass.data.get(DOMAIN, {}).pop(DATA_CONFIG, None)
     return unloaded

@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {HassStore} from '../../src/hass/store';
 import {CARD_STYLES} from '../../src/styles';
 const fixture=window as any;
+fixture.syntheticApprovals=[];fixture.approvalDecisions=[];
 fixture.captureRequests=0;fixture.captureInTap=[];fixture.typedMessages=[];fixture.streams=[];
 fixture.failure=new URLSearchParams(location.search).get('error')||'NotReadableError';
 let insideTap=false;
@@ -22,9 +23,17 @@ Object.defineProperty(Object.getPrototypeOf(devices),'getUserMedia',{configurabl
 Object.defineProperty(devices,'getUserMedia',{configurable:true,writable:true,value:capture});
 fixture.captureInstalled=navigator.mediaDevices.getUserMedia===capture;
 const host=document.createElement('div');document.body.append(host);host.style.cssText='display:block;--primary-color:#FC6B02;--primary-text-color:#eee;--secondary-text-color:#aaa;--card-background-color:#181818';
+if(new URLSearchParams(location.search).get('layout')!=='voice'){host.setAttribute('data-fullpage','');host.style.height='100dvh';}
 const shadow=host.attachShadow({mode:'open'});shadow.innerHTML='<style>'+CARD_STYLES+'</style><div class="lk-root"></div>';
-const store=new HassStore();store.setHost(host);store.setConfig({type:'backend-butler-card',input_mode:new URLSearchParams(location.search).get('mode')==='auto'?'auto':'push_to_talk',layout:new URLSearchParams(location.search).get('layout')==='voice'?'voice':'fullpage'});
-store.setHass({states:{},user:{id:'synthetic-alice',is_admin:true},callWS:async()=>[],callService:async()=>{},callApi:async(_m:string,path:string)=>path.includes('tasks')?[]:path.includes('history')?{items:[],busy:false}:path.includes('conversations')?{conversations:[]}:path.includes('approvals')?{items:[]}:{users:[],servers:[]}} as any);
+const store=new HassStore();store.setHost(host);store.setConfig({type:'backend-butler-card',auto_connect:new URLSearchParams(location.search).get('connect')==='auto',input_mode:new URLSearchParams(location.search).get('mode')==='default'?undefined:new URLSearchParams(location.search).get('mode')==='auto'?'auto':'push_to_talk',layout:new URLSearchParams(location.search).get('layout')==='voice'?'voice':'fullpage'});
+fixture.currentConversation=()=>store.voiceConversationId;
+store.setHass({states:{},user:{id:'synthetic-alice',is_admin:true},callWS:async()=>[],callService:async()=>{},callApi:async(method:string,path:string,data?:any)=>{
+ if(path.includes('approvals')){
+  if(method==='POST'){fixture.approvalDecisions.push(data);fixture.syntheticApprovals=fixture.syntheticApprovals.map((item:any)=>item.id===data.id?{...item,status:data.allow?'approved':'denied'}:item)}
+  return {items:fixture.syntheticApprovals};
+ }
+ return path.includes('tasks')?[]:path.includes('history')?{items:[],busy:false}:path.includes('conversations')?{conversations:[]}:{users:[],servers:[]};
+}} as any);
 // Install synthetic capture before the SDK's WebKit adapter caches getUserMedia.
 void import('../../src/App').then(({Root}) => {
  const root=createRoot(shadow.querySelector('.lk-root')!);fixture.unmount=()=>root.unmount();

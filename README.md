@@ -15,7 +15,7 @@
 
 [![CI](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml/badge.svg)](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml)
 
-**Voice requires HTTPS in this beta.** The dashboard microphone, including dictation, does not work when Home Assistant is opened through an ordinary local HTTP address, including inside the Companion app. Home Wi-Fi is supported when the app or browser uses a trusted HTTPS URL; cellular is not a requirement. Text chat remains available over local HTTP. Native microphone support over local HTTP, while retaining Butler’s UI, is planned for a future release and is not included here.
+**Beta.4 candidate:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](docs/native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
 
 ## See Butler in action
 
@@ -129,6 +129,10 @@ The card sets the session while it is running, over RPCs the worker registers.
 
 The worker broadcasts its live speech-to-text and audio-output state on the `ha.speech_state` data channel so the card can mirror it (a sleeping indicator once speech-to-text is down, for example), and the tool-execution lifecycle on `ha.tool_call`.
 
+Voice sessions close after two minutes without conversation activity by default (`VOICE_IDLE_TIMEOUT`). Speaking, model replies and running tools keep them active; history polling does not. The worker saves the final conversation and releases its lease before disconnecting that session's room. The card releases capture, retains the transcript and reconnects to the selected conversation on your next send or microphone tap. Even an auto-connect card waits for an explicit action after an idle close. Text chat's separate unload timer is unchanged.
+
+Cloud **audio recordings** are off by default, independently of saved conversation history. To enable them for debugging, set `CLOUD_AUDIO_RECORDING_ENABLED=true` and allow recording in the LiveKit project. Other observability categories remain governed by the project setting. Existing uploaded recordings and quota usage are not removed or reset by this policy. See [voice session resource policy](docs/voice-session-policy.md) for behavior and verification.
+
 ## Text chat over HTTP
 
 `POST /chat` on port 8952 takes one line of text and answers in plain text. It is one conversation that persists across restarts until you renew it, which is what you want for an iPhone Shortcut. See [docs/text-chat.md](docs/text-chat.md) for the routes, tokens and settings.
@@ -138,6 +142,12 @@ The worker broadcasts its live speech-to-text and audio-output state on the `ha.
 ## The dashboard
 
 The integration in `custom_components/backend_butler` is a HACS custom integration and Lovelace card with native device tiles you can tap, plus voice, text chat, a transcript, and tool-call status. It mints LiveKit tokens for logged-in HA users and dispatches this worker by `AGENT_NAME`. Install it as in the [Quickstart](#quickstart); [docs/home-assistant.md](docs/home-assistant.md) has the card options and how to build the card.
+
+The standard integration also packages an opt-in **Companion native microphone**
+bridge for local HTTP, keeping Butler's card and saved conversations. See
+[native audio setup and candidate validation](docs/native-audio.md). Browser voice
+continues using LiveKit RTC. Packaged-path iPhone acceptance is pending.
+
 
 Install the card, point it at this worker, and talk to the house. Name the room if you want the right light.
 

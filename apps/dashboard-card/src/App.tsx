@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ConnectionState, createLocalAudioTrack, ParticipantKind, type LocalAudioTrack, type RemoteParticipant, Room, RoomEvent, Track } from 'livekit-client';
 import {
+  NativeSessionProvider,
   RoomAudioRenderer,
   SessionProvider,
   useAgent,
   useChat,
   useSession,
   useSessionContext,
-} from '@livekit/components-react';
+} from './lib/voice-session';
+import { loadCardFont } from './font';
 import { Conversation } from './components/Conversation';
 import { DeviceTiles } from './components/DeviceTiles';
 import { Dock } from './components/Dock';
@@ -18,8 +20,10 @@ import { TextHistory } from './components/TextHistory';
 import { useRoomDataTopic } from './lib/room-data';
 import { httpStatus } from './lib/errors';
 import { createConversationReady } from './lib/conversation-ready';
+import { NativeMicrophone } from './lib/native-microphone';
 import { startMicrophone, VoiceStartError, microphoneFailure, type MicrophoneFailure } from './lib/microphone-start';
-import { VoiceFeedback } from './components/VoiceFeedback';
+import { LiveCall } from './components/LiveCall';
+import { ButlerApprovals } from './components/ButlerApprovals';
 import { resolveVoiceFeedback, useVoiceAudioLevels } from './lib/voice-feedback';
 import { useReplyAudio } from './lib/reply-audio';
 import { useVoiceTransport } from './lib/voice-transport';
@@ -43,6 +47,7 @@ import { useToolFeed } from './lib/tool-feed';
 import { loadTurnMode, saveTurnMode, type TurnMode } from './lib/turn-mode';
 
 export function Root({ store }: { store: HassStore }) {
+  useEffect(() => { void loadCardFont(); }, []);
   return (
     <HassStoreProvider value={store}>
       <SessionRoot />
@@ -51,6 +56,27 @@ export function Root({ store }: { store: HassStore }) {
 }
 
 function SessionRoot() {
+  const hass = useHass();
+  const companion = hass?.auth?.external?.config.webrtc?.hasCameraMicrophoneStream === true;
+  const [native, setNative] = useState<boolean | null>(companion ? null : false);
+  useEffect(() => {
+    let disposed = false;
+    if (!companion) { setNative(false); return; }
+    void hass!.callApi<{ enabled: boolean }>('GET', 'backend_butler/native/config')
+      .then(result => { if (!disposed) setNative(result.enabled === true); })
+      .catch(() => { if (!disposed) setNative(false); });
+    return () => { disposed = true; };
+  }, [companion]);
+  if (native === null) return <div role="status">Loading Butler…</div>;
+  return native ? <NativeSessionRoot /> : <RTCSessionRoot />;
+}
+
+function NativeSessionRoot() {
+  const room = useMemo(() => new Room({ publishDefaults: { stopMicTrackOnMute: true } }), []);
+  return <NativeSessionProvider room={room}><CardShell /></NativeSessionProvider>;
+}
+
+function RTCSessionRoot() {
   const store = useStore();
   const tokenSource = useMemo(() => new HassTokenSource(store), [store]);
   // Own the Room so we can set stopMicTrackOnMute: muting the mic (ending/cancelling a turn,
@@ -117,6 +143,8 @@ function linkedTab(): Tab | null {
 function CardShell() {
   const store = useStore();
   const hass = useHass();
+  const hassRef = useRef(hass);
+  hassRef.current = hass;
   const config = useCardConfig();
   const session = useSessionContext();
   const agent = useAgent();
@@ -128,6 +156,8 @@ function CardShell() {
   const initialLink = linkedTab();
   const [drawer, setDrawer] = useState<Drawer>(() => initialLink === 'settings' ? 'settings' : initialLink === 'schedules' ? 'schedules' : initialLink === 'text' ? 'history' : null);
   const voiceCard = config.layout === 'voice';
+  const [transcript, setTranscript] = useState(false);
+  const [idleEnded, setIdleEnded] = useState(false);
   const setTab = (destination: Tab) => setDrawer(destination === 'settings' ? 'settings' : destination === 'schedules' ? 'schedules' : destination === 'text' ? 'history' : null);
   const [settingsVisited, setSettingsVisited] = useState(initialLink === 'settings');
   const [historyVisited, setHistoryVisited] = useState(initialLink === 'text');
@@ -139,7 +169,8 @@ function CardShell() {
   const voiceSendInFlight = useRef(false);
   const [voiceDraft, setVoiceDraft] = useState('');
   const [tilesVisible, toggleTiles] = useTilesVisible();
-  const textChat = useTextChat(false);
+  const nativeCapture = Boolean(session.nativeClient);
+  const textChat = useTextChat(false, !nativeCapture);
   // the text conversation schedules tasks too, so its calls refresh the list as well
   const allToolCalls = useMemo(
     () => [...toolCalls, ...textChat.toolCalls],
@@ -194,13 +225,20 @@ function CardShell() {
   const [microphoneError, setMicrophoneError] = useState<MicrophoneFailure | null>(null);
   const microphoneAttempt = useRef<Promise<void> | null>(null);
   const microphoneTrack = useRef<LocalAudioTrack | null>(null);
+  const nativeMicrophone = useRef<NativeMicrophone | null>(null);
+  const [nativeMicActive, setNativeMicActive] = useState(false);
   const voiceGeneration = useRef(0);
   const lastUserUtterance = [...items].reverse().find(item => item.kind === 'message' && item.role === 'user');
   const replyAudio = useReplyAudio(lastUserUtterance?.id);
   const replyMuted = replyAudio.muted;
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const transport = useVoiceTransport(session.room!);
-  const levels = useVoiceAudioLevels(session.room!, connected, transport.micActive && sttEnabled, audioOutput && !replyMuted);
+  const microphoneActive = nativeMicActive || transport.micActive;
+  const rtcLevels = useVoiceAudioLevels(session.room!, connected, microphoneActive && sttEnabled, audioOutput && !replyMuted);
+  const levels = {
+    getInputLevel: rtcLevels.getInputLevel,
+    getOutputLevel: session.player ? () => connected && audioOutput && !replyMuted && transport.canPlayback ? session.player!.getLevel() : 0 : rtcLevels.getOutputLevel,
+  };
   const didAutoStart = useRef(false); // kiosk: auto-open the first turn once per mount
 
   // Fully release the mic (unpublish + stop the device), not just mute. Muting keeps the audio
@@ -208,6 +246,8 @@ function CardShell() {
   // into playAndRecord and interrupts background music. Unpublishing removes it, so no audio
   // session is held between turns. The next turn re-publishes fresh.
   const releaseMic = useCallback(async () => {
+    nativeMicrophone.current?.stop();
+    nativeMicrophone.current = null;
     const captured = microphoneTrack.current;
     microphoneTrack.current = null;
     const lp = sessionRef.current.room?.localParticipant;
@@ -304,6 +344,7 @@ function CardShell() {
     const readiness = createConversationReady();
     conversationReady.current = readiness;
     const generation = voiceGeneration.current;
+    setIdleEnded(false);
     setConnecting(true);
     setFailure(null);
     setEpoch((e) => e + 1); // a fresh connection starts a fresh conversation
@@ -341,6 +382,38 @@ function CardShell() {
   const openTurn = useCallback(() => {
     const generation = voiceGeneration.current;
     const room = sessionRef.current.room!;
+    if (nativeCapture) {
+      // Authenticate and arm the owner-bound receiver before native capture.
+      return startMicrophone({
+        acquire: async () => {
+          try {
+            const prepared = await sessionRef.current.nativeClient!.call({ type: 'backend_butler/native/prepare', continuous: mode === 'auto' });
+            if (generation !== voiceGeneration.current) throw new VoiceStartError('cancelled');
+            if (!prepared?.entity_id) throw new DOMException('The native microphone receiver is unavailable', 'NotSupportedError');
+            const microphone = new NativeMicrophone(hassRef.current?.auth?.external, prepared.entity_id, setNativeMicActive, () => {
+              setTurnActive(false); setAutoPaused(true);
+              setMicrophoneError(microphoneFailure(new DOMException('Native microphone session ended', 'AbortError')));
+              setFailure('microphone');
+              void rpc('cancel_turn');
+            });
+            nativeMicrophone.current = microphone;
+            return await microphone.start();
+          } catch (reason) {
+            throw reason instanceof VoiceStartError ? reason : new VoiceStartError('capture', reason);
+          }
+        },
+        connect: connectSession,
+        isCurrent: () => generation === voiceGeneration.current,
+        publish: async () => {},
+        unpublish: async microphone => microphone.stop(),
+        start: async () => {
+          const identity = agentIdentity(room);
+          if (!identity) throw new Error('Native audio session is unavailable');
+          await room.localParticipant.performRpc({ destinationIdentity: identity, method: 'set_turn_mode', payload: mode === 'auto' ? 'auto' : 'manual' });
+          return room.localParticipant.performRpc({ destinationIdentity: identity, method: 'start_turn', payload: '' });
+        },
+      });
+    }
     return startMicrophone({
       acquire: () => {
         if (!navigator.mediaDevices?.getUserMedia) {
@@ -359,13 +432,14 @@ function CardShell() {
       isCurrent: () => generation === voiceGeneration.current,
       publish: track => room.localParticipant.publishTrack(track, { source: Track.Source.Microphone }),
       unpublish: track => room.localParticipant.unpublishTrack(track, true),
-      start: () => {
+      start: async () => {
         const identity = agentIdentity(room);
         if (!identity) throw new Error('Voice worker is unavailable');
+        await room.localParticipant.performRpc({ destinationIdentity: identity, method: 'set_turn_mode', payload: mode === 'auto' ? 'auto' : 'manual' });
         return room.localParticipant.performRpc({ destinationIdentity: identity, method: 'start_turn', payload: '' });
       },
     });
-  }, [connectSession]);
+  }, [connectSession, nativeCapture, rpc, mode]);
 
   const beginTurn = useCallback(
     (onFail: () => void) => {
@@ -383,7 +457,7 @@ function CardShell() {
         if (generation !== voiceGeneration.current || (error instanceof VoiceStartError && error.stage === 'cancelled')) return;
         console.error('open turn failed', error);
         if (error instanceof VoiceStartError && error.stage === 'capture') {
-          setMicrophoneError(microphoneFailure(error.reason));
+          setMicrophoneError(microphoneFailure(error.reason, nativeCapture));
           setFailure('microphone');
         } else {
           setFailure('connection');
@@ -396,7 +470,7 @@ function CardShell() {
         }
       });
     },
-    [openTurn, clearSuggestions],
+    [openTurn, clearSuggestions, nativeCapture],
   );
 
   // Close the mic side of a turn: clear `micStarting`, tell the agent (commit or discard), and
@@ -563,11 +637,11 @@ function CardShell() {
 
   // --- connection lifecycle ---
   // Connect on open only when auto_connect is set; otherwise the card stays static until the
-  // first send/speak. The connection is media-free (no mic/subscribe until a turn), so it's
-  // cheap to keep alive: we deliberately do NOT tear it down on background / tab-visibility
+  // first send/speak. The connection starts media-free and is subject to the worker's
+  // idle timeout. Active work stays connected on background / tab-visibility
   // changes, on switching between our Chat/Schedules tabs, or on lovelace-view switches —
   // returning shows the same state, with no refresh. We only release it when the page is
-  // actually unloaded (pagehide) or the card is removed (unmount).
+  // actually unloaded (pagehide), the card is removed, or the worker reports idle.
   const [autoTried, setAutoTried] = useState(false);
   useEffect(() => {
     if (!autoConnect || autoTried || !hass || connected || document.hidden) return;
@@ -603,7 +677,8 @@ function CardShell() {
 
   // Embedded-card mode keeps its existing height behavior. Full-page sizing is owned by
   // the host and fills the available viewport for every tab.
-  const endVoice = async () => {
+  const endVoice = async (reason?: 'idle') => {
+    setIdleEnded(reason === 'idle');
     conversationReady.current?.settle(false);
     conversationReady.current = null;
     voiceGeneration.current++;
@@ -618,28 +693,27 @@ function CardShell() {
     replyAudio.restore();
     requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLButtonElement>('[aria-label="Start talking"], [aria-label="Start listening"]')?.focus());
   };
+  const endVoiceRef = useRef(endVoice);
+  endVoiceRef.current = endVoice;
+  const onSessionIdle = useCallback(() => { setAutoTried(true); void endVoiceRef.current('idle'); }, []);
+  useRoomDataTopic(session.room, 'ha.session_idle', onSessionIdle);
+
   const stopReplyAudio = () => {
     replyAudio.stop();
     requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());
   };
   const pendingVoiceTool = [...toolCalls].reverse().find(tool => tool.status === 'running');
-  const feedback = resolveVoiceFeedback({ connected, connecting,
-    reconnecting: transport.reconnecting, micActive: transport.micActive && sttEnabled,
+  const feedback = resolveVoiceFeedback({ connected, connecting, idleEnded,
+    reconnecting: transport.reconnecting, micActive: microphoneActive && sttEnabled,
     micStarting, agentState, audioOutput: audioOutput && !replyMuted && transport.canPlayback,
     pendingTool: pendingVoiceTool ? humanizeTool(pendingVoiceTool.name) : undefined,
     error: playbackError ?? voiceError?.message ?? null });
   const feedbackVisible = connected || connecting || micStarting || transport.reconnecting || Boolean(failure);
 
-  const voiceFeedback = <VoiceFeedback {...feedback} {...levels}
-    onInterrupt={audioOutput && !replyMuted ? stopReplyAudio : undefined}
-    onEnableAudio={connected && audioOutput && !transport.canPlayback ? enableReplyAudio : undefined}
-    onEnd={feedbackVisible ? () => void endVoice() : undefined} />;
-
   const tall = true;
 
   const activeView = (
     <>
-      {voiceCard && feedbackVisible && !voiceError && voiceFeedback}
       {/* Keep the transcript visible if the voice connection drops. */}
       <Conversation voice compact={voiceCard} before={voiceCard ? undefined : <div className="lk-context" role="region" aria-label="Home controls">
         <NowPlaying />
@@ -656,18 +730,13 @@ function CardShell() {
           onOpen={setEditing}
           onSeeAll={() => setTab('schedules')}
         />
-      </div>} approvals approvalRoom={session.room} items={items} reflowKey={suggestions.length} unavailable={failure === 'connection' || failure === 'message'}
-        notice={voiceError && <RecoveryNotice {...voiceError} retryLabel={voiceDraft.trim() ? 'Retry message' : failure === 'microphone' ? 'Retry microphone' : 'Retry connection'}
-          busy={connecting || sendingVoice || micStarting} onRetry={() => void retryVoice()}
-          onSettings={failure !== 'microphone' && hass?.user?.is_admin ? openConnectionSettings : undefined}
-          onEnd={failure === 'microphone' ? () => void endVoice() : undefined}
-          diagnostic={failure === 'microphone' ? microphoneError?.diagnostic : undefined} />}
+      </div>} items={items} reflowKey={suggestions.length} unavailable={failure === 'connection' || failure === 'message'}
         onPrompt={(prompt) => {
+          setTranscript(true);
           setVoiceDraft(prompt);
           requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());
         }} />
-      {!voiceCard && feedbackVisible && !voiceError && voiceFeedback}
-      <Dock
+      <Dock textOnly
         draft={voiceDraft}
         onDraftChange={setVoiceDraft}
         connected={connected}
@@ -730,17 +799,32 @@ function CardShell() {
   };
 
   return (
-    <ha-card data-dock={mode} data-tall={tall ? '1' : '0'} data-voice-card={voiceCard ? '1' : '0'} data-voice-idle={voiceCard && !feedbackVisible && items.length === 0 ? '1' : '0'}>
+    <ha-card data-live-ui="1" data-dock={mode} data-tall={tall ? '1' : '0'} data-voice-card={voiceCard ? '1' : '0'} data-voice-idle={voiceCard && !feedbackVisible && items.length === 0 ? '1' : '0'}>
       {/* Only attach/play the agent's audio once spoken replies are on. Mounting the renderer
           plays remote audio through an <audio> element, which on iOS flips the shared session to
           playback — so a text-only card (audioOutput defaults off) must never mount it. */}
       {audioOutput && <RoomAudioRenderer muted={replyMuted} />}
       <ConversationHeader title={resolveCardTitle(config.title)} connected={connected}
         orbState={feedbackVisible ? feedback.phase : orbState}
-        stateLabel={feedbackVisible ? feedback.label : connected ? 'Connected' : 'Ready to talk'} announceState={!feedbackVisible}
+        stateLabel="Live conversation" announceState={false}
         upcomingCount={tasksApi.tasks.filter(task => task.enabled && task.status === 'scheduled').length}
         onHistory={() => setDrawer('history')} onSettings={() => setDrawer('settings')} onUpcoming={() => setDrawer('schedules')} />
-      <div className="lk-panel" role="region" aria-label="Conversation">{navigationError && drawer !== 'history' && <p className="lk-set-err" role="alert">{navigationError}</p>}{activeView}</div>
+      <div className="lk-panel" role="region" aria-label="Conversation">
+        <LiveCall transcript={transcript} onTranscript={setTranscript} feedback={feedback} {...levels} items={items}
+          connected={connected} connecting={connecting} micStarting={micStarting} mode={mode} turnActive={turnActive} autoPaused={autoPaused}
+          audioEnabled={audioOutput && !replyMuted} onTalk={onTurnStart} onSendRecording={onTurnEnd}
+          onCancelRecording={onTurnCancel} onPause={onPause} onResume={onResume} onAudio={toggleAudioOutput}
+          onInterrupt={stopReplyAudio} onEnd={() => void endVoice()}
+          onEnableAudio={connected && audioOutput && !transport.canPlayback ? enableReplyAudio : undefined}
+          transcriptContent={activeView}
+          approvals={<ButlerApprovals room={session.room} />}
+          notice={<>{navigationError && drawer !== 'history' && <p className="lk-set-err" role="alert">{navigationError}</p>}
+            {voiceError && <RecoveryNotice {...voiceError} retryLabel={voiceDraft.trim() ? 'Retry message' : failure === 'microphone' ? 'Retry microphone' : 'Retry connection'}
+              busy={connecting || sendingVoice || micStarting} onRetry={() => void retryVoice()}
+              onSettings={failure !== 'microphone' && hass?.user?.is_admin ? openConnectionSettings : undefined}
+              diagnostic={failure === 'microphone' ? microphoneError?.diagnostic : undefined} />}</>}
+        />
+      </div>
       <ConversationDrawer open={drawer === 'settings'} title="Settings" onClose={() => setDrawer(null)}>
         {settingsVisited && <SettingsTab voicePreferences={<section className="lk-set-sec lk-voice-preferences">
           <h2 className="lk-set-title">Voice preferences</h2>
@@ -752,7 +836,7 @@ function CardShell() {
         </section>} />}
       </ConversationDrawer>
       <ConversationDrawer open={drawer === 'schedules'} title="Upcoming" onClose={() => setDrawer(null)}>
-        <SchedulesTab api={tasksApi} onOpen={setEditing} onCreate={() => { setVoiceDraft(current => current.trim() ? current : 'Remind me to take out the bins tomorrow at 7 PM.'); setDrawer(null); requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus()); }} />
+        <SchedulesTab api={tasksApi} onOpen={setEditing} onCreate={() => { setVoiceDraft(current => current.trim() ? current : 'Remind me to take out the bins tomorrow at 7 PM.'); setDrawer(null); setTranscript(true); requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus()); }} />
       </ConversationDrawer>
       <ConversationDrawer open={drawer === 'history'} title="Conversations" onClose={() => setDrawer(null)}>
         <div className="lk-history-actions"><button className="lk-btn" onClick={() => void newConversation()} disabled={historyOpening}>New conversation</button>{navigationError && <p className="lk-set-err" role="alert">{navigationError}</p>}</div>

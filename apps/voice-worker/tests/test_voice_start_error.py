@@ -1,6 +1,8 @@
 """A denied voice resume reports its error after joining the client's room."""
 
+import asyncio
 import json
+from dataclasses import replace
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
@@ -45,10 +47,18 @@ async def test_denied_resume_connects_before_registering_error_rpc(
     async def connect():
         room.connected = True
 
+    shutdown = []
+    ended = asyncio.Event()
+    monkeypatch.setattr(
+        main, "settings", replace(main.settings, voice_idle_timeout=0.03)
+    )
     ctx = SimpleNamespace(
         room=room,
         job=SimpleNamespace(metadata=json.dumps({"user_id": "bob"})),
         connect=AsyncMock(side_effect=connect),
+        add_shutdown_callback=shutdown.append,
+        api=SimpleNamespace(room=SimpleNamespace(delete_room=AsyncMock())),
+        shutdown=Mock(side_effect=lambda **_kwargs: ended.set()),
     )
     for name in ("TurnDetector", "STT", "TTS"):
         monkeypatch.setattr(main.inference, name, Mock())
@@ -80,3 +90,7 @@ async def test_denied_resume_connects_before_registering_error_rpc(
     message = detail or "Conversation could not be opened. Reconnect to try again."
     assert payload == {"error": message, "message": message}
     assert json.loads(await callbacks["get_conversation"](None)) == payload
+    await asyncio.wait_for(ended.wait(), 1)
+    assert ctx.api.room.delete_room.await_args.args[0].room == room.name
+    for callback in shutdown:
+        await callback()

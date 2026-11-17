@@ -1,6 +1,7 @@
 // Visual system. Derives from Home Assistant theme variables so it belongs in any theme,
 // with a designed type pairing (Manrope + JetBrains Mono for device data) and one
 // signature: the voice orb + a floating dock with a separate push-to-talk button.
+import { LIVE_CALL_STYLES } from './live-call-styles';
 import { FONT_CSS } from './font';
 import { CONVERSATION_HEADER_STYLES } from './conversation-header-styles';
 import { CONVERSATION_DRAWER_STYLES } from './conversation-drawer-styles';
@@ -23,7 +24,7 @@ export const CARD_STYLES =
     --lk-line: var(--divider-color, rgba(140,140,150,0.20));
     --lk-danger: var(--error-color, #f0483e);
     --lk-ok: var(--success-color, #21b573);
-    --lk-sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --lk-sans: "ButlerManrope", "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --lk-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
     --lk-h: 540px;
     display: block;
@@ -688,4 +689,4 @@ export const CARD_STYLES =
   .lk-voice-preferences .lk-modeswitch { align-self: flex-start; }
   .lk-history-actions { padding: 12px 16px; }
   .lk-conversation-drawer .lk-settings-scroll { padding: 20px 16px; }
-` + VOICE_FEEDBACK_STYLES + CONVERSATION_HEADER_STYLES + CONVERSATION_DRAWER_STYLES;
+` + VOICE_FEEDBACK_STYLES + CONVERSATION_HEADER_STYLES + CONVERSATION_DRAWER_STYLES + LIVE_CALL_STYLES;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSessionContext } from '@livekit/components-react';
+import { useSessionContext } from './voice-session';
 import { useRoomDataTopic } from './room-data';
 
 // Must match SUGGESTIONS_TOPIC in agent/src/config.py.

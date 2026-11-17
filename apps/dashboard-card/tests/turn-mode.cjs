@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript');
+const values=new Map();const sandbox={exports:{},localStorage:{getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)}};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/turn-mode.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,sandbox);
+const {loadTurnMode,saveTurnMode}=sandbox.exports;
+assert.equal(loadTurnMode({}),'auto','Live defaults to a continuous call after an explicit start');
+values.set('lk-voice-turn-mode','manual');assert.equal(loadTurnMode({}),'auto','the old manual UI default does not silently override the new call experience');
+assert.equal(loadTurnMode({input_mode:'push_to_talk'}),'manual','explicit card configuration remains supported');
+saveTurnMode('manual');assert.equal(loadTurnMode({}),'manual','a new explicit preference is retained');
+saveTurnMode('auto');assert.equal(loadTurnMode({}),'auto');
+sandbox.localStorage.getItem=()=>{throw Error('unavailable')};assert.equal(loadTurnMode({}),'auto');
+console.log('PASS: continuous default, legacy preference migration, explicit manual opt-in and storage fallback');

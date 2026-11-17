@@ -107,7 +107,7 @@ function humanizeError(e: unknown): string {
  * sent from elsewhere show up too. Starting or switching a conversation shows it at once and
  * runs the request in the background, ahead of any message sent after it.
  */
-export function useTextChat(active: boolean): TextChatApi {
+export function useTextChat(active: boolean, warmEnabled = true): TextChatApi {
   // read at call time: HA replaces the hass object on every state change
   const store = useStore();
   const ready = useHass() !== null;
@@ -203,8 +203,9 @@ export function useTextChat(active: boolean): TextChatApi {
   // the worker loads a conversation it had unloaded only on a message, or when asked here;
   // a conversation already loaded makes it a no-op
   const warm = useCallback(() => {
+    if (!warmEnabled) return;
     store.getSnapshot().hass?.callApi('POST', WARM_PATH, {}).catch(() => undefined);
-  }, [store]);
+  }, [warmEnabled, store]);
 
   /** Show `view` at once while `request` changes the conversation, then settle on the worker's. */
   const change = useCallback(

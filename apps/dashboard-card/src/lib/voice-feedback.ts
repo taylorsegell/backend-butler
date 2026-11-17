@@ -6,6 +6,7 @@ export type VoiceFeedbackPhase = 'idle' | 'connecting' | 'listening' | 'thinking
 export interface VoiceFeedbackInput {
   connected: boolean;
   connecting: boolean;
+  idleEnded?: boolean;
   reconnecting: boolean;
   /** Actual local microphone capture AND the worker's listening gate are enabled. */
   micActive: boolean;
@@ -32,6 +33,7 @@ export function resolveVoiceFeedback(input: VoiceFeedbackInput): VoiceFeedbackSt
   }
   if (reconnecting) return { phase: 'reconnecting', label: 'Reconnecting', detail: 'Your transcript is still here. Waiting for the voice connection.' };
   if (connecting) return { phase: 'connecting', label: 'Connecting', detail: 'Preparing your voice session.' };
+  if (!connected && input.idleEnded) return { phase: 'idle', label: 'Session ended after inactivity', detail: 'Your conversation is saved. Start talking or type to continue.' };
   if (!connected) return { phase: 'idle', label: 'Ready to talk', detail: 'Start the microphone when you’re ready.' };
   if (micStarting) return { phase: 'connecting', label: 'Starting microphone', detail: 'Wait for Listening before you speak.' };
   if (interrupted) {

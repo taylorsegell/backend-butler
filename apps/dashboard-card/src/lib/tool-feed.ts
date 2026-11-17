@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSessionContext } from '@livekit/components-react';
+import { useSessionContext } from './voice-session';
 import { useRoomDataTopic } from './room-data';
 
 // Must match TOOL_CALL_TOPIC in agent/agent.py.

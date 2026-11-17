@@ -28,6 +28,14 @@ npm run typecheck
 npm run build
 ```
 
+The standard HA native-audio checks use a separate Python **3.14** environment:
+install `tests/ha/requirements.txt`, then run `python -m pytest tests/ha -q` and
+`BUTLER_PACKAGE_BROWSER=1 python tests/ha/package_check.py`. The latter needs the
+card's locked dependencies and Playwright Chromium. It copies only the standard
+component into a fresh loopback-only HA fixture, emulates Companion hardware, and
+uses synthetic worker/history responses without cloud inference. See
+[the transport contract and acceptance scope](docs/native-audio.md).
+
 The generated card bundle in `custom_components/backend_butler/frontend/` is committed because Home Assistant does not build it. Include a fresh build with card changes. Keep lockfiles reproducible; the voice worker deliberately pins draft LiveKit APIs to Git commits. See `apps/voice-worker/patches/` before changing those pins.
 
 Include the problem, resulting behavior, and relevant test results in your PR. Use synthetic people/devices in tests and redact logs/screenshots. Browser fixtures in `apps/dashboard-card/tests/` require Playwright and its browsers; see each script for its fixture and assertions. Test voice controls at narrow widths, with keyboard navigation and reduced motion. Live hardware, paid inference, and deployment tests are opt-in and must use your own credentials.
