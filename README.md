@@ -19,9 +19,9 @@
 
 ## See Butler in action
 
-[![Watch the 24-second Backend Butler voice conversation demo](media/backend-butler-promo.jpg)](media/backend-butler-promo.mp4)
+[![Backend Butler promo video](media/backend-butler-promo.jpg)](media/backend-butler-promo.mp4)
 
-[Watch or download the promo · MP4, 24 seconds](media/backend-butler-promo.mp4) · [Music and media credits](media/README.md)
+[Watch the promo video](media/backend-butler-promo.mp4) · [Music and media credits](media/README.md)
 
 The demo shows a spoken request, Butler’s spoken reply, and a follow-up in one live conversation. Animated audio bars and speaking labels identify each turn; the mobile wireframe illustrates fictional requests and responses.
 

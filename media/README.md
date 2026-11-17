@@ -1,6 +1,6 @@
 # Backend Butler promo
 
-`backend-butler-promo.mp4` is the 24-second voice conversation promo. The opening and ending show the current Live interface; the mobile wireframe illustrates fictional requests and replies. Speaking labels, microphone/speaker icons and animated bars show the voice turns. The bars are illustrative, and no spoken dialogue audio is included. The approved logo artwork and warm orange palette are preserved.
+`backend-butler-promo.mp4` is the voice conversation promo. The opening and ending show the current Live interface; the mobile wireframe illustrates fictional requests and replies. Speaking labels, microphone/speaker icons and animated bars show the voice turns. The bars are illustrative, and no spoken dialogue audio is included. The approved logo artwork and warm orange palette are preserved.
 
 The closing credit reads **For Home Assistant. Powered by LiveKit.**
 

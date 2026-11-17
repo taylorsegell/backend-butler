@@ -4,7 +4,7 @@ For Home Assistant. Powered by LiveKit.
 
 ## Assets
 
-- [24-second video](../media/backend-butler-promo.mp4)
+- [Promo video](../media/backend-butler-promo.mp4)
 - [Poster](../media/backend-butler-promo.jpg)
 - [Wide graphic](../media/backend-butler-promo-wide.png)
 - [Square graphic](../media/backend-butler-promo-square.png)
