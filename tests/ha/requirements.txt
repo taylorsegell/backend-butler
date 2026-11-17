@@ -1,10 +1,13 @@
 # HA's native camera schema/capability contract is tested against this release.
+# HAOS installs integrations under these same core constraints. An unconstrained
+# venv can accept a media dependency that the deployed HA resolver rejects.
+-c https://raw.githubusercontent.com/home-assistant/core/2026.11.1/homeassistant/package_constraints.txt
 homeassistant==2026.11.1
 # Frontend platform requirement; the package fixture starts HA with --skip-pip.
 home-assistant-frontend==20261028.5
 # Camera platform requirement; pytest imports it before HA can install it.
 PyTurboJPEG==1.8.3
-aiortc==1.14.0
+aiortc==1.16.0
 livekit-api==2.0.0
 numpy==2.3.2
 pytest==8.4.2

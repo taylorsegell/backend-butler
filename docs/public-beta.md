@@ -1,7 +1,8 @@
 # Public beta
 
-Beta.4 is a release candidate for the Live call UI and opt-in Home Assistant
-Companion native microphone. It is not published yet. The canonical repository is
+Beta.5 includes the Live call UI and opt-in Home Assistant Companion native
+microphone, with an HAOS-compatible audio dependency. Beta.4 was withdrawn after
+the deployed HAOS resolver rejected its older aiortc pin. The canonical repository is
 `taylorsegell/backend-butler`; the development repository remains private.
 
 ## Install or upgrade
@@ -21,14 +22,16 @@ shows the same conversation, selected history and draft.
 
 ## Release gates
 
-- Prepare a reviewed beta.4 PR from current public main and require `CI required`:
+- Require a reviewed release PR and `CI required`:
   card/browser checks, worker/service/app tests, security audits, image builds,
   Compose migration checks, repository hygiene, and HACS validation.
-- Keep integration/card versions at `1.1.0-beta.4`, regenerate the card bundle and
+- Keep integration/card versions at `1.1.0-beta.5`, regenerate the card bundle and
   build the matching worker. Do not change the optional app's independent version.
-- Complete the remaining [physical phone checks](phone-beta-checklist.md). The
-  iPhone tester has confirmed logo rendering and continuous calls on the standard
-  isolated candidate. Automated results do not imply broader device acceptance.
+- The iPhone tester confirmed logo rendering, continuous calls and all seven
+  [physical phone checks](phone-beta-checklist.md) on the standard isolated
+  candidate. Automated results do not imply broader device acceptance.
+- Install the HA package tests under the matching official core constraints,
+  including AV 19. An unconstrained venv does not model the HAOS resolver.
 - Capture actual deployment backups and the previous integration/worker versions
   before any household update. Keep release publication and installation updates
   separate from release-candidate preparation.

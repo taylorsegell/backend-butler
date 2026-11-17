@@ -5,12 +5,13 @@ The existing Butler card captures through the Home Assistant Companion app and
 plays the worker's replies inside the same UI, including when HA is opened over
 local HTTP. It does not open Assist or require local DNS/certificate setup.
 
-This opt-in beta.4 candidate requires HA 2026.11.1 or newer and a Companion app
+This opt-in beta.5 integration requires HA 2026.11.1 or newer and a Companion app
 that advertises the native WebRTC microphone capability. The standard integration
 was tested in an isolated installation with the existing login and history. The
-iPhone tester confirmed the corrected logo and continuous call; the remaining
-[phone checks](phone-beta-checklist.md) still require signoff. This is not a
-published release or approval to upgrade a household installation.
+iPhone tester confirmed the corrected logo, continuous call and all seven
+[phone checks](phone-beta-checklist.md). Beta.4 was withdrawn because its aiortc
+pin conflicted with HAOS's AV 19 constraint; beta.5 uses aiortc 1.16.0 and tests
+under the official HA core constraints. No shared HA media package is downgraded.
 
 ## Enable on a candidate installation
 
@@ -40,7 +41,7 @@ LiveKit's AgentSession and inference remain responsible for the conversation.
 
 ## Support and behavior
 
-Verified against HA **2026.11.1**, aiortc **1.14.0**, and the supported Companion
+Verified against HA **2026.11.1**, aiortc **1.16.0**, and the supported Companion
 native WebRTC microphone capability (`hasCameraMicrophoneStream`). A supported
 Companion app selects this transport when the integration option is enabled.
 Browsers retain the RTC transport and their normal microphone secure-context
@@ -66,7 +67,7 @@ acknowledgement. Saved history remains available after ending or idling.
 Cloud audio recording remains off by default; native worker sessions explicitly
 use `record=False`. `VOICE_IDLE_TIMEOUT=120` closes inactive worker sessions; active
 speech, generation, and tools suspend that timer. Worker idle also revokes the HA
-bridge. Capture is bounded to 90 seconds per arm, the bridge to 20 minutes, and
+bridge. Manual capture is bounded to 90 seconds per arm, the bridge to 20 minutes, and
 sessions to two per HA user/eight total. The next explicit tap creates a new bridge
 and resumes the selected saved conversation. Polling does not prolong a session.
 
@@ -114,9 +115,9 @@ saved-history person mapping, close acknowledgement, normal card Send/Cancel and
 playback, new/preview/resume, no text warmup, reload revocation, idle expiry,
 account-remapping revocation, and uninstall. A new CI job runs the same checks.
 
-Before release, repeat on the iPhone using the standard candidate installation:
-Wi-Fi/local HTTP; Start talking → Send → transcript and audible Rex reply; Cancel;
-new/preview/resume context; idle until disconnected → explicit reconnect retaining
-history; quit/reopen. Confirm no separate Assist screen and no second lab login.
-The normal browser RTC checks must continue passing. Do not promote or replace the
-existing beta until that packaged-path phone pass is recorded.
+After upgrading, smoke-test Companion on Wi-Fi/local HTTP: Call, speak, confirm a
+transcript and audible Rex reply, then End. The accepted continuous-call experience
+does not require Send after each utterance. Confirm history/context on reopening.
+The full [phone checklist](phone-beta-checklist.md) records the isolated candidate
+acceptance; rerun relevant checks after platform or transport changes. The normal
+browser RTC checks must continue passing.
