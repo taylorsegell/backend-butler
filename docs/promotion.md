@@ -44,6 +44,8 @@ Get started: https://github.com/taylorsegell/backend-butler#quickstart
 
 Music: “Happy Beats / Business Moves Vol. 1” by Sascha Ende (https://ende.app/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Excerpt trimmed, gain adjusted and faded. Sound effects: Kenney, CC0.
 
+See [release preparation status](release-status.md) for the current merge and publication blocker.
+
 ## Publication sequence
 
 1. Merge the README/media change and reviewed dependency PRs only after `CI required` passes; verify the resulting default branch.
