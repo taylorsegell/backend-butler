@@ -11,17 +11,15 @@
 
 ## Pull requests to consolidate
 
-- [#1 — Actions updates](https://github.com/taylorsegell/backend-butler/pull/1): full-commit pins retained, checkout token persistence disabled, supported hosted runners. Earlier CI passed; the shared dependency-audit issue below also affects a fresh validation of its base tree.
+- [#1 — Actions updates](https://github.com/taylorsegell/backend-butler/pull/1): full-commit pins retained, checkout token persistence disabled, supported hosted runners. The Actions update must pass fresh CI with the approved audit policy.
 - [#10 — JavaScript updates](https://github.com/taylorsegell/backend-butler/pull/10): compiler API compatibility restored, Node types aligned to Node 22, explicit browser-fixture esbuild dependency, card bundle regenerated. Card unit/type checks and Chromium tests pass locally; configuration app has 385 passing tests and a passing typecheck/build. Full CI, including WebKit, must pass before merge.
-- [#14 — README/demo/promotion kit](https://github.com/taylorsegell/backend-butler/pull/14): relative media links checked; video verified as 24 seconds, 1920×1080 H.264/AAC. Fresh CI currently fails its JavaScript audits on the advisory below.
+- [#14 — README/demo/promotion kit](https://github.com/taylorsegell/backend-butler/pull/14): relative media links checked; video verified as 24 seconds, 1920×1080 H.264/AAC. Fresh CI will enforce the approved exception described below.
 
-## Publication blocker
+## Approved temporary audit exception
 
 [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) is a high-severity denial-of-service advisory for repeated extglob patterns in picomatch through 4.0.7. As checked on 2026-11-17, GitHub lists no patched version and npm’s latest is 4.0.7. The upstream PR referenced by the advisory does not claim to fix the general single-branch issue.
 
-The current complete card/app audits fail. Production-only audits report zero vulnerabilities for both projects; the affected dependency paths here are build/test tooling. The configuration-app runtime image prunes development dependencies. These facts limit exposure but do not satisfy the current release gate: CONTRIBUTING requires JavaScript high/critical audits to pass, including development dependencies.
-
-No advisory has been ignored, audit severity lowered, branch protection bypassed or merge forced. Recheck the advisory and package releases before publication. A maintainer decision is needed if considering a narrowly scoped, time-limited exception while no upstream patch exists; any such decision must record the reachable input paths, mitigation, expiry and review owner. No exception is approved by this document.
+Complete native audits report this advisory in build/test tooling. Production-only audits are clean. On November 17, the maintainer explicitly approved a seven-day exception limited to this advisory. The [exception record](security-audit-exception.md) defines exposure, mitigation, review owner and automatic expiry on November 24, 2026 at 19:32:35 UTC. Production high/critical findings, unrelated advisories and audit errors still fail. Required checks and branch protection remain enforced.
 
 ## Final verification after unblock
 
