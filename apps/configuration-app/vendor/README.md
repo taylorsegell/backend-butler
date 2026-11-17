@@ -6,14 +6,14 @@ This directory contains a project-local MIT-licensed build of picomatch 4.0.7, m
 
 - Upstream source: https://github.com/micromatch/picomatch/tree/6bb40679c218cefba5d4e9662408c5fdf699a8bb (tag 4.0.7).
 - `picomatch-4.0.7.patch`: reviewable parser-only change against that commit.
-- `picomatch-4.0.7-patched.tgz`: npm-pack archive containing the original runtime files plus the patched parser.
+- `picomatch-4.0.7-patched.1.tgz`: npm-pack archive containing the original runtime files plus the patched parser.
 - `picomatch-patch.json`: upstream registry integrity, source commit, original parser hash, patch/archive hashes, and hashes of every shipped file.
 
 The configuration app declares this archive as a development dependency and uses npm’s `$picomatch` override so every transitive consumer selects it. The card’s pnpm workspace override selects the same archive. Both lockfiles pin its SHA-512 integrity. Docker copies vendor inputs before `npm ci`. No postinstall hook or dependency script applies the patch, so `--ignore-scripts` installs remain supported.
 
 ## Behavior and limits
 
-The tokenizer marks unbounded wildcard/quantifier tokens in every containing extglob. This uses the real parser’s quote/class/escape state and survives nested rewrites. Simple slash-free star sequences are collapsed to one copy (or an optional copy for zero-or-more), preserving their matching language. Other marked repeated groups use upstream’s existing literal fallback, including alternate-branch evasions. Quoted and escaped literal stars remain distinct from wildcards.
+The tokenizer marks unbounded wildcard/quantifier tokens in every containing extglob. This uses the real parser’s quote/class/escape state and survives nested rewrites. Simple slash-free star sequences are collapsed to one copy (or an optional copy for zero-or-more), preserving their matching language. Disjoint single-letter alternatives beside a literal-prefix/star branch are rewritten without overlapping repetition. Other marked repeated groups use upstream’s existing literal fallback, including alternate-branch evasions. Quoted and escaped literal stars remain distinct from wildcards.
 
 This is a targeted guard for the reviewed repeated-extglob cases, not a general proof that arbitrary regular expressions are safe. Keep the upstream default safeguards enabled: `maxExtglobRecursion: false` deliberately opts out. Do not pass untrusted raw regular expressions or deliberately disable safeguards.
 

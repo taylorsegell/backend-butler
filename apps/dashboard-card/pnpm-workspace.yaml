@@ -2,4 +2,4 @@ allowBuilds:
   esbuild: true
 
 overrides:
-  picomatch: file:../configuration-app/vendor/picomatch-4.0.7-patched.tgz
+  picomatch: file:../configuration-app/vendor/picomatch-4.0.7-patched.1.tgz

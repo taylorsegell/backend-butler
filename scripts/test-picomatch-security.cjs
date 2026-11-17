@@ -46,6 +46,11 @@ function matcher(picomatch, modulePath, entrypoint, pattern, options) {
 function compatibility(picomatch) {
   const include = '**/*.{test,spec}.?(c|m)[jt]s?(x)'; // Vitest 5's actual default include.
   const cases = [
+    ['*(a*|b)', 'ax', true],
+    ['*(a*|b)', 'bbax', true],
+    ['+(a*|b)', 'bbb', true],
+    ['p+(a*|b)c', 'pbbaxc', true],
+    ['*(a*|b)', 'x', false],
     ['**/*.{js,ts,jsx,tsx}', 'src/App.tsx', true],
     ['**/*.{js,ts,jsx,tsx}', 'src/App.css', false],
     [include, 'test/unit/router.test.ts', true],
@@ -105,7 +110,7 @@ function differential(picomatch, reference) {
     inputs.push(...layer);
   }
   inputs.push('A', 'B', 'ABC', '.a', 'a/b', 'a\\b');
-  const bodies = ['*', 'a*', '*a', 'a*b', '*a*', 'a?*', '?a*', '*?a', '[ab]*a',
+  const bodies = ['a*|b', 'b|a*', 'a*|b|c', 'a*|A', '*', 'a*', '*a', 'a*b', '*a*', 'a?*', '?a*', '*?a', '[ab]*a',
     'a*[ab]', '[a-z]*', '*[-ab]', '\\**', '*\\*', 'a\\*b', '"*"*', '*"*"'];
   const contexts = [['', ''], ['', 'c'], ['p', 'c'], ['pre', 'post']];
   let compared = 0;
