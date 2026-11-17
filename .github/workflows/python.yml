@@ -49,6 +49,8 @@ jobs:
           node-version: 22
       - run: uv venv --python 3.14 /tmp/butler-ha-ci
       - run: uv pip install --python /tmp/butler-ha-ci/bin/python -r tests/ha/requirements.txt
+      - name: Verify HAOS-constrained native audio dependencies
+        run: uv pip check --python /tmp/butler-ha-ci/bin/python
       - run: pnpm --dir apps/dashboard-card install --frozen-lockfile
       - run: pnpm --dir apps/dashboard-card exec playwright install --with-deps chromium
       - run: /tmp/butler-ha-ci/bin/python -m pytest tests/ha -q

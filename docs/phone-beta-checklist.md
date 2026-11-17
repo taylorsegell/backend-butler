@@ -1,9 +1,10 @@
-# Beta.4 iPhone checks
+# iPhone acceptance checks
 
 Use the existing isolated candidate in Home Assistant Companion on Wi-Fi/local
 HTTP. Keep synthetic conversations and do not request household actions. The user
-has already confirmed that the logo renders correctly and continuous calls work.
-Do not repeat those as uncompleted gates.
+confirmed the logo, continuous calls and all seven checks below before authorizing
+release. Exact iOS/Companion build numbers were not supplied. These are the
+recorded acceptance steps; other devices and audio routes remain unverified.
 
 | Remaining check | Action | Pass condition |
 | --- | --- | --- |
