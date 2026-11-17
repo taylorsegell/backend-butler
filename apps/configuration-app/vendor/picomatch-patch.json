@@ -1,0 +1,23 @@
+{
+  "package": "picomatch",
+  "version": "4.0.7",
+  "advisory": "GHSA-fc5q-39xc-vjpf",
+  "upstreamCommit": "6bb40679c218cefba5d4e9662408c5fdf699a8bb",
+  "upstreamRegistryIntegrity": "sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==",
+  "upstreamParserSha256": "4e1e05447668aa1e94366c5516a2bcd8f5fff800cc92b1d0cd7d77703b8618c4",
+  "archive": "picomatch-4.0.7-patched.tgz",
+  "archiveSha256": "824536317415c11dbb6a6e21deb1db49b6d104873c282379117899b4f6bc1edc",
+  "patchSha256": "ca1893b05d0d14e172722b9babd7c5bd8662e325f327aea71b8b0e60ed17cf44",
+  "files": {
+    "LICENSE": "d0cd141b0c322fded5dfad1d4645bb2fedfc05b7321fe1009469638190d59ef9",
+    "lib/constants.js": "c28f952d2758261fe5428a121add485cc25b03e0193633f649de903dc0e5e222",
+    "index.js": "02ae26406508e28f9ba0865be16cf77f0b33de6c4d4d49c212c4176df1d5625a",
+    "lib/parse.js": "a8bc584c8740ad262dddf9b81fd12b3462f9c4a951ff10ecec8a7a98aa1196f9",
+    "lib/picomatch.js": "fdd249d7ffff853f3bb1c77eafc8baa1a437bea85a94c35877b83c6a40d9ca94",
+    "posix.js": "5695ff5dfcd5a338a40630bd506056f2950bcb08fe1cc068519cbbfe60add480",
+    "lib/scan.js": "6457a1764e5c2e543cc3a0c00ce12ebb3764097628868198370b64d4e642aaae",
+    "lib/utils.js": "f04604f70cd1a3f6ace80b84766468674ff38b4bb83818d2ef1d81fc6355f935",
+    "package.json": "479b70b87aa7b44344d62c8a459ae7e53dd2bca6c61f1396bd55e63e9de73fc6",
+    "README.md": "a69b87120fe2b9cb8f9057eaef6b9f9887f803e02185ca2f431e8162f6312220"
+  }
+}

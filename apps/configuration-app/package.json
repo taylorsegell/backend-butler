@@ -22,6 +22,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",
     "esbuild": "0.28.2",
+    "picomatch": "file:vendor/picomatch-4.0.7-patched.tgz",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "streamdown": "2.7.1",
@@ -38,5 +39,8 @@
   },
   "engines": {
     "node": ">=22 <23"
+  },
+  "overrides": {
+    "picomatch": "$picomatch"
   }
 }

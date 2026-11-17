@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import subprocess
+import tempfile
 
 ADVISORY = 'GHSA-fc5q-39xc-vjpf'
 URL = f'https://github.com/advisories/{ADVISORY}'
@@ -30,12 +31,14 @@ def findings(manager, report):
     return rows
 
 
-def audit(manager, production):
+def audit(manager, production, cwd=None):
     command = [manager, 'audit', '--json', '--audit-level', 'high']
     if production:
         command.append('--omit=dev' if manager == 'npm' else '--prod')
+    if cwd is not None:
+        command.append('--registry=https://registry.npmjs.org')
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=45, check=False)
+        result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=45, check=False)
         report = json.loads(result.stdout)
     except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError) as exc:
         raise ValueError(f'Native {manager} audit could not complete: {exc}') from exc
@@ -85,6 +88,18 @@ def validate(manager, full, production, now):
             raise ValueError(f'Unapproved or expired {row["severity"]} finding: {name}')
 
 
+def registry_audit():
+    """Keep upstream advisories visible even if a manager omits local tarballs."""
+    with tempfile.TemporaryDirectory(prefix='butler-picomatch-audit-') as directory:
+        manifest = {'name': 'butler-picomatch-audit', 'version': '0.0.0', 'private': True,
+                    'devDependencies': {'picomatch': '4.0.7'}}
+        (Path(directory) / 'package.json').write_text(json.dumps(manifest))
+        subprocess.run(['npm', 'install', '--package-lock-only', '--ignore-scripts',
+                        '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org'],
+                       cwd=directory, capture_output=True, text=True, check=True, timeout=45)
+        return audit('npm', production=False, cwd=directory), audit('npm', production=True, cwd=directory)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('manager', choices=['npm', 'pnpm'])
@@ -93,13 +108,20 @@ def main():
     if Path.cwd().name != projects[manager]:
         parser.error('Run from the matching JavaScript application directory')
     try:
+        # A version-only waiver is insufficient: require the reviewed installed bytes.
+        subprocess.run(['node', str(Path(__file__).with_name('verify-picomatch-patch.cjs'))],
+                       check=True, timeout=45)
         production = audit(manager, production=True)
         full = audit(manager, production=False)
-        validate(manager, full, production, datetime.now(timezone.utc))
-    except ValueError as exc:
+        now = datetime.now(timezone.utc)
+        validate(manager, full, production, now)
+        upstream, upstream_production = registry_audit()
+        validate('npm', upstream, upstream_production, now)
+    except (ValueError, OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
         raise SystemExit(str(exc)) from exc
     print(f'{manager}: production audit passed; complete audit passed under the documented policy.')
-    if any(row['severity'] in BLOCKING for row in findings(manager, full).values()):
+    if any(row['severity'] in BLOCKING for row in findings(manager, full).values()) or any(
+            row['severity'] in BLOCKING for row in findings('npm', upstream).values()):
         print(f'Temporary build/test exception: {ADVISORY}; expires {EXPIRES.isoformat()}')
 
 

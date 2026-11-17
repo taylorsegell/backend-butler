@@ -1,0 +1,103 @@
+diff --git a/lib/parse.js b/lib/parse.js
+index 2920751..fd9db59 100644
+--- a/lib/parse.js
++++ b/lib/parse.js
+@@ -284,7 +284,36 @@ const repeatedExtglobRecursion = pattern => {
+   return depth;
+ };
+ 
+-const analyzeRepeatedExtglob = (body, options) => {
++// Flat, slash-free glob sequences containing a star are closed under
++// concatenation: one star can absorb all intervening copies. Collapse their
++// repetition to one copy instead of nesting an unbounded regex quantifier.
++// Unknown group/regex syntax uses the existing literal fallback.
++const canFlattenStarBranch = (input, options) => {
++  if (options.regex === true || options.unescape === true) return false;
++  let quoted = false;
++  for (let i = 0; i < input.length; i++) {
++    const ch = input[i];
++    if (ch === '\\') {
++      if (!input[i + 1] || /[/\\\r\n]/.test(input[i + 1])) return false;
++      i++;
++      continue;
++    }
++    if (/[/\r\n]/.test(ch)) return false;
++    if (ch === '"') { quoted = !quoted; continue; }
++    if (quoted) continue;
++    if (ch === '[') {
++      const end = input.indexOf(']', i + 1);
++      // These classes cannot introduce a slash or newline into the sequence.
++      if (end < 0 || !/^[a-zA-Z0-9_-]+$/.test(input.slice(i + 1, end))) return false;
++      i = end;
++      continue;
++    }
++    if (/[+(){}|\]]/.test(ch) || (ch === '?' && options.bash === true)) return false;
++  }
++  return !quoted;
++};
++
++const analyzeRepeatedExtglob = (body, options, hasUnboundedToken) => {
+   if (options.maxExtglobRecursion === false) {
+     return { risky: false };
+   }
+@@ -343,6 +372,10 @@ const analyzeRepeatedExtglob = (body, options) => {
+       : { risky: true };
+   }
+ 
++  if (hasUnboundedToken) {
++    return { risky: true, flatten: branches.length === 1 && canFlattenStarBranch(body, options) };
++  }
++
+   return { risky: false };
+ };
+ 
+@@ -539,11 +572,17 @@ const parse = (input, options) => {
+   const extglobClose = token => {
+     const literal = input.slice(token.startIndex, state.index + 1);
+     const body = input.slice(token.startIndex + 2, state.index);
+-    const analysis = analyzeRepeatedExtglob(body, opts);
++    const analysis = analyzeRepeatedExtglob(body, opts, token.hasUnboundedToken);
+ 
+     if ((token.type === 'plus' || token.type === 'star') && analysis.risky) {
+-      const safeOutput = analysis.safeOutput
+-        ? (token.output ? '' : ONE_CHAR) + (opts.capture ? `(${analysis.safeOutput})` : analysis.safeOutput)
++      let rewritten = analysis.safeOutput;
++      if (analysis.flatten) {
++        const prefix = token.output + (token.output ? '' : ONE_CHAR) + (opts.capture ? '(' : '') + token.open;
++        const branch = state.output.slice(prefix.length);
++        rewritten = token.type === 'star' ? `(?:${branch})?` : branch;
++      }
++      const safeOutput = rewritten
++        ? (token.output ? '' : ONE_CHAR) + (opts.capture ? `(${rewritten})` : rewritten)
+         : undefined;
+       const open = tokens[token.tokensIndex];
+ 
+@@ -700,6 +739,9 @@ const parse = (input, options) => {
+ 
+       if (opts.unescape === true) {
+         value = advance();
++        if (value === '*' || value === '+') {
++          for (const extglob of extglobs) extglob.hasUnboundedToken = true;
++        }
+       } else {
+         value += advance();
+       }
+@@ -1080,6 +1122,7 @@ const parse = (input, options) => {
+       }
+ 
+       if ((prev && (prev.type === 'bracket' || prev.type === 'paren' || prev.type === 'brace')) || state.parens > 0) {
++        for (const extglob of extglobs) extglob.hasUnboundedToken = true;
+         push({ type: 'plus', value });
+         continue;
+       }
+@@ -1252,6 +1295,10 @@ const parse = (input, options) => {
+       continue;
+     }
+ 
++    // Use tokenizer state: quoted/class/escaped stars never reach this branch.
++    // Propagate through nested extglobs so rewrites cannot hide a wildcard.
++    for (const extglob of extglobs) extglob.hasUnboundedToken = true;
++
+     const token = { type: 'star', value, output: star };
+ 
+     if (opts.bash === true) {

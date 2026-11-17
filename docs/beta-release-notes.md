@@ -6,6 +6,8 @@ For Home Assistant. Powered by LiveKit. Voice first; chat when you want.
 
 ## Changes
 
+- Apply the [pinned local picomatch security patch](../apps/configuration-app/vendor/README.md) in both build/test toolchains. Require byte verification and bounded attack tests; retain the existing November 24 audit exception deadline because upstream version-based scanners still identify 4.0.7.
+
 - Refresh the card’s Motion/Vite dependencies and the configuration app’s JavaScript dependencies. Retain TypeScript 5.9.3 for the card’s compiler-API test harness and Node 22 types for the supported app runtime.
 - Declare esbuild directly for browser test fixtures after Vite 8 removed that transitive dependency. Regenerate the Home Assistant card bundle.
 - Update pinned CI Actions while retaining required browser, worker/service/app, HACS, image, audit and secret-scan checks.

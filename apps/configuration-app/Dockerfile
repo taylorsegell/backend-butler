@@ -5,6 +5,8 @@ FROM ${BUILD_FROM} AS build
 RUN apk add --no-cache nodejs npm
 WORKDIR /src
 COPY package.json package-lock.json ./
+# Local, integrity-pinned development dependency patch; no install hook is needed.
+COPY vendor ./vendor
 # No dependency needs an install script (esbuild's only picks its binary, which comes as an optional package).
 # Installing inside Alpine selects the SDK's musl binary.
 RUN npm ci --ignore-scripts

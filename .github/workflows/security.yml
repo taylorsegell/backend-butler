@@ -32,12 +32,16 @@ jobs:
         working-directory: apps/dashboard-card
         run: |
           pnpm install --frozen-lockfile --ignore-scripts
+          node --test ../../scripts/test-picomatch-integrity.cjs
+          node ../../scripts/test-picomatch-security.cjs --app dashboard-card
           python3 ../../scripts/audit-javascript.py pnpm
       - name: Audit locked app dependencies
         if: matrix.project == 'apps/configuration-app'
         working-directory: apps/configuration-app
         run: |
           npm ci --ignore-scripts
+          node --test ../../scripts/test-picomatch-integrity.cjs
+          node ../../scripts/test-picomatch-security.cjs --app configuration-app
           python3 ../../scripts/audit-javascript.py npm
 
   python:
