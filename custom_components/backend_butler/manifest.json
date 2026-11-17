@@ -7,6 +7,9 @@
   "codeowners": [
     "@taylorsegell"
   ],
+  "after_dependencies": [
+    "mobile_app"
+  ],
   "dependencies": [
     "http",
     "frontend"
