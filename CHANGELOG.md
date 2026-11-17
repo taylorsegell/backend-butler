@@ -7,7 +7,7 @@
 - Refresh the card’s Motion/Vite tooling and configuration-app JavaScript dependencies; retain TypeScript compiler APIs required by the card tests and Node types matching Node 22.
 - Declare browser fixtures’ esbuild dependency explicitly and regenerate the shipped card bundle.
 - Update pinned CI Actions and retain required tests, image builds, HACS validation and secret scanning.
-- Replace the README promo with the current 24-second voice-conversation demo, LiveKit credit and share graphics.
+- Replace the README promo with the current voice-conversation demo, LiveKit credit and share graphics.
 - Apply the explicitly approved, development-only picomatch advisory exception through November 24, 2026; keep production and all other high/critical audit findings blocking.
 
 ## 1.1.0-beta.4 — Live call and native audio candidate

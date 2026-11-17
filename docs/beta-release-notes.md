@@ -11,7 +11,7 @@ For Home Assistant. Powered by LiveKit. Voice first; chat when you want.
 - Refresh the card’s Motion/Vite dependencies and the configuration app’s JavaScript dependencies. Retain TypeScript 5.9.3 for the card’s compiler-API test harness and Node 22 types for the supported app runtime.
 - Declare esbuild directly for browser test fixtures after Vite 8 removed that transitive dependency. Regenerate the Home Assistant card bundle.
 - Update pinned CI Actions while retaining required browser, worker/service/app, HACS, image, audit and secret-scan checks.
-- Add the current 24-second voice-conversation video, warm promo graphics and “For Home Assistant. Powered by LiveKit.” credit to the README and [promotion kit](promotion.md). The mobile wireframe illustrates fictional requests and speaking states; the video contains music and conveys dialogue visually.
+- Add the current voice-conversation promo video, warm promo graphics and “For Home Assistant. Powered by LiveKit.” credit to the README and [promotion kit](promotion.md). The mobile wireframe illustrates fictional requests and speaking states; the video contains music and conveys dialogue visually.
 
 ## Install or upgrade after publication
 

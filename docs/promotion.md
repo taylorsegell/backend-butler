@@ -4,7 +4,7 @@ For Home Assistant. Powered by LiveKit.
 
 ## Assets
 
-- [24-second video](../media/backend-butler-promo.mp4)
+- [Promo video](../media/backend-butler-promo.mp4)
 - [Poster](../media/backend-butler-promo.jpg)
 - [Wide graphic](../media/backend-butler-promo-wide.png)
 - [Square graphic](../media/backend-butler-promo-square.png)
@@ -50,7 +50,7 @@ See [release preparation status](release-status.md) for the current merge and pu
 
 1. Merge the README/media change and reviewed dependency PRs only after `CI required` passes; verify the resulting default branch.
 2. Confirm the selected beta release and its matching worker are available. Keep the withdrawn beta.4 unpublished. If shipping a new software version, follow the release PR, version, tag CI and draft-release gates in [Public beta](public-beta.md).
-3. Open the README poster and video links from the public repository; check the video on a phone and confirm the LiveKit closing credit.
+3. Play the inline promo in the public README; check playback on a phone and confirm the LiveKit closing credit.
 4. Upload the video with the attribution above and use the square or wide image where useful. Use the setup URL as the call to action. Review each channel’s posting rules before submission.
 5. After publication, monitor installation questions, capture/reconnect failures and history reports through redacted issues. Use [the beta rollback guidance](public-beta.md#monitor-and-roll-back) for deployment regressions.
 
