@@ -1,6 +1,6 @@
 # Backend Butler for Home Assistant
 
-**Beta.4 candidate:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
+**Public beta:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
 
 A Home Assistant **custom integration + Lovelace card**. The card runs your LiveKit voice
 agent *inside* the HA dashboard and behaves like a native card: **live device tiles you can
@@ -54,29 +54,42 @@ apps/dashboard-card/  (React + @livekit/components-react, bundled with Vite → 
 Two independent control paths that both end at HA and reflect back into the card:
 **voice → worker → MCP → HA**, and **tap → card → `hass.callService` → HA**.
 
-## Install (HACS)
+## Install with Marketplace
 
-1. In HACS, open the **⋮** menu (top right) → **Custom repositories**. Paste
-   `https://github.com/taylorsegell/backend-butler`, category **Integration**, → **Add**.
-2. Find **Backend Butler** in HACS → **Download** → **Restart Home Assistant**.
-3. Settings → Devices & Services → **Add Integration** → “Backend Butler”, then:
+Home Assistant **2026.11.1 or newer** includes Marketplace under **Settings → Marketplace**. Sign in as a Home Assistant administrator. A separate HACS installation is not needed. Existing HACS installations and custom repositories migrate when Home Assistant is upgraded; keep your existing Butler integration entry and settings.
+
+[![Open Backend Butler in the Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=taylorsegell&repository=backend-butler&category=integration)
+
+1. Use the button above, or open **Settings → Marketplace → Add from link** and enter `https://github.com/taylorsegell/backend-butler`.
+2. Review and accept the Marketplace warning, and connect GitHub when prompted. A GitHub connection is required to add and update a custom repository. Select **Integration** if Marketplace asks for a content type, then select **Add**.
+3. Open **Backend Butler** and choose **Install**. Review the version and install it, then restart Home Assistant. For a published beta, see [Beta versions and updates](#beta-versions-and-updates) below.
+4. Open **Settings → Devices & services → Add integration → Backend Butler**, then enter:
 
    | Field | Value |
    |---|---|
    | LiveKit server URL | `wss://your-livekit-host` |
    | LiveKit API key / secret | your LiveKit project credentials |
    | Agent name | `ha-agent` (must match `AGENT_NAME` in the worker's `.env`) |
-   | Scheduler URL / token | `http://<docker-host>:8951` and `SCHEDULER_TOKEN` (Schedules tab) |
-   | Agent chat URL / token | `http://<docker-host>:8952` and `TEXT_API_TOKEN` (Text tab) |
+   | Scheduler URL / token | `http://<docker-host>:8951` and `SCHEDULER_TOKEN` |
+   | Agent chat URL / token | `http://<docker-host>:8952` and `TEXT_API_TOKEN` |
 
-4. Make sure the **worker** (`docker compose up -d` at the repo root) is running and
-   connected to the same LiveKit project.
-5. Add the card to a dashboard (Edit dashboard → Add card → “Backend Butler”, or
-   in YAML — see options below).
-6. Open the dashboard in Companion with native capture enabled, or in a browser over HTTPS, and tap **Call**.
+5. Start the **worker and scheduler** with `docker compose up -d --build` at the repository root, with the matching `.env` settings. Marketplace installs the HA integration and bundled card; the worker, scheduler, LiveKit server and inference credentials are configured separately. The optional configuration app is also installed separately.
+6. Add **Backend Butler** to a dashboard through **Edit dashboard → Add card**, or use the YAML options below. The integration serves and registers its bundled card; no separate dashboard repository or `/hacsfiles/` resource is needed.
+7. Open the dashboard in Companion with the [native bridge](native-audio.md) enabled, or in a browser over HTTPS/localhost, and tap **Call**.
 
-When a new version is released, HACS offers the update; restart HA and reload the
-dashboard to pick up the new card.
+### Beta versions and updates
+
+Marketplace normally offers stable releases. To receive Butler betas:
+
+1. Open Butler’s repository page in **Settings → Marketplace**. To select a published beta for the initial install, open **⋮ → Install another version** and choose the desired published version.
+2. After installation, open **Settings → Devices & services → Marketplace**, then the **Backend Butler** device page. Its **Pre-release** switch entity is disabled by default: enable the entity, then turn on the switch to receive beta updates.
+3. Select the desired published beta on the repository page with **⋮ → Install another version** if it is not already selected. Review the release notes, install it, restart Home Assistant and reload the dashboard. Updates also appear under **Settings → Updates**.
+
+`1.1.0-beta.7` is an **unpublished release candidate** until its GitHub prerelease is published. A merge to `main`, tag or draft release does not make it an available published beta. Use a published version from the [releases page](https://github.com/taylorsegell/backend-butler/releases); beta.4 remains withdrawn. Recheck the available version before updating rather than assuming the candidate is published.
+
+Keep the GitHub connection active for custom-repository updates. Newly published releases can take time to appear. Back up your deployment configuration/history and follow the [beta upgrade guidance](public-beta.md) before updating the separately deployed worker or scheduler.
+
+The supported installation steps follow the official [Marketplace guide](https://www.home-assistant.io/integrations/marketplace/) and [release/prerelease documentation](https://contributors.home-assistant.io/marketplace/guides/releases/).
 
 ## Card options
 
@@ -134,7 +147,7 @@ HA pushes state changes into the card's `hass` object, so tiles update themselve
   paths / frontend modules, so reconfiguring updates the token config live, but fully
   removing the integration needs a restart.
 
-## Manual install (without HACS)
+## Manual install (without Marketplace)
 
 The built card bundle is committed, so no Node toolchain is needed on the HA host — just
 copy the integration into your HA config's `custom_components/` and restart:
@@ -156,7 +169,7 @@ pnpm build     # → ../../custom_components/backend_butler/frontend/backend-but
 pnpm watch     # rebuild on change
 ```
 
-Commit the rebuilt bundle so HACS / manual installs serve it directly. The integration
+Commit the rebuilt bundle so Marketplace and manual installs serve it directly. The integration
 Python is in `custom_components/backend_butler/` (`token.py` = token endpoint, `tasks.py` =
 scheduler and chat proxies, `progress.py` = phone progress, `__init__.py` =
 setup/registration, `config_flow.py` = setup UI). `pnpm typecheck` checks the card.
@@ -168,8 +181,8 @@ is now `backend_butler`, so Home Assistant treats it as a new integration. Do th
 this order:
 
 1. Back up Home Assistant.
-2. Install or update **Backend Butler** (HACS, or copy `custom_components/backend_butler/`).
-3. HACS may leave the old folder in place; delete `custom_components/livekit_voice/` if it is still there.
+2. Install or update **Backend Butler** (Marketplace, or copy `custom_components/backend_butler/`).
+3. A previous HACS/manual install may leave the old folder in place; delete `custom_components/livekit_voice/` if it is still there.
 4. Restart Home Assistant.
 5. Settings → Devices & Services → **Add Integration** → **Backend Butler** → Submit. The fields
    are pre-filled from the old entry.

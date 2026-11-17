@@ -11,7 +11,7 @@ the deployed HAOS resolver rejected its older aiortc pin. The canonical reposito
 
 Use Home Assistant **2026.11.1 or newer**. Keep the worker and scheduler on a trusted
 network. Follow the [README](../README.md), [HA guide](home-assistant.md) and
-[native audio setup](native-audio.md). HACS installs the HA integration/card only;
+[native audio setup](native-audio.md). Marketplace installs the HA integration/card only;
 update the matching worker separately before enabling native capture. Retain the
 existing history volume and person mapping, and never run two workers against the
 same writable history store. The optional configuration app has its own version.
@@ -21,6 +21,8 @@ worker. Browsers retain HTTPS/localhost microphone requirements. Opening Live do
 not open the microphone; Call starts a continuous conversation. Pause/End release
 capture. Interrupt stops reply audio while keeping continuous capture open. Transcript
 shows the same conversation, selected history and draft.
+
+Enable Butler’s **Pre-release** entity and switch to receive beta updates; the [setup guide](home-assistant.md#beta-versions-and-updates) covers initial beta installation and updates. Only published GitHub prereleases appear as published betas; beta.7 remains a candidate until publication.
 
 ## Release gates
 
