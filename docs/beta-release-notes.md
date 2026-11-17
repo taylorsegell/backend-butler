@@ -1,57 +1,32 @@
-# Backend Butler 1.1.0-beta.6
+# Backend Butler 1.1.0-beta.7 — release candidate
 
-Beta.6 fixes the Home Assistant integration's settings and branding. It keeps the
-Live call UI, native Companion microphone over local HTTP, Grok Rex through
-LiveKit, and saved conversation history from beta.5.
+**Unpublished candidate.** This version is prepared on the default branch; create its immutable tag only after the final CI and release acceptance checks pass.
+
+For Home Assistant. Powered by LiveKit. Voice first; chat when you want.
 
 ## Changes
 
-- Remove **Music server URL** from first-time setup and Configure. Previously
-  saved connections remain intact when other settings are edited.
-- Preserve stored options when saving the smaller form, and validate native
-  audio against the merged settings.
-- Show the existing Butler logo on the integration page instead of “icon not
-  available.” Package transparent light/dark icons with high-resolution variants
-  through Home Assistant's local brands API.
-- Require full HACS validation, including branding, plus Home Assistant Hassfest
-  validation for catalog readiness. Default-catalog inclusion requires a separate
-  upstream submission and approval; this release does not claim it is listed.
+- Refresh the card’s Motion/Vite dependencies and the configuration app’s JavaScript dependencies. Retain TypeScript 5.9.3 for the card’s compiler-API test harness and Node 22 types for the supported app runtime.
+- Declare esbuild directly for browser test fixtures after Vite 8 removed that transitive dependency. Regenerate the Home Assistant card bundle.
+- Update pinned CI Actions while retaining required browser, worker/service/app, HACS, image, audit and secret-scan checks.
+- Add the current 24-second voice-conversation video, warm promo graphics and “For Home Assistant. Powered by LiveKit.” credit to the README and [promotion kit](promotion.md). The mobile wireframe illustrates fictional requests and speaking states; the video contains music and conveys dialogue visually.
 
-## Install or upgrade
+## Install or upgrade after publication
 
-Add `https://github.com/taylorsegell/backend-butler` to HACS as an **Integration**
-custom repository, then select `v1.1.0-beta.6` in the version picker. Restart Home
-Assistant and reload the frontend after installation. Requires **HA 2026.11.1 or
-newer**. Keep the existing integration entry and settings.
+Add `https://github.com/taylorsegell/backend-butler` to HACS as an **Integration** custom repository. Once published, choose `v1.1.0-beta.7`, restart Home Assistant and reload the frontend. Requires **Home Assistant 2026.11.1 or newer**. Keep the existing integration entry and settings.
 
-HACS installs the integration/card only. Worker source is unchanged from beta.5;
-an existing beta.5 worker remains compatible. A fresh installation still needs the
-worker and household service configured separately. Enable native audio on both
-the worker and integration for supported Companion microphone capture over local
-HTTP. Browsers still require HTTPS/localhost for microphone access. See
-[native audio setup](https://github.com/taylorsegell/backend-butler/blob/v1.1.0-beta.6/docs/native-audio.md).
+HACS installs the integration/card only. This candidate changes neither the voice-worker nor household-service source; existing beta.5/beta.6 matching worker setups remain compatible. A fresh installation still needs both services configured separately. Enable native audio on the worker and integration for supported Companion microphone capture over local HTTP. Ordinary browsers require HTTPS/localhost for microphone access. See [native audio setup](native-audio.md).
 
-Back up actual deployment configuration/history before updating. Preserve existing
-history and scheduler data paths, linked people, tokens and prompt/MCP overrides.
-Do not run two workers against the same writable history store. This update does
-not migrate history or change runtime data paths. The optional configuration app
-keeps its independent version.
+Back up actual deployment configuration/history before updating. Preserve linked people, tokens, prompt/MCP overrides and existing history/scheduler data paths. Do not run two workers against the same writable history store. There is no history migration in this candidate. The optional configuration app retains its independent version.
 
-## Validation and limits
+## Audit exception and validation
 
-The settings patch passed 20 HA tests, copied-package native WebRTC/PCM/playback
-and history tests, 30 cross-user access checks, and reload/idle/remapping/uninstall
-cleanup. Real isolated HA browser checks confirm the correct logo and Configure
-form without the music field. Release validation also runs Chromium/WebKit,
-worker/service/app tests, dependency audits, history secret scanning, Compose
-checks, three Linux AMD64 image builds, HACS and Hassfest.
+The maintainer approved a seven-day exception for [GHSA-fc5q-39xc-vjpf](security-audit-exception.md) in build/test dependencies only, expiring **November 24, 2026 at 19:32:35 UTC**. No patched picomatch release was available at approval. Native production audits remain blocking; all unrelated high/critical advisories, severity increases, audit failures and expiry fail CI. This is a temporary accepted tooling risk, not a security fix.
 
-The user accepted the seven iPhone checks on the isolated standard integration
-and confirmed a successful call after beta.5 was installed on HAOS. Beta.6 does
-not change the voice transport. Exact iOS/Companion build numbers were not recorded.
-Android, Bluetooth/headsets, ARM64 and universal background compatibility remain
-outside the verified matrix. Draft persistence APIs and provider costs remain beta
-limitations. Cloud audio recordings stay off by default; saved history remains.
+Card unit/type checks and Chromium tests passed locally; the configuration app passed 385 tests, typecheck and build. Final `CI required` must pass on the merged candidate, including WebKit, HA/native tests, Python/service tests, image builds and HACS. The existing app chunk-size warning remains.
 
-Report release, HA/app/browser versions and redacted reproduction details. Do not
-include credentials or private conversations.
+Physical iPhone acceptance was recorded for beta.6. Repeat continuous calling, reply playback/Interrupt and saved-history checks on beta.7 before tagging because the frontend dependencies changed. Broader phone platforms, Bluetooth/headsets, ARM64 and universal background behavior remain outside the certified matrix. Keep cloud audio recordings off by default and retain saved history. Inference charges and draft persistence APIs remain beta limitations.
+
+## Publish and promote
+
+Use the approved video and [prepared post copy](promotion.md), including [media attribution](../media/README.md). Tag only the accepted, CI-passing commit; let tag CI create the draft prerelease, then review it before publishing. Keep beta.4 withdrawn and existing tags immutable. Monitor installation, capture/reconnect and history reports using [the beta rollback guidance](public-beta.md#monitor-and-roll-back).

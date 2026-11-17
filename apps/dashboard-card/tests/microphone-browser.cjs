@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
-const esbuild=require('node:module').createRequire(require.resolve('vite/package.json'))('esbuild');
+const esbuild=require('esbuild');
 (async()=>{
  const built=await esbuild.build({entryPoints:[path.join(__dirname,'fixtures/microphone-card.tsx')],bundle:true,write:false,format:'iife',jsx:'automatic',logLevel:'silent',plugins:[...(process.env.BASELINE_APP?[{name:'baseline-app',setup(build){build.onLoad({filter:/\/src\/App\.tsx$/},args=>({contents:fs.readFileSync(process.env.BASELINE_APP,'utf8'),loader:'tsx',resolveDir:path.dirname(args.path)}))}}]:[]),{name:'isolated-session',setup(build){build.onResolve({filter:/^@livekit\/components-react$/},()=>({path:path.join(__dirname,'fixtures/microphone-session.tsx')}))}}]});
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/fixture.js'?'text/javascript':'text/html');res.end(req.url==='/fixture.js'?built.outputFiles[0].contents:'<meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#181818;color:#eee}</style><body><script src="/fixture.js"></script>')});

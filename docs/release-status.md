@@ -7,13 +7,13 @@
 - [Promotion kit and posting copy](promotion.md) prepared; no announcement posted.
 - Public repository: `taylorsegell/backend-butler`, default branch `main`.
 - Private development repository: `taylorsegell/backend-butler-private`, default branch `main`, no open PRs at the initial audit.
-- Current published prerelease is `v1.1.0-beta.6`. Keep beta.4 withdrawn. No new software version or release is created by the media update.
+- Current published prerelease is `v1.1.0-beta.6`. Keep beta.4 withdrawn. The next integration/card candidate is `1.1.0-beta.7`; its version fields, changelog and release notes are prepared without creating a tag or publishing a release.
 
 ## Pull requests to consolidate
 
 - [#1 — Actions updates](https://github.com/taylorsegell/backend-butler/pull/1): full-commit pins retained, checkout token persistence disabled, supported hosted runners. The Actions update must pass fresh CI with the approved audit policy.
-- [#10 — JavaScript updates](https://github.com/taylorsegell/backend-butler/pull/10): compiler API compatibility restored, Node types aligned to Node 22, explicit browser-fixture esbuild dependency, card bundle regenerated. Card unit/type checks and Chromium tests pass locally; configuration app has 385 passing tests and a passing typecheck/build. Full CI, including WebKit, must pass before merge.
-- [#14 — README/demo/promotion kit](https://github.com/taylorsegell/backend-butler/pull/14): relative media links checked; video verified as 24 seconds, 1920×1080 H.264/AAC. Fresh CI will enforce the approved exception described below.
+- [#10 — JavaScript updates](https://github.com/taylorsegell/backend-butler/pull/10): compiler API compatibility restored, Node types aligned to Node 22, explicit browser-fixture esbuild dependency, card bundle regenerated. Card unit/type checks and Chromium tests pass locally; configuration app has 385 passing tests and a passing typecheck/build. The beta.7 candidate includes aligned integration/card version fields, changelog and release notes. Full CI, including WebKit, must pass before merge.
+- [#14 — README/demo/promotion kit](https://github.com/taylorsegell/backend-butler/pull/14): relative media links checked; video verified as 24 seconds, 1920×1080 H.264/AAC. Merged into main after all required checks passed, including the approved exception described below.
 
 ## Approved temporary audit exception
 

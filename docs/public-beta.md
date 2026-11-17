@@ -1,6 +1,6 @@
 # Public beta
 
-Beta.6 includes the Live call UI and opt-in Home Assistant Companion native
+Beta.7 is the next release candidate, with refreshed frontend dependencies, browser-fixture compatibility, and the current voice-demo promotion kit. It retains beta.6’s Live call UI and opt-in Home Assistant Companion native
 microphone, with an HAOS-compatible audio dependency. It also fixes integration
 branding and removes the music URL from setup and Configure while retaining any
 previously saved connection. Beta.4 was withdrawn after
@@ -27,11 +27,11 @@ shows the same conversation, selected history and draft.
 - Require a reviewed release PR and `CI required`:
   card/browser checks, worker/service/app tests, security audits, image builds,
   Compose migration checks, repository hygiene, and HACS validation.
-- Keep integration/card versions at `1.1.0-beta.6`, regenerate the card bundle and
+- Keep integration/card versions at `1.1.0-beta.7`, regenerate the card bundle and
   build the matching worker. Do not change the optional app's independent version.
 - The iPhone tester confirmed logo rendering, continuous calls and all seven
   [physical phone checks](phone-beta-checklist.md) on the standard isolated
-  candidate. Automated results do not imply broader device acceptance.
+  beta.6 candidate. Repeat the call, playback, interruption and history checks on the beta.7 candidate before tagging; its frontend dependencies changed. Automated results do not imply broader device acceptance.
 - Install the HA package tests under the matching official core constraints,
   including AV 19. An unconstrained venv does not model the HAOS resolver.
 - Capture actual deployment backups and the previous integration/worker versions
@@ -39,6 +39,8 @@ shows the same conversation, selected history and draft.
   separate from release-candidate preparation.
 - After signoff, create a new immutable beta tag at the tested commit. Tag CI must
   pass before the workflow creates a draft prerelease; review it before publishing.
+
+The maintainer-approved build/test-only picomatch audit exception expires November 24, 2026 at 19:32:35 UTC. Production high/critical findings and unrelated advisories remain blocking. See the [exception record](security-audit-exception.md).
 
 ## Known limits
 
