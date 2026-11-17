@@ -151,6 +151,17 @@ async def checks(state, service):
             return (await admin.api("GET", "backend_butler/native/config"))["enabled"]
 
         await wait(enabled)
+        # HA must serve the packaged artwork rather than its missing-icon placeholder.
+        for image in ["icon.png", "icon@2x.png", "dark_icon.png", "dark_icon@2x.png"]:
+            async with admin.client.get(
+                BASE + "/api/brands/integration/backend_butler/" + image + "?placeholder=no",
+                headers={"Authorization": "Bearer " + admin.access_token},
+            ) as response:
+                assert response.status == 200, (image, response.status)
+                assert await response.read() == (
+                    state / "custom_components/backend_butler/brand" / image
+                ).read_bytes()
+        print("PASS: packaged light/dark Butler icons served through HA's authenticated brands API")
         for label in ["alice", "bob"]:
             peer = NativePeer(state, BASE, label + "-auth.json")
             await peer.connect()
