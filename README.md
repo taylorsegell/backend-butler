@@ -19,9 +19,9 @@
 
 ## See Butler in action
 
-[![Backend Butler promo video](media/backend-butler-promo.jpg)](media/backend-butler-promo.mp4)
+https://github.com/user-attachments/assets/b14a906b-3ded-4564-b2b5-a5c00b06c6cd
 
-[Watch the promo video](media/backend-butler-promo.mp4) · [Music and media credits](media/README.md)
+[MP4 file](https://raw.githubusercontent.com/taylorsegell/backend-butler/main/media/backend-butler-promo.mp4) · [Music and media credits](media/README.md)
 
 The demo shows a spoken request, Butler’s spoken reply, and a follow-up in one live conversation. Animated audio bars and speaking labels identify each turn; the mobile wireframe illustrates fictional requests and responses.
 
