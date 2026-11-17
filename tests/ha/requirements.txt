@@ -7,5 +7,5 @@ PyTurboJPEG==1.8.3
 aiortc==1.14.0
 livekit-api==2.0.0
 numpy==2.3.2
-pytest==8.4.2
+pytest==9.0.3
 pytest-asyncio==1.2.0
