@@ -48,16 +48,30 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
   const reply = latest?.role === 'agent' ? latest : undefined;
   const followCaptions = useCallback(() => {
     const viewport = captions.current;
-    if (viewport?.clientHeight) viewport.scrollTop = viewport.scrollHeight;
+    if (!viewport?.clientHeight) return;
+    const bottom = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+    if (Math.abs(viewport.scrollTop - bottom) > 1) viewport.scrollTop = bottom;
   }, []);
   useLayoutEffect(followCaptions, [followCaptions, user?.id, user?.text, reply?.id, reply?.text, transcript]);
   useEffect(() => {
     // Font loading, text reflow and a hidden Live view becoming visible can all
     // change the last line's position without a new transcript arriving.
-    const observer = new ResizeObserver(followCaptions);
+    // WebKit reports a resize loop if a delivery writes back into the layout
+    // being observed. Coalesce resize-driven scrolling into the next frame.
+    let frame: number | undefined;
+    const observer = new ResizeObserver(() => {
+      if (frame !== undefined) return;
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        followCaptions();
+      });
+    });
     observer.observe(captions.current!);
     observer.observe(captionContent.current!);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    };
   }, [followCaptions]);
   const recording = mode === 'manual' && turnActive;
   const listening = mode === 'auto' && !autoPaused;

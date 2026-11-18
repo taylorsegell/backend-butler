@@ -35174,7 +35174,9 @@ function AS({ transcript: e, onTranscript: t, feedback: n, getInputLevel: r, get
 		t(e);
 	}, se = a.filter((e) => e.kind === "message"), ce = se[se.length - 1], le = [...se].reverse().find((e) => e.role === "user"), ue = ce?.role === "agent" ? ce : void 0, de = (0, _.useCallback)(() => {
 		let e = te.current;
-		e?.clientHeight && (e.scrollTop = e.scrollHeight);
+		if (!e?.clientHeight) return;
+		let t = Math.max(0, e.scrollHeight - e.clientHeight);
+		Math.abs(e.scrollTop - t) > 1 && (e.scrollTop = t);
 	}, []);
 	(0, _.useLayoutEffect)(de, [
 		de,
@@ -35184,8 +35186,14 @@ function AS({ transcript: e, onTranscript: t, feedback: n, getInputLevel: r, get
 		ue?.text,
 		e
 	]), (0, _.useEffect)(() => {
-		let e = new ResizeObserver(de);
-		return e.observe(te.current), e.observe(ne.current), () => e.disconnect();
+		let e, t = new ResizeObserver(() => {
+			e === void 0 && (e = requestAnimationFrame(() => {
+				e = void 0, de();
+			}));
+		});
+		return t.observe(te.current), t.observe(ne.current), () => {
+			t.disconnect(), e !== void 0 && cancelAnimationFrame(e);
+		};
 	}, [de]);
 	let fe = l === "manual" && u, pe = l === "auto" && !d, me = c || s, he = fe ? "Send recording" : pe ? "Pause listening" : l === "auto" ? o ? "Resume listening" : "Start call" : "Start talking", ge = fe ? m : pe ? g : l === "auto" ? v : p, _e = fe || c, ve = c && l === "auto";
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
