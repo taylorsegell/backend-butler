@@ -3,6 +3,7 @@ export class ReplyPlayer {
   context: AudioContext | undefined;
   private cursor = 0;
   private nodes = new Set<AudioBufferSourceNode>();
+  private completions = new Map<AudioBufferSourceNode, number[]>();
   private envelopes = new Map<AudioBufferSourceNode, { start: number; end: number; levels: number[]; window: number }>();
 
   /** RMS of the PCM currently playing, never of buffered/future or muted audio. */
@@ -23,6 +24,18 @@ export class ReplyPlayer {
   scheduledFrames = 0;
   onPlaying: ((playing: boolean) => void) | undefined;
   onFailure: (() => void) | undefined;
+  onFinished: ((segment: number) => void) | undefined;
+
+  /** The worker must wait for device playback, including audio queued ahead. */
+  finish(segment: number) {
+    if (!Number.isSafeInteger(segment) || segment <= 0) return;
+    const nodes = [...this.nodes];
+    const last = nodes[nodes.length - 1];
+    if (!last) { this.onFinished?.(segment); return; }
+    const pending = this.completions.get(last) ?? [];
+    pending.push(segment);
+    this.completions.set(last, pending);
+  }
 
   async unlock() {
     this.context ??= new AudioContext();
@@ -55,7 +68,13 @@ export class ReplyPlayer {
     const source = context.createBufferSource();
     source.buffer = buffer;
     source.connect(context.destination);
-    source.onended = () => { source.disconnect(); this.nodes.delete(source); this.envelopes.delete(source); if (!this.nodes.size) this.onPlaying?.(false); };
+    source.onended = () => {
+      source.disconnect(); this.nodes.delete(source); this.envelopes.delete(source);
+      const finished = this.completions.get(source) ?? [];
+      this.completions.delete(source);
+      for (const segment of finished) this.onFinished?.(segment);
+      if (!this.nodes.size) this.onPlaying?.(false);
+    };
     this.nodes.add(source);
     this.envelopes.set(source, { start, end: start + buffer.duration, levels, window: windowSamples / event.sample_rate });
     this.onPlaying?.(true);
@@ -65,11 +84,16 @@ export class ReplyPlayer {
   }
 
   stop() {
+    const finished = [...this.completions.values()].flat();
+    // Muting locally ends audibility too; settle pending markers now so it cannot
+    // leave the worker waiting for a source whose onended event arrives later.
+    this.completions.clear();
     for (const node of this.nodes) { node.stop(); node.disconnect(); }
     this.nodes.clear();
     this.envelopes.clear();
     this.onPlaying?.(false);
     this.cursor = 0;
+    for (const segment of finished) this.onFinished?.(segment);
   }
 
   async close() {

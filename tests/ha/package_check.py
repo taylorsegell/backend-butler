@@ -203,6 +203,7 @@ async def checks(state, service):
                     "start_turn",
                     "end_turn",
                     "cancel_turn",
+                    "playback_finished",
                     "set_audio_output",
                 ]
             ]

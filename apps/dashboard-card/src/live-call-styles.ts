@@ -28,7 +28,8 @@ export const LIVE_CALL_STYLES = `
   .lk-call-body { display: flex; flex: 1; min-height: 100px; min-width: 0; }
   .lk-live-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; }
   .lk-live-stage[hidden], .lk-call-transcript[hidden] { display: none; }
-  .lk-call-captions { width: 100%; max-width: 620px; text-align: left; overflow: auto; flex: 0 1 auto; min-height: 164px; max-height: 40%; padding: 16px 4px 0; overflow-wrap: anywhere; }
+  .lk-call-captions { width: 100%; max-width: 620px; text-align: left; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scroll-behavior: auto; flex: 0 1 auto; min-height: 164px; max-height: 40%; padding: 16px 4px 8px; overflow-wrap: anywhere; }
+  .lk-call-captions:focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 2px; }
   .lk-call-user { margin: 0 0 12px; color: var(--lk-muted); font-size: 16px; line-height: 1.5; }
   .lk-call-reply { margin: 0; font-size: 25px; font-weight: 650; letter-spacing: -.025em; line-height: 1.24; text-wrap: pretty; }
   .lk-call-presence { flex: 1; min-height: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px 0 48px; gap: 16px; }

@@ -42,7 +42,7 @@ const { chromium } = requireCard('playwright');
   assert.equal(await page.evaluate(()=>isSecureContext),false);
   assert.equal(await page.evaluate(()=>typeof navigator.mediaDevices),'undefined');
   await page.evaluate(()=>{
-   window.nativeCalls=[];window.playedFrames=0;window.apiCalls=[];
+   window.nativeCalls=[];window.playedFrames=0;window.apiCalls=[];window.controlCalls=[];
    const original=AudioBufferSourceNode.prototype.start;
    AudioBufferSourceNode.prototype.start=function(...args){window.playedFrames++;return original.apply(this,args)};
    const external={config:{webrtc:{hasCameraMicrophoneStream:true}},sendMessage:message=>{
@@ -52,7 +52,7 @@ const { chromium } = requireCard('playwright');
    const card=document.createElement('backend-butler-card');card.setConfig({type:'custom:backend-butler-card',audio_output:true,layout:'fullpage',input_mode:'push_to_talk'});
    card.hass={states:{},user:{id:'synthetic-alice',is_admin:false},auth:{external},connection:{subscribeMessage:async(callback,message)=>{
     window.nativeEvent=callback;await window.bridgeCall(message);return()=>{window.nativeEvent=undefined;return window.bridgeCall('unsubscribe_native_events')};
-   }},callWS:message=>window.bridgeCall(message),callService:async()=>{throw Error('No household services')},callApi:(verb,path,data)=>{
+   }},callWS:message=>{window.controlCalls.push(message);return window.bridgeCall(message)},callService:async()=>{throw Error('No household services')},callApi:(verb,path,data)=>{
     window.apiCalls.push({verb,path});return window.bridgeCall({api:true,verb,path,data});
    }};
    document.body.append(card);
@@ -76,6 +76,7 @@ const { chromium } = requireCard('playwright');
   await page.locator('.lk-live-stage').getByText('Synthetic spoken question',{exact:true}).waitFor();
   await page.locator('.lk-live-stage').getByText('Synthetic reply for person-alice',{exact:true}).waitFor();
   await wait(()=>page.evaluate(()=>window.playedFrames>0));
+  await wait(()=>page.evaluate(()=>window.controlCalls.some(call=>call.command==='playback_finished'&&call.payload==='1')));
   const before=events.filter(e=>e.type==='conversation').at(-1).items.length;
   await page.getByRole('button',{name:'Start talking',exact:true}).click();
   await page.getByRole('button',{name:'Send recording',exact:true}).waitFor();

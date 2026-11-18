@@ -20,6 +20,7 @@ from livekit.agents.metrics import LLMModelUsage
 from agent import HomeAssistantAgent
 from config import settings
 from history import render
+from native_speech import SpeechEvidence
 from session_idle import SessionIdle
 from utils import build_llm
 from voice_persistence import RemoteSession
@@ -41,15 +42,23 @@ class NativeInput(io.AudioInput):
 
 
 class ReplyOutput(io.AudioOutput):
-    def __init__(self, emit):
+    def __init__(
+        self, emit, on_start=lambda: None, on_done=lambda: None, on_timeout=lambda: None
+    ):
         super().__init__(
             label="lab-reply", capabilities=io.AudioOutputCapabilities(pause=False)
         )
         self.emit_event = emit
         self.duration = 0
+        self.segment = 0
+        self.pending = {}
+        self.on_start = on_start
+        self.on_done = on_done
+        self.on_timeout = on_timeout
 
     async def capture_frame(self, frame):
         await super().capture_frame(frame)
+        self.on_start()
         self.duration += frame.samples_per_channel / frame.sample_rate
         self.emit_event(
             {
@@ -62,16 +71,36 @@ class ReplyOutput(io.AudioOutput):
 
     def flush(self):
         super().flush()
-        self.emit_event({"type": "audio_end"})
-        self.on_playback_finished(playback_position=self.duration, interrupted=False)
+        if not self.duration:
+            return
+        self.segment += 1
+        timer = asyncio.get_running_loop().call_later(
+            self.duration + 30, self.on_timeout
+        )
+        self.pending[self.segment] = (self.duration, timer)
+        self.emit_event({"type": "audio_end", "segment": self.segment})
         self.duration = 0
+
+    def acknowledge(self, segment):
+        pending = self.pending.pop(segment, None)
+        if pending is None:
+            return
+        duration, timer = pending
+        timer.cancel()
+        self.on_playback_finished(playback_position=duration, interrupted=False)
+        if not self.pending and not self.duration:
+            self.on_done()
 
     def clear_buffer(self):
         super().flush()
         self.emit_event({"type": "audio_clear"})
-        if self._pending_playback_count:
+        for _, timer in self.pending.values():
+            timer.cancel()
+        self.pending.clear()
+        while self._pending_playback_count:
             self.on_playback_finished(playback_position=0, interrupted=True)
         self.duration = 0
+        self.on_done()
 
 
 class NativeSession:
@@ -87,8 +116,17 @@ class NativeSession:
         self.closing = False
         self.close_task = None
         self.failure_task = None
+        self.resume_timer = None
+        self.speech_evidence = SpeechEvidence()
         self.input = NativeInput()
-        self.output = ReplyOutput(emit)
+        self.output = ReplyOutput(
+            emit,
+            self.block_for_playback,
+            self.playback_done,
+            lambda: self.fail(
+                "Reply playback could not be confirmed. Reconnect to continue."
+            ),
+        )
         self.providers = {
             "stt": inference.STT(settings.stt_model, language=settings.stt_language),
             "llm": build_llm(),
@@ -100,12 +138,18 @@ class NativeSession:
         }
         self.session = AgentSession(
             **self.providers,
-            turn_handling=TurnHandlingOptions(turn_detection="manual"),
+            vad=self.speech_evidence.detector(),
+            turn_handling=TurnHandlingOptions(
+                turn_detection="manual",
+                interruption={"enabled": False, "resume_false_interruption": False},
+                preemptive_generation={"enabled": False},
+            ),
             max_tool_steps=settings.max_tool_steps,
         )
         self.session.input.audio = self.input
         self.session.output.audio = self.output
         self.agent = HomeAssistantAgent(user_id=person)
+        self.agent._speech_evidence = self.speech_evidence
         self.agent.update_options(stt=None)
         self.items = []
         self.conversation_id = None
@@ -184,30 +228,68 @@ class NativeSession:
             logger.exception("Native conversation lease lost")
             self.fail("Conversation lease expired. Reconnect to continue.")
 
-    def idle_input(self):
+    def idle_input(self, *, preserve_speech=False):
         self.listening = False
+        if not preserve_speech:
+            self.speech_evidence.reset()
+        if self.resume_timer:
+            self.resume_timer.cancel()
+            self.resume_timer = None
         self.session.input.set_audio_enabled(False)
         self.agent.update_options(stt=None)
         if self.turn_timer:
             self.turn_timer.cancel()
             self.turn_timer = None
 
+    def block_for_playback(self):
+        if self.resume_timer:
+            self.resume_timer.cancel()
+            self.resume_timer = None
+        if self.speech_evidence.blocked:
+            return
+        self.speech_evidence.blocked = True
+        self.speech_evidence.reset()
+        self.session.input.set_audio_enabled(False)
+        self.session.clear_user_turn()
+        self.input.clear()
+
+    def playback_done(self):
+        if self.resume_timer:
+            self.resume_timer.cancel()
+        # Allow the last speaker sound and in-flight microphone packets to drain.
+        self.resume_timer = asyncio.get_running_loop().call_later(
+            0.35, self.resume_input
+        )
+
+    def resume_input(self):
+        if self.resume_timer:
+            self.resume_timer.cancel()
+        self.resume_timer = None
+        self.speech_evidence.reset()
+        self.speech_evidence.blocked = False
+        self.input.clear()
+        self.session.clear_user_turn()
+        if self.listening and not self.failed and not self.closing:
+            self.session.input.set_audio_enabled(True)
+
     def push(self, data):
         if len(data) > 19200 or len(data) % 2:
             raise ValueError("Invalid PCM frame")
-        if self.listening and not self.failed:
+        if self.listening and not self.failed and not self.speech_evidence.blocked:
             self.input.frames.put_nowait(rtc.AudioFrame(data, 48000, 1, len(data) // 2))
 
     async def control(self, command, payload=""):
         if self.failed:
             raise ValueError("Conversation unavailable; reconnect to continue")
         if command == "start_turn":
-            self.session.interrupt()
+            self.session.interrupt(force=True)
+            self.output.clear_buffer()
             self.session.clear_user_turn()
             self.input.clear()
+            self.speech_evidence.reset()
             self.agent.update_options(stt=self.providers["stt"])
             self.listening = True
-            self.session.input.set_audio_enabled(True)
+            self.session.input.set_audio_enabled(not self.speech_evidence.blocked)
             if self.turn_timer:
                 self.turn_timer.cancel()
             self.turn_timer = None
@@ -220,13 +302,15 @@ class NativeSession:
             try:
                 transcript = await self.session.commit_user_turn(transcript_timeout=8)
             finally:
-                self.idle_input()
+                # SDK commit resolves before its turn-completed hook necessarily
+                # runs. That hook must still be able to validate this capture.
+                self.idle_input(preserve_speech=True)
             if not transcript.strip():
                 raise ValueError("No speech was recognized")
         elif command == "cancel_turn":
             self.idle_input()
             self.session.clear_user_turn()
-            self.session.interrupt()
+            self.session.interrupt(force=True)
             self.input.clear()
         elif command == "text":
             if not 1 <= len(payload) <= 2000:
@@ -248,6 +332,12 @@ class NativeSession:
             )
         elif command == "set_audio_output":
             self.session.output.set_audio_enabled(payload == "on")
+            if payload != "on":
+                self.output.clear_buffer()
+        elif command == "playback_finished":
+            if not payload.isdecimal() or len(payload) > 12:
+                raise ValueError("Invalid playback segment")
+            self.output.acknowledge(int(payload))
         elif command != "get_conversation":
             raise ValueError("Unsupported native command")
         return self.refresh()
@@ -261,6 +351,7 @@ class NativeSession:
 
     async def _close(self):
         self.closing = True
+        self.output.clear_buffer()
         self.idle_input()
         tasks = [task for task in [self.saver, self.heartbeat] if task]
         for task in tasks:

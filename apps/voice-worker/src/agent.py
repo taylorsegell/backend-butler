@@ -80,12 +80,18 @@ class HomeAssistantAgent(Agent):
         super().__init__(instructions=load_instructions(), tools=tools)
         # the id of the person this session speaks for, or None for no one
         self.user_id = user_id
+        # Session-local audio evidence must never be part of saved constructor state.
+        self._speech_evidence = None
         self._devices: pd.DataFrame | None = None
         self._devices_updated_at: float = 0
         self._devices_timeout_interval = 30
         # Set by the interactive entrypoint to publish quick replies to the card; None
         # (e.g. headless runs) makes suggest_replies a no-op.
         self._suggest_replies_cb: Callable[[list[str]], None] | None = None
+
+    async def on_user_turn_completed(self, turn_ctx, new_message):
+        if self._speech_evidence is not None:
+            self._speech_evidence.validate(new_message)
 
     def llm_node(self, chat_ctx: ChatContext, tools, model_settings: ModelSettings):
         # state the time right before the last user message, as of when it was said, so

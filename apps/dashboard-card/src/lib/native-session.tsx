@@ -36,6 +36,9 @@ export function useNativeSession(room: any) {
     const state = () => data('ha.speech_state', { stt_enabled: listening, audio_output: audioOutput });
     const control = (command: string, payload = '') => nativeClient.call({ type: 'backend_butler/native/control', command, payload });
     const fail = (message: string) => data('ha.conversation_error', { message });
+    player.onFinished = segment => {
+      if (!disposed) void control('playback_finished', String(segment)).catch(() => fail('Reply playback could not be confirmed. Reconnect to continue.'));
+    };
     player.onFailure = () => room.emit(RoomEvent.AudioPlaybackStatusChanged, false);
     Object.defineProperty(room, 'canPlaybackAudio', { configurable: true, get: () => !player.blocked && player.context?.state === 'running' });
     room.startAudio = async () => { await player.unlock(); room.emit(RoomEvent.AudioPlaybackStatusChanged, true); };
@@ -68,6 +71,7 @@ export function useNativeSession(room: any) {
           if (event.type === 'idle') data('ha.session_idle', { reason: 'idle_timeout' });
           if (event.type === 'state') setAgentState(event.state);
           if (event.type === 'audio') player.push(event);
+          if (event.type === 'audio_end') player.finish(event.segment);
           if (event.type === 'audio_clear') player.stop();
           if (event.type === 'error') fail(event.message);
         }, await nativeClient.message({ type: 'backend_butler/native/events' }));

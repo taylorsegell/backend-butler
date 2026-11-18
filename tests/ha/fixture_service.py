@@ -95,8 +95,10 @@ class Service:
         await ws.send_json(
             {"type": "ready", "conversation_id": conversation, "items": items}
         )
+        segment = 0
 
         async def reply(text):
+            nonlocal segment
             for role, content in [
                 ("user", text),
                 ("agent", "Synthetic reply for " + person),
@@ -130,7 +132,8 @@ class Service:
                     "channels": 1,
                 }
             )
-            await ws.send_json({"type": "audio_end"})
+            segment += 1
+            await ws.send_json({"type": "audio_end", "segment": segment})
             await ws.send_json({"type": "state", "state": "listening"})
 
         async for message in ws:
