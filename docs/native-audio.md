@@ -62,8 +62,8 @@ Pause/Resume, Interrupt, mute, playback recovery, new conversation, preview and
 resume use the same UI. Manual Send/Cancel remains an explicit option.
 Native calls pause recognition while reply audio plays. The card acknowledges each
 audio segment only after its last Web Audio source ends (or is explicitly muted).
-Listening resumes after that acknowledgement and a 350 ms echo drain. Use the Talk
-control to interrupt; automatic voice interruption is disabled for this transport.
+Listening resumes after that acknowledgement and a 350 ms echo drain. Use the call
+controls to interrupt; automatic voice interruption is disabled for this transport.
 The local Silero detector must observe speech for each accepted turn, and known
 recognition confidence below 0.8 is rejected before history or tool generation.
 Typed messages bypass this speech check. A missing playback acknowledgement closes
