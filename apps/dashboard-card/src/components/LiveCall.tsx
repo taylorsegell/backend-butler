@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useId, useRef } from 'react';
+import { type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef } from 'react';
 import type { ConvMessage, ConvItem } from '../lib/conversation';
 import type { VoiceFeedbackState } from '../lib/voice-feedback';
 import { CallIcon } from './CallIcon';
@@ -24,6 +24,8 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
   const stageId = useId();
   const transcriptId = useId();
   const root = useRef<HTMLDivElement>(null);
+  const captions = useRef<HTMLDivElement>(null);
+  const captionContent = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const mark = useRef<SVGSVGElement>(null);
   const signals = useRef({ feedback, getInputLevel, getOutputLevel });
@@ -44,6 +46,33 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
   const user = [...messages].reverse().find(item => item.role === 'user');
   // A new user turn must never display an older assistant answer as its reply.
   const reply = latest?.role === 'agent' ? latest : undefined;
+  const followCaptions = useCallback(() => {
+    const viewport = captions.current;
+    if (!viewport?.clientHeight) return;
+    const bottom = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+    if (Math.abs(viewport.scrollTop - bottom) > 1) viewport.scrollTop = bottom;
+  }, []);
+  useLayoutEffect(followCaptions, [followCaptions, user?.id, user?.text, reply?.id, reply?.text, transcript]);
+  useEffect(() => {
+    // Font loading, text reflow and a hidden Live view becoming visible can all
+    // change the last line's position without a new transcript arriving.
+    // WebKit reports a resize loop if a delivery writes back into the layout
+    // being observed. Coalesce resize-driven scrolling into the next frame.
+    let frame: number | undefined;
+    const observer = new ResizeObserver(() => {
+      if (frame !== undefined) return;
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        followCaptions();
+      });
+    });
+    observer.observe(captions.current!);
+    observer.observe(captionContent.current!);
+    return () => {
+      observer.disconnect();
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    };
+  }, [followCaptions]);
   const recording = mode === 'manual' && turnActive;
   const listening = mode === 'auto' && !autoPaused;
   const busy = micStarting || connecting;
@@ -55,9 +84,11 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
     <div className="lk-call-body">
       {/* Both views remain mounted: toggling presentation cannot reset capture, canvas or scroll. */}
       <section className="lk-live-stage" id={stageId} hidden={transcript} aria-label="Live conversation">
-        <div className="lk-call-captions" aria-label="Recent transcript">
-          {user && <p className="lk-call-user">{user.text}</p>}
-          <p className="lk-call-reply">{reply?.text || (user ? 'Waiting for Butler’s reply…' : 'What can I help with?')}</p>
+        <div className="lk-call-captions" ref={captions} role="region" aria-label="Recent transcript" tabIndex={0}>
+          <div ref={captionContent}>
+            {user && <p className="lk-call-user">{user.text}</p>}
+            <p className="lk-call-reply">{reply?.text || (user ? 'Waiting for Butler’s reply…' : 'What can I help with?')}</p>
+          </div>
         </div>
         <div className="lk-call-presence">
           <div className="lk-brand-glow" data-renderer="fallback" aria-hidden="true">

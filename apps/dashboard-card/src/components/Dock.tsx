@@ -171,13 +171,23 @@ export function Composer({
     const el = ref.current;
     if (!el) return;
     let width = -1;
+    let frame: number | undefined;
     const ro = new ResizeObserver(([entry]) => {
       if (entry.contentRect.width === width) return;
       width = entry.contentRect.width;
-      fit();
+      // Changing height during observer delivery causes a resize loop in WebKit
+      // when the hidden transcript composer first becomes visible.
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        fit();
+      });
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    };
   }, []);
   return (
     <textarea

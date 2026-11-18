@@ -2,6 +2,9 @@
 
 ## 1.1.0-beta.7 — release candidate (unpublished)
 
+- Prevent native calls from transcribing Butler's own replies: wait for confirmed device playback, pause recognition during speech, and reject transcripts without fresh local speech evidence or with low recognition confidence. Upgrade the worker, integration and card together; use the call controls to interrupt spoken replies.
+- Keep the newest lines of long Live responses visible as text grows or reflows, while retaining scrolling access to earlier text and keeping call controls in frame.
+
 - Update installation for Home Assistant’s built-in Marketplace, with an install button and published-beta selection/update instructions.
 
 - Pin a local picomatch parser patch in both JavaScript toolchains, with tokenizer-based repeated-extglob guards, clean-install integrity verification and bounded security regressions.

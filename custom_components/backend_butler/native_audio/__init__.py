@@ -41,6 +41,7 @@ CONTROLS = {
     "text",
     "set_audio_output",
     "set_turn_mode",
+    "playback_finished",
 }
 
 

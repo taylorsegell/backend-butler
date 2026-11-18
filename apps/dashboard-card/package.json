@@ -10,8 +10,8 @@
     "dev": "vite",
     "typecheck": "tsc --noEmit -p .",
     "test": "node tests/appearance-unit.cjs && node tests/voice-feedback-signals.cjs && node tests/microphone-start.cjs && node tests/native-microphone.cjs && node tests/native-session-client.cjs && node tests/native-reply-player.cjs && node tests/turn-mode.cjs",
-    "test:browser": "node tests/house-companion.cjs && node tests/microphone-browser.cjs",
-    "test:microphone": "node tests/microphone-browser.cjs"
+    "test:browser": "node tests/house-companion.cjs && node tests/microphone-browser.cjs && node tests/live-caption-scroll.cjs && node tests/native-playback-browser.cjs",
+    "test:microphone": "node tests/microphone-browser.cjs && node tests/live-caption-scroll.cjs"
   },
   "dependencies": {
     "@livekit/components-react": "^2.9.25",

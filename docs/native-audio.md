@@ -60,9 +60,23 @@ Only an explicit Call or typed send connects. Continuous conversation is the
 default after Call: the worker detects turn endings without per-utterance Send.
 Pause/Resume, Interrupt, mute, playback recovery, new conversation, preview and
 resume use the same UI. Manual Send/Cancel remains an explicit option.
+Native calls pause recognition while reply audio plays. The card acknowledges each
+audio segment only after its last Web Audio source ends (or is explicitly muted).
+Listening resumes after that acknowledgement and a 350 ms echo drain. Use the call
+controls to interrupt; automatic voice interruption is disabled for this transport.
+The local Silero detector must observe speech for each accepted turn, and known
+recognition confidence below 0.8 is rejected before history or tool generation.
+Typed messages bypass this speech check. A missing playback acknowledgement closes
+the speech session rather than reopening recognition while playback is uncertain.
+Deploy the matching worker, HA bridge, and card together: older cards do not send
+playback acknowledgements and cannot use the repaired native voice path.
 Native history changes suppress text-session warmup so two transports do not race
 for the same persistence lease. Ending a session awaits the worker's save/release
 acknowledgement. Saved history remains available after ending or idling.
+Live captions follow the newest words as responses grow or text reflows. Earlier
+words remain available by scrolling the caption region, including with a keyboard;
+the next transcript update returns to the most recent text. The call controls stay
+in place, and the complete conversation remains available in Transcript.
 
 Cloud audio recording remains off by default; native worker sessions explicitly
 use `record=False`. `VOICE_IDLE_TIMEOUT=120` closes inactive worker sessions; active

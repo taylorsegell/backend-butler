@@ -126,6 +126,7 @@ async def test_persistence_failure_stops_agent_and_waits_for_release():
     speech.close_task = None
     speech.saver = speech.heartbeat = None
     speech.providers = {}
+    speech.output = Mock()
     speech.idle_input = Mock()
     speech.emit = Mock()
     speech.session = SimpleNamespace(aclose=AsyncMock())
@@ -215,6 +216,9 @@ async def test_continuous_start_keeps_input_open_without_manual_deadline():
     speech.session = Mock()
     speech.agent = Mock()
     speech.input = Mock()
+    speech.output = Mock()
+    speech.speech_evidence = native_audio.SpeechEvidence()
+    speech.resume_timer = None
     speech.providers = {"stt": object()}
     speech.refresh = lambda: {}
     await speech.control("set_turn_mode", "auto")
