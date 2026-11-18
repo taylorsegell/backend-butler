@@ -34322,10 +34322,14 @@ function sS({ value: e, placeholder: t, onChange: n, onSubmit: r, onFocus: i, di
 	return (0, _.useLayoutEffect)(s, [e]), (0, _.useEffect)(() => {
 		let e = o.current;
 		if (!e) return;
-		let t = -1, n = new ResizeObserver(([e]) => {
-			e.contentRect.width !== t && (t = e.contentRect.width, s());
+		let t = -1, n, r = new ResizeObserver(([e]) => {
+			e.contentRect.width !== t && (t = e.contentRect.width, n !== void 0 && cancelAnimationFrame(n), n = requestAnimationFrame(() => {
+				n = void 0, s();
+			}));
 		});
-		return n.observe(e), () => n.disconnect();
+		return r.observe(e), () => {
+			r.disconnect(), n !== void 0 && cancelAnimationFrame(n);
+		};
 	}, []), /* @__PURE__ */ (0, $.jsx)("textarea", {
 		ref: o,
 		className: "lk-input",
