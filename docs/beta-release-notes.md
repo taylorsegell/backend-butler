@@ -1,4 +1,6 @@
-# Backend Butler 1.1.0-beta.7 — release candidate
+# Historical beta.7 preparation notes
+
+Superseded by the [1.1.0 stable release notes](release-notes.md). This document records the earlier candidate before the native voice and caption repairs were added; its worker compatibility and publication instructions do not apply to 1.1.0.
 
 **Unpublished candidate.** This version is prepared on the default branch; create its immutable tag only after the final CI and release acceptance checks pass.
 

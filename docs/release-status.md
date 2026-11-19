@@ -1,4 +1,4 @@
-# Release preparation — 2026-11-17
+# Stable release preparation — 2026-11-19
 
 ## Prepared
 
@@ -7,9 +7,10 @@
 - [Promotion kit and posting copy](promotion.md) prepared; no announcement posted.
 - Public repository: `taylorsegell/backend-butler`, default branch `main`.
 - Private development repository: `taylorsegell/backend-butler-private`, default branch `main`, no open PRs at the initial audit.
-- Current published prerelease is `v1.1.0-beta.6`. Keep beta.4 withdrawn. The next integration/card candidate is `1.1.0-beta.7`; its version fields, changelog and release notes are prepared without creating a tag or publishing a release.
+- Prepare stable `v1.1.0` from current public main, including the native voice and long-caption fixes merged in PR #18. Integration/card versions are synchronized; beta tags remain immutable and beta.4 stays withdrawn. See the [stable release notes](release-notes.md). Publication follows a passing release PR and tag CI.
+- The [HACS default-store submission](https://github.com/hacs/default/pull/14389) is awaiting a non-prerelease release before review continues.
 
-## Pull requests to consolidate
+## Previously consolidated pull requests
 
 - [#1 — Actions updates](https://github.com/taylorsegell/backend-butler/pull/1): full-commit pins retained, checkout token persistence disabled, supported hosted runners. The Actions update must pass fresh CI with the approved audit policy.
 - [#10 — JavaScript updates](https://github.com/taylorsegell/backend-butler/pull/10): compiler API compatibility restored, Node types aligned to Node 22, explicit browser-fixture esbuild dependency, card bundle regenerated. Card unit/type checks and Chromium tests pass locally; configuration app has 385 passing tests and a passing typecheck/build. The beta.7 candidate includes aligned integration/card version fields, changelog and release notes. Full CI, including WebKit, must pass before merge.
