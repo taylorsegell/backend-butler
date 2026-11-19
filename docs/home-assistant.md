@@ -1,6 +1,6 @@
 # Backend Butler for Home Assistant
 
-**Public beta:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
+**Backend Butler 1.1.0:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required.
 
 A Home Assistant **custom integration + Lovelace card**. The card runs your LiveKit voice
 agent *inside* the HA dashboard and behaves like a native card: **live device tiles you can
@@ -85,7 +85,7 @@ Marketplace normally offers stable releases. To receive Butler betas:
 2. After installation, open **Settings → Devices & services → Marketplace**, then the **Backend Butler** device page. Its **Pre-release** switch entity is disabled by default: enable the entity, then turn on the switch to receive beta updates.
 3. Select the desired published beta on the repository page with **⋮ → Install another version** if it is not already selected. Review the release notes, install it, restart Home Assistant and reload the dashboard. Updates also appear under **Settings → Updates**.
 
-`1.1.0-beta.7` is an **unpublished release candidate** until its GitHub prerelease is published. A merge to `main`, tag or draft release does not make it an available published beta. Use a published version from the [releases page](https://github.com/taylorsegell/backend-butler/releases); beta.4 remains withdrawn. Recheck the available version before updating rather than assuming the candidate is published.
+The stable `v1.1.0` release does not require the Pre-release switch. Use a published version from the [releases page](https://github.com/taylorsegell/backend-butler/releases); a merge, tag or draft alone does not publish it. Beta.4 remains withdrawn. For `v1.1.0`, upgrade the worker, integration and card together and follow the [release notes](release-notes.md).
 
 Keep the GitHub connection active for custom-repository updates. Newly published releases can take time to appear. Back up your deployment configuration/history and follow the [beta upgrade guidance](public-beta.md) before updating the separately deployed worker or scheduler.
 

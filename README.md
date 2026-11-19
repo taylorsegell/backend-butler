@@ -9,13 +9,13 @@
 <p align="center">
   <a href="#quickstart">Get started</a> ·
   <a href="docs/home-assistant.md">Home Assistant setup</a> ·
-  <a href="docs/public-beta.md">Beta notes</a> ·
+  <a href="docs/release-notes.md">Release notes</a> ·
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
 
 [![CI](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml/badge.svg)](https://github.com/taylorsegell/backend-butler/actions/workflows/ci.yml)
 
-**Public beta:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](docs/native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required for this beta.
+**Backend Butler 1.1.0:** Home Assistant Companion can use its native microphone over local HTTP when the [native bridge](docs/native-audio.md) is enabled on both HA and the matching Butler worker. The same Butler UI and saved history are retained. Ordinary browsers still require HTTPS (or localhost) for voice; typed chat works over HTTP. Home Assistant **2026.11.1 or newer** is required.
 
 ## See Butler in action
 
@@ -47,7 +47,7 @@ Butler puts voice and chat inside Home Assistant. Speak naturally, follow the li
 
 Source for the four applications lives under `apps/`. See the [component and storage map](docs/architecture.md) for development paths and upgrade notes.
 
-**Public beta:** bring your own Home Assistant and LiveKit credentials. Inference can incur charges. Saved-session APIs are still evolving, so back up your state before upgrading. See the [beta guide](docs/public-beta.md) for the remaining release checks and limitations.
+**Before installing:** bring your own Home Assistant and LiveKit credentials. Inference can incur charges. Saved-session APIs are still evolving, so back up your state before upgrading. See the [release guide](docs/public-beta.md) for support limits and upgrade precautions.
 
 ## Before you start
 
@@ -71,7 +71,7 @@ The button opens Butler in your Home Assistant Marketplace; review the repositor
 5. Add the integration under **Settings → Devices & services**. Give it the same LiveKit project and `AGENT_NAME`, the scheduler at `http://<docker-host>:8951` with `SCHEDULER_TOKEN`, and the agent chat at `http://<docker-host>:8952` with `TEXT_API_TOKEN`.
 6. Add the **Backend Butler** card to a dashboard, and in its Settings tab add the people in the house and link their HA logins.
 
-**Beta releases:** Marketplace normally offers stable releases. For beta updates, enable Butler’s **Pre-release** entity on its Marketplace device page, then turn on the switch. Use **⋮ → Install another version** on the repository page to select a published beta when needed. `1.1.0-beta.7` remains an unpublished candidate until its release is published. See the [setup guide](docs/home-assistant.md#beta-versions-and-updates) for the full steps.
+**Stable release:** `v1.1.0` includes the latest native voice and scrolling-caption fixes and does not require beta opt-in. Upgrade the worker, integration and card together; see the [release notes](docs/release-notes.md). For future beta updates, enable Butler’s **Pre-release** entity on its Marketplace device page, then turn on the switch. Use **⋮ → Install another version** to select a published version. See the [setup guide](docs/home-assistant.md#beta-versions-and-updates).
 
 [docs/home-assistant.md](docs/home-assistant.md) covers the integration and card in detail.
 
