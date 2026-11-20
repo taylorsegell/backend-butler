@@ -40,11 +40,58 @@ const esbuild = require('node:module').createRequire(require.resolve('vite/packa
       await page.getByRole('button', { name: 'Type instead', exact: true }).waitFor();
       await page.evaluate(() => document.fonts.ready);
       const initial = await card.boundingBox();
+      const redundantCopy = /ready to talk|start the microphone when|speak naturally after|use the microphone to talk/i;
+      assert.doesNotMatch(await card.locator('.lk-call').innerText(), redundantCopy);
+      await page.getByRole('button', { name: 'Type instead', exact: true }).click();
+      const input = page.getByRole('textbox', { name: 'Message Backend Butler', exact: true });
+      assert.equal(await input.getAttribute('placeholder'), 'Message Butler…');
+      assert.doesNotMatch(await card.locator('.lk-call').innerText(), redundantCopy);
+      const empty = page.locator('.lk-call-transcript .lk-convo');
+      const composer = await input.boundingBox();
+      const logo = await empty.locator('svg[aria-hidden="true"]').boundingBox();
+      const prompts = await empty.locator('.lk-starters').boundingBox();
+      assert.ok(composer.height <= 44, `${viewport.width}: empty composer fits one line`);
+      assert.ok(logo && logo.height >= 100 && Math.abs(logo.x + logo.width / 2 - viewport.width / 2) <= 1,
+        `${viewport.width}: the existing Butler logo is centered in the empty transcript`);
+      assert.ok(prompts && logo.y + logo.height <= prompts.y && prompts.y + prompts.height < composer.y,
+        'the logo and suggestion buttons fit above the composer');
+      const promptButtons = empty.locator('.lk-starters button');
+      assert.equal(await promptButtons.count(), 3);
+      for (const label of await promptButtons.all()) {
+        const wordsPerLine = await label.evaluate(button => {
+          const text = button.firstChild;
+          const lines = new Map();
+          for (const word of text.textContent.matchAll(/\S+/g)) {
+            const range = document.createRange();
+            range.setStart(text, word.index);
+            range.setEnd(text, word.index + word[0].length);
+            const top = range.getBoundingClientRect().top;
+            lines.set(top, (lines.get(top) || 0) + 1);
+          }
+          return [...lines.values()];
+        });
+        assert.ok(wordsPerLine.length === 1 || wordsPerLine.at(-1) > 1, 'suggestions never leave a single trailing word');
+      }
+      const send = page.getByRole('button', { name: 'Send', exact: true });
+      assert.ok(await send.isDisabled());
+      const inactive = await send.evaluate(button => getComputedStyle(button).backgroundColor);
+      await promptButtons.first().click();
+      assert.equal(await input.inputValue(), 'Which lights are on?');
+      assert.ok(await send.isEnabled());
+      await page.waitForFunction(color => getComputedStyle(window.keyboardCard.shadowRoot.querySelector('.lk-send')).backgroundColor !== color, inactive);
+      const sendColor = await send.evaluate(button => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        context.fillStyle = getComputedStyle(button).backgroundColor;
+        context.fillRect(0, 0, 1, 1);
+        return [...context.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+      });
+      assert.ok(Math.max(...sendColor) - Math.min(...sendColor) < 25, `enabled Send stays neutral: ${sendColor}`);
       const history = Array.from({ length: 24 }, (_, i) => ({ kind: 'message', id: 'message-' + i,
         role: i % 2 ? 'agent' : 'user', text: 'A synthetic saved conversation message ' + i, ts: i + 1 }));
       await page.evaluate(items => window.emitConversation(items), history);
+      await page.getByRole('button', { name: 'Live view', exact: true }).click();
       await page.getByRole('button', { name: 'Type instead', exact: true }).click();
-      const input = page.getByRole('textbox', { name: 'Message Backend Butler', exact: true });
       await page.waitForFunction(() => {
         const host = window.keyboardCard;
         return host.shadowRoot.activeElement === host.shadowRoot.querySelector('textarea');

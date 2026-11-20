@@ -616,6 +616,7 @@ export const CARD_STYLES =
     display: grid; place-items: center; background: var(--lk-elevated); color: var(--lk-fg); transition: background-color .15s, transform .06s; }
   .lk-send:active { transform: scale(.93); }
   .lk-send[data-on="1"], .lk-send--accent { background: var(--lk-accent); color: var(--lk-on-accent); }
+  .lk-send--message:not(:disabled) { background: color-mix(in srgb, var(--lk-fg) 15%, var(--lk-surface)); color: var(--lk-fg); }
   .lk-send:disabled { cursor: default; background: var(--lk-elevated); color: var(--lk-muted); }
   .lk-send:disabled:active { transform: none; }
   /* A live microphone has a visible halo; paused, send and busy controls do not. */

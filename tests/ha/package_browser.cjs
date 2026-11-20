@@ -52,7 +52,18 @@ const { chromium } = requireCard('playwright');
    const card=document.createElement('backend-butler-card');card.setConfig({type:'custom:backend-butler-card',audio_output:true,layout:'fullpage',input_mode:'push_to_talk'});
    card.hass={states:{},user:{id:'synthetic-alice',is_admin:false},auth:{external},connection:{subscribeMessage:async(callback,message)=>{
     window.nativeEvent=callback;await window.bridgeCall(message);return()=>{window.nativeEvent=undefined;return window.bridgeCall('unsubscribe_native_events')};
-   }},callWS:message=>{window.controlCalls.push(message);return window.bridgeCall(message)},callService:async()=>{throw Error('No household services')},callApi:(verb,path,data)=>{
+   }},callWS:async message=>{
+    window.controlCalls.push(message);
+    if (window.holdNextAudioSetting && message.command === 'set_audio_output') {
+     window.holdNextAudioSetting = false;
+     return new Promise((_, reject) => {
+      window.rejectLateAudioSetting = () => reject(Error('Session closed before the audio setting returned'));
+     });
+    }
+    const result = await window.bridgeCall(message);
+    if (message.command === 'disconnect') window.disconnectAcknowledged = true;
+    return result;
+   },callService:async()=>{throw Error('No household services')},callApi:(verb,path,data)=>{
     window.apiCalls.push({verb,path});return window.bridgeCall({api:true,verb,path,data});
    }};
    document.body.append(card);
@@ -86,8 +97,24 @@ const { chromium } = requireCard('playwright');
   const captures='/tmp/butler-live-native-captures';fs.mkdirSync(captures,{recursive:true});
   await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(250);
   await page.screenshot({path:path.join(captures,'phone-native-reply.png')});
-  // End saves/releases before opening the real standard history API.
+  // Delay one card-side response across a real Home Assistant disconnect.
+  await page.getByRole('button', { name: 'Transcript', exact: true }).click();
+  const composer = page.getByRole('textbox', { name: 'Message Backend Butler', exact: true });
+  await composer.fill('');
+  await page.evaluate(() => { window.holdNextAudioSetting = true; });
+  await page.getByRole('button', { name: 'Silence spoken replies', exact: true }).click();
+  await page.waitForFunction(() => typeof window.rejectLateAudioSetting === 'function');
   await page.getByRole('button',{name:'End voice session',exact:true}).click();
+  await page.waitForFunction(() => window.disconnectAcknowledged);
+  await page.evaluate(async () => {
+   window.rejectLateAudioSetting();
+   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
+  await page.getByRole('button', { name: 'Start talking', exact: true }).waitFor();
+  assert.equal(await composer.inputValue(), '', 'End leaves the empty draft empty');
+  assert.deepEqual(await page.getByRole('alert').allTextContents(), [], 'a late setting failure cannot recreate recovery after End');
+  assert.equal(await page.getByText(/your typed draft/i).count(), 0, 'End does not claim the empty draft exists');
+  console.log('PASS: packaged card ignores a delayed audio-setting failure after confirmed End with an empty draft');
   await page.getByRole('button',{name:'Conversation history',exact:true}).click();
   const drawer=page.getByRole('dialog',{name:'Conversations',exact:true});
   await drawer.waitFor();
@@ -99,7 +126,9 @@ const { chromium } = requireCard('playwright');
   await drawer.locator('.lk-taskrow .lk-taskrow-main').first().click();
   await drawer.getByRole('button',{name:'Continue this conversation',exact:true}).click();
   await drawer.waitFor({state:'hidden'});
-  await page.getByRole('button',{name:'Transcript',exact:true}).click();
+  if (await page.getByRole('button', { name: 'Transcript', exact: true }).isVisible()) {
+   await page.getByRole('button', { name: 'Transcript', exact: true }).click();
+  }
   await page.locator('.lk-call-transcript').getByText('Synthetic spoken question',{exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>window.apiCalls.some(c=>c.path.includes('/warm'))),false,'native history switches never warm a competing text session');
   assert.equal(await page.evaluate(()=>window.nativeCalls.some(m=>m.type==='assist/show')),false);

@@ -6,6 +6,7 @@ import { Dock } from '../../src/components/Dock';
 import { LiveCall } from '../../src/components/LiveCall';
 import { RecoveryNotice } from '../../src/components/RecoveryNotice';
 import { loadCardFont } from '../../src/font';
+import { resolveVoiceFeedback } from '../../src/lib/voice-feedback';
 import { CARD_STYLES } from '../../src/styles';
 
 // Real presentation components with local state only; no session or microphone.
@@ -26,9 +27,8 @@ function Fixture() {
   const [recovery, setRecovery] = useState(false);
   const message = 'Your conversation is still here. Retry the connection or type a message.';
   Object.assign(fixture, { showRecovery: setRecovery });
-  const feedback = recovery
-    ? { phase: 'error' as const, label: 'Voice needs attention', detail: message }
-    : { phase: 'idle' as const, label: 'Ready to talk', detail: 'Start the microphone when you’re ready.' };
+  const feedback = resolveVoiceFeedback({ connected: false, connecting: false, reconnecting: false,
+    micActive: false, micStarting: false, audioOutput: false, error: recovery ? message : null });
   return <ha-card data-live-ui="1" data-dock="auto" data-tall="1">
     <ConversationHeader title="Backend Butler" stateLabel="Live conversation" connected={false} orbState="idle"
       onHistory={noop} onSettings={noop} onUpcoming={noop} upcomingCount={0} />

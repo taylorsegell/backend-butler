@@ -4,7 +4,7 @@
 
 - End native calls without turning late settings or playback acknowledgements into a false connection error; preserve real active-session and close failures.
 - Show one compact recovery message and mention retained text only when a draft exists.
-- Shorten the text composer prompt, distinguish disabled Send, and clarify reply-audio and view controls while retaining responsive transcript space.
+- Center the Butler logo in the empty conversation, remove repeated microphone instructions, and use a short composer prompt with a neutral Send button that dims when unavailable. Clarify reply-audio and view controls while retaining responsive transcript space.
 - Keep the composer in the visible phone viewport when opening the software keyboard, including after switching from Live to typing.
 
 ## 1.1.0 — 2026-11-19

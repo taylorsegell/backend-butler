@@ -105,8 +105,7 @@ export function Dock(props: DockProps) {
   }
 
   const paused = mode === 'auto' && autoPaused;
-  const placeholder = connecting ? 'Connecting…' : props.textOnly ? 'Message Butler…'
-    : paused ? 'Type, or start talking with the microphone' : 'Type in this live session…';
+  const placeholder = connecting ? 'Connecting…' : props.textOnly || paused ? 'Message Butler…' : 'Type in this live session…';
 
   return (
     <div className="lk-dock" ref={dockRef}>
@@ -126,7 +125,7 @@ export function Dock(props: DockProps) {
       )}
       <div className="lk-bar" data-paused={paused ? '1' : '0'}>
         <Composer value={text} placeholder={placeholder} onChange={setText} onSubmit={submit} disabled={sending || connecting} />
-        {props.textOnly ? <button className="lk-send lk-send--accent" aria-label="Send" title="Send" disabled={!canSend} onClick={submit}><CallIcon name="send" /></button> : <TrailingButton
+        {props.textOnly ? <button className="lk-send lk-send--message" aria-label="Send" title="Send" disabled={!canSend} onClick={submit}><CallIcon name="send" /></button> : <TrailingButton
           canSend={canSend}
           busy={sending || micStarting || connecting}
           mode={mode}
@@ -235,7 +234,7 @@ function TrailingButton({
 }) {
   if (canSend) {
     return (
-      <button className="lk-send lk-send--accent" aria-label="Send" title="Send" onClick={onSubmit}>
+      <button className="lk-send lk-send--message" aria-label="Send" title="Send" onClick={onSubmit}>
         <CallIcon name="send" />
       </button>
     );

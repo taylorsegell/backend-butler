@@ -96,12 +96,12 @@ const esbuild = require('esbuild');
     console.log('PASS: obsolete reply-audio unlock rejection stays quiet after End');
 
 
-    for (const draft of ['', 'A real unsent draft']) {
+    for (const draft of ['', '   ', 'A real unsent draft']) {
       await open(draft); await page.evaluate(() => window.nativeEvent({ type: 'error', message: 'Synthetic active speech failure' }));
       await page.getByRole('alert').filter({ hasText: 'Synthetic active speech failure' }).waitFor();
       assert.equal(await page.getByRole('alert').count(), 1, 'one recovery notice owns an active failure');
       assert.equal(await page.locator('textarea').inputValue(), draft);
-      assert.equal(await page.getByText(/Your typed draft is still here/).count() > 0, Boolean(draft), 'draft copy reflects actual input');
+      assert.equal(await page.getByText(/Your typed draft is still here/).count() > 0, Boolean(draft.trim()), 'draft copy reflects actual input');
     }
     await open('Retain this after close failure'); await page.evaluate(() => { window.disconnectFails = true; }); await end();
     await page.getByRole('alert').filter({ hasText: /couldn.t confirm.*saved|couldn.t confirm.*closed|couldn.t finish ending/i }).waitFor();

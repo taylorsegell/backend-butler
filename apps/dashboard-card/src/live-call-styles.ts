@@ -60,9 +60,15 @@ export const LIVE_CALL_STYLES = `
   .lk-call-control[data-primary="1"]:not(:disabled):hover .lk-call-circle { background: #fc6b0226; }
   .lk-call-control:focus-visible { border-radius: 8px; }
   .lk-call-utility { display: flex; flex: none; justify-content: center; align-items: center; gap: 12px; color: var(--lk-muted); font-size: 11px; min-height: 44px; text-align: center; }
-  .lk-call-utility button { font: inherit; border: none; background: none; color: #ffc090; cursor: pointer; }
+  .lk-call-utility button { font: inherit; border: none; background: none; color: #ffc090; cursor: pointer; min-height: 44px; }
   .lk-call-transcript { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; }
   .lk-call-transcript .lk-convo { padding: 12px 0; }
+  .lk-call-transcript .lk-empty--call { flex: 1; width: 100%; margin: 0 auto; padding-block: 0 4px; gap: 8px; }
+  .lk-empty--call .lk-starters { margin-top: 0; flex-shrink: 0; }
+  .lk-empty-brand { position: relative; flex: 1 1 0; min-height: 0; width: 100%; }
+  .lk-empty-brand svg { position: absolute; inset: 0; margin: auto; width: 152px; height: 152px; max-width: 100%; max-height: 100%; filter: drop-shadow(0 0 14px #e9dfca22); }
+  .lk-call-transcript :is(.lk-empty p, .lk-starters button), .lk-call-status p, .lk-call-utility span,
+  .lk-call-notices .lk-recovery :is(h2, p) { text-wrap: balance; }
   .lk-call-notices { flex: none; max-height: 36%; overflow: auto; }
   .lk-call-notices:has(.lk-recovery) { max-height: 44%; }
   .lk-call-notices:empty { display: none; }
@@ -95,6 +101,7 @@ export const LIVE_CALL_STYLES = `
     .lk-call[data-transcript="1"] > .lk-call-controls { grid-column: 1; grid-row: 4; }
     .lk-call[data-transcript="1"] > .lk-call-utility { grid-column: 1; grid-row: 5; }
     .lk-call[data-transcript="1"] .lk-call-transcript { grid-column: 2; grid-row: 1 / -1; padding: 16px; border-radius: 16px; background: #171b21; border: 1px solid var(--lk-line); }
+    .lk-empty-brand svg { display: none; }
     .lk-call-reply { font-size: 29px; }
     .lk-call-captions { padding-top: 32px; }
     .lk-brand-glow { width: 210px; height: 210px; }

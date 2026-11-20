@@ -91,7 +91,7 @@ const esbuild = require('node:module').createRequire(require.resolve('vite/packa
       await page.screenshot({ path: path.join(captures, `${viewport.width}-recovery.png`) });
       fs.writeFileSync(path.join(captures, `${viewport.width}-metrics.json`), JSON.stringify({ empty, geometry, inactive, active }, null, 2));
       await recovery.getByRole('button', { name: 'Retry voice', exact: true }).click();
-      await page.getByText('Ready to talk', { exact: true }).waitFor();
+      await recovery.waitFor({ state: 'detached' });
       assert.equal(await recovery.count(), 0, 'successful retry removes the recovery notice');
       await page.close();
     }
