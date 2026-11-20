@@ -65,11 +65,11 @@ const { chromium } = requireCard('playwright');
   const captureCount=await page.evaluate(()=>window.nativeCalls.length);
   await page.getByRole('button',{name:'Transcript',exact:true}).click();
   await page.locator('textarea').fill('Keep my native draft');
-  await page.getByRole('button',{name:'Live',exact:true}).click();
+  await page.getByRole('button',{name:'Live view',exact:true}).click();
   assert.equal(await page.evaluate(()=>window.nativeCalls.length),captureCount,'view changes preserve the native microphone');
   await page.getByRole('button',{name:'Transcript',exact:true}).click();
   assert.equal(await page.locator('textarea').inputValue(),'Keep my native draft');
-  await page.getByRole('button',{name:'Live',exact:true}).click();
+  await page.getByRole('button',{name:'Live view',exact:true}).click();
   // Give the paced synthetic peer time to send real PCM through the HA camera.
   await page.waitForTimeout(350);
   await page.getByRole('button',{name:'Send recording',exact:true}).click();

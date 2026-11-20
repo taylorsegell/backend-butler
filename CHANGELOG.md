@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- End native calls without turning late settings or playback acknowledgements into a false connection error; preserve real active-session and close failures.
+- Show one compact recovery message and mention retained text only when a draft exists.
+- Shorten the text composer prompt, distinguish disabled Send, and clarify reply-audio and view controls while retaining responsive transcript space.
+
 ## 1.1.0 — 2026-11-19
 
 - Prevent native calls from transcribing Butler's own replies: wait for confirmed device playback, pause recognition during speech, and reject transcripts without fresh local speech evidence or with low recognition confidence. Upgrade the worker, integration and card together; use the call controls to interrupt spoken replies.

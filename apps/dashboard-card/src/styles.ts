@@ -451,7 +451,7 @@ export const CARD_STYLES =
   .lk-state { font-variant-numeric: tabular-nums; }
   .lk-modehint { flex: none; margin: 0; padding: 4px max(16px, calc((100% - 800px) / 2)); color: var(--lk-muted); font-size: .8rem; }
   .lk-recovery { flex: none; padding: 12px 14px; border: 1px solid var(--lk-danger-ink); border-radius: 12px; background: var(--lk-surface); }
-  .lk-recovery strong { display: block; font-size: .9rem; }
+  .lk-recovery h2 { font-size: 1rem; line-height: 1.4; margin: 0; }
   .lk-recovery p { font-size: .85rem; line-height: 1.4; margin: 4px 0 10px; }
   .lk-recovery-actions { display: flex; flex-wrap: wrap; gap: 8px; }
   .lk-recovery button { min-height: 44px; }
@@ -616,7 +616,7 @@ export const CARD_STYLES =
     display: grid; place-items: center; background: var(--lk-elevated); color: var(--lk-fg); transition: background-color .15s, transform .06s; }
   .lk-send:active { transform: scale(.93); }
   .lk-send[data-on="1"], .lk-send--accent { background: var(--lk-accent); color: var(--lk-on-accent); }
-  .lk-send:disabled { cursor: default; }
+  .lk-send:disabled { cursor: default; background: var(--lk-elevated); color: var(--lk-muted); }
   .lk-send:disabled:active { transform: none; }
   /* A live microphone has a visible halo; paused, send and busy controls do not. */
   .lk-send[data-on="1"] {

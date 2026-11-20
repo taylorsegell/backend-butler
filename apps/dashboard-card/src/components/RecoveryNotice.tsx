@@ -11,7 +11,7 @@ export function RecoveryNotice({ title, message, retryLabel, busy = false, onRet
 }) {
   return (
     <section className="lk-recovery" aria-label="Connection recovery">
-      <div role="alert"><strong>{title}</strong><p>{message}</p></div>
+      <div role="alert"><h2>{title}</h2><p>{message}</p></div>
       <div className="lk-recovery-actions">
         <button type="button" className="lk-btn lk-btn-accent" onClick={onRetry} disabled={busy}>
           {busy ? 'Trying again…' : retryLabel}

@@ -43,6 +43,7 @@ export const LIVE_CALL_STYLES = `
   .lk-call-status p:nth-child(2) { color: var(--lk-muted); font-size: 12px; line-height: 1.5; margin: 0; }
   .lk-call-controls { display: flex; flex: none; justify-content: center; gap: 12px; padding-top: 12px; }
   .lk-call-control { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: 11px/1.4 var(--lk-sans); width: 58px; cursor: pointer; }
+  .lk-call-control > span:last-child { white-space: nowrap; }
   .lk-call-circle { display: grid; place-items: center; background: #ffffff07; border-radius: 50%; width: 54px; height: 54px; transition: background .15s; }
   .lk-call-circle svg { width: 22px; height: 22px; }
   .lk-call-control[data-primary="1"] .lk-call-circle { background: #fc6b0214; color: #ffbd83; }
@@ -58,10 +59,13 @@ export const LIVE_CALL_STYLES = `
   .lk-call-transcript { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; }
   .lk-call-transcript .lk-convo { padding: 12px 0; }
   .lk-call-notices { flex: none; max-height: 36%; overflow: auto; }
+  .lk-call-notices:has(.lk-recovery) { max-height: 44%; }
   .lk-call-notices:empty { display: none; }
   .lk-call-notices .lk-recovery { margin: 8px 0; padding: 12px; font-size: 13px; }
-  .lk-call-notices .lk-recovery h2 { font-size: 15px; }
-  .lk-call-notices .lk-recovery p { font-size: 13px; }
+  .lk-call-notices .lk-recovery h2 { font-size: 16px; }
+  .lk-call-notices .lk-recovery p { font-size: 14px; line-height: 1.45; margin: 4px 0 12px; }
+  .lk-call-notices .lk-recovery-actions { align-items: center; }
+  .lk-call-notices .lk-recovery-actions .lk-btn:not(.lk-btn-accent) { border-color: transparent; background: transparent; color: var(--lk-accent-ink); padding-inline: 8px; }
   .lk-call-notices .lk-approvals { margin: 0; }
   .lk-call-transcript .lk-dock { padding: 8px 0; }
   ha-card[data-live-ui="1"] .lk-call-transcript .lk-input { font-size: 16px; }

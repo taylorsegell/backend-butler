@@ -105,7 +105,8 @@ export function Dock(props: DockProps) {
   }
 
   const paused = mode === 'auto' && autoPaused;
-  const placeholder = connecting ? 'Connecting…' : paused ? 'Type, or start talking with the microphone' : 'Type in this live session…';
+  const placeholder = connecting ? 'Connecting…' : props.textOnly ? 'Message Butler…'
+    : paused ? 'Type, or start talking with the microphone' : 'Type in this live session…';
 
   return (
     <div className="lk-dock" ref={dockRef}>
