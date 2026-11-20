@@ -2,6 +2,8 @@
 
 Thanks for helping improve Butler. Open an issue describing the behavior you want to change before a large contribution. Small fixes can go straight to a pull request.
 
+For new features, use the [feature-request workflow](docs/feature-workflow.md) to turn a plain-language outcome into scoped requirements, tests and a reviewable PR.
+
 ## Development
 
 Use Node.js 22, pnpm 12, Python 3.13, and uv 0.13.0. Copy `.env.example` to `.env` for local configuration; never commit credentials, home inventories, transcripts, or deployment overrides.
