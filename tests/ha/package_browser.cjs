@@ -54,7 +54,7 @@ const { chromium } = requireCard('playwright');
     window.nativeEvent=callback;await window.bridgeCall(message);return()=>{window.nativeEvent=undefined;return window.bridgeCall('unsubscribe_native_events')};
    }},callWS:async message=>{
     window.controlCalls.push(message);
-    if (window.holdNextAudioSetting && message.command === 'set_audio_output') {
+    if (window.holdNextAudioSetting && message.command === 'set_audio_output' && message.payload === 'off') {
      window.holdNextAudioSetting = false;
      return new Promise((_, reject) => {
       window.rejectLateAudioSetting = () => reject(Error('Session closed before the audio setting returned'));
