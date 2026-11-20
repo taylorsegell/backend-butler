@@ -749,7 +749,7 @@ function CardShell() {
 
   const stopReplyAudio = () => {
     replyAudio.stop();
-    requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());
+    requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true }));
   };
   const pendingVoiceTool = [...toolCalls].reverse().find(tool => tool.status === 'running');
   const feedback = resolveVoiceFeedback({ connected, connecting, idleEnded,
@@ -783,7 +783,7 @@ function CardShell() {
         onPrompt={(prompt) => {
           setTranscript(true);
           setVoiceDraft(prompt);
-          requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());
+          requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true }));
         }} />
       <Dock textOnly
         draft={voiceDraft}
@@ -886,7 +886,7 @@ function CardShell() {
         </section>} />}
       </ConversationDrawer>
       <ConversationDrawer open={drawer === 'schedules'} title="Upcoming" onClose={() => setDrawer(null)}>
-        <SchedulesTab api={tasksApi} onOpen={setEditing} onCreate={() => { setVoiceDraft(current => current.trim() ? current : 'Remind me to take out the bins tomorrow at 7 PM.'); setDrawer(null); setTranscript(true); requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus()); }} />
+        <SchedulesTab api={tasksApi} onOpen={setEditing} onCreate={() => { setVoiceDraft(current => current.trim() ? current : 'Remind me to take out the bins tomorrow at 7 PM.'); setDrawer(null); setTranscript(true); requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true })); }} />
       </ConversationDrawer>
       <ConversationDrawer open={drawer === 'history'} title="Conversations" onClose={() => setDrawer(null)}>
         <div className="lk-history-actions"><button className="lk-btn" onClick={() => void newConversation()} disabled={historyOpening}>New conversation</button>{navigationError && <p className="lk-set-err" role="alert">{navigationError}</p>}</div>

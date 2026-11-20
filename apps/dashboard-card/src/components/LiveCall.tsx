@@ -122,7 +122,7 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
     </nav>
     <div className="lk-call-utility">
       <span>{mode === 'manual' ? 'Send when you’re done speaking' : autoPaused ? 'Speak naturally after starting the call' : 'Listening between replies'}</span>
-      {!transcript && <button onClick={() => { switchView(true); requestAnimationFrame(() => root.current?.querySelector<HTMLTextAreaElement>('textarea')?.focus()); }}>Type instead</button>}
+      {!transcript && <button onClick={() => { switchView(true); requestAnimationFrame(() => root.current?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true })); }}>Type instead</button>}
     </div>
   </div>;
 }

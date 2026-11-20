@@ -10,6 +10,11 @@ export const LIVE_CALL_STYLES = `
     overflow: hidden; font-family: var(--lk-sans);
   }
   :host([data-fullpage]) ha-card[data-live-ui="1"] { height: 100%; min-height: 0; }
+  :host([data-keyboard]) { position: relative; }
+  :host([data-keyboard]) .lk-root { position: absolute; inset-inline: 0; top: var(--lk-keyboard-top); height: var(--lk-keyboard-h); }
+  :host([data-keyboard]) .lk-call-status, :host([data-keyboard]) .lk-call-utility { display: none; }
+  :host([data-keyboard]) .lk-call-body { min-height: 0; }
+  :host([data-keyboard]) .lk-conversation-header { min-height: 56px; padding-block: 6px; }
   ha-card[data-live-ui="1"] .lk-conversation-header { padding: 12px 16px; min-height: 76px; gap: 8px; justify-content: flex-end; }
   ha-card[data-live-ui="1"] .lk-conversation-identity { flex: 1; justify-content: center; padding-left: 0; position: absolute; left: 92px; right: 92px; min-width: 0; }
   ha-card[data-live-ui="1"] .lk-conversation-dot { display: none; }
