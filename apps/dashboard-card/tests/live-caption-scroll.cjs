@@ -79,7 +79,7 @@ const esbuild = require('node:module').createRequire(require.resolve('vite/packa
     await reply.getByText(text, { exact: true }).waitFor();
     await checkTail();
     await page.getByRole('button', { name: 'Transcript', exact: true }).click();
-    await page.getByRole('button', { name: 'Live', exact: true }).click();
+    await page.getByRole('button', { name: 'Live view', exact: true }).click();
     await checkTail();
     // Text reflow alone must keep the end in frame without a new transcript event.
     await reply.evaluate(el => { el.style.fontSize = '50px'; });

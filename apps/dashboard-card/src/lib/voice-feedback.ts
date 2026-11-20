@@ -34,7 +34,7 @@ export function resolveVoiceFeedback(input: VoiceFeedbackInput): VoiceFeedbackSt
   if (reconnecting) return { phase: 'reconnecting', label: 'Reconnecting', detail: 'Your transcript is still here. Waiting for the voice connection.' };
   if (connecting) return { phase: 'connecting', label: 'Connecting', detail: 'Preparing your voice session.' };
   if (!connected && input.idleEnded) return { phase: 'idle', label: 'Session ended after inactivity', detail: 'Your conversation is saved. Start talking or type to continue.' };
-  if (!connected) return { phase: 'idle', label: 'Ready to talk', detail: 'Start the microphone when you’re ready.' };
+  if (!connected) return { phase: 'idle', label: '', detail: '' };
   if (micStarting) return { phase: 'connecting', label: 'Starting microphone', detail: 'Wait for Listening before you speak.' };
   if (interrupted) {
     return { phase: micActive ? 'listening' : 'paused', label: micActive ? 'Listening' : 'Microphone paused', detail: 'Speech stopped. Home actions may still be running.' };
