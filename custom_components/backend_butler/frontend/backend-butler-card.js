@@ -848,24 +848,24 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}
 		return null;
 	}
-	var xe = Array.isArray, k = n.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, A = r.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, Se = {
+	var xe = Array.isArray, k = n.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, Se = r.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, Ce = {
 		pending: !1,
 		data: null,
 		method: null,
 		action: null
-	}, Ce = [], j = -1;
-	function we(e) {
+	}, we = [], A = -1;
+	function Te(e) {
 		return { current: e };
 	}
-	function M(e) {
-		0 > j || (e.current = Ce[j], Ce[j] = null, j--);
+	function j(e) {
+		0 > A || (e.current = we[A], we[A] = null, A--);
 	}
-	function Te(e, t) {
-		j++, Ce[j] = e.current, e.current = t;
+	function Ee(e, t) {
+		A++, we[A] = e.current, e.current = t;
 	}
-	var Ee = we(null), De = we(null), Oe = we(null), ke = we(null);
-	function N(e, t) {
-		switch (Te(Oe, t), Te(De, e), Te(Ee, null), t.nodeType) {
+	var De = Te(null), Oe = Te(null), ke = Te(null), Ae = Te(null);
+	function M(e, t) {
+		switch (Ee(ke, t), Ee(Oe, e), Ee(De, null), t.nodeType) {
 			case 9:
 			case 11:
 				e = (e = t.documentElement) && (e = e.namespaceURI) ? fp(e) : 0;
@@ -881,34 +881,34 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				default: e = 0;
 			}
 		}
-		M(Ee), Te(Ee, e);
+		j(De), Ee(De, e);
 	}
-	function Ae() {
-		M(Ee), M(De), M(Oe);
-	}
-	function je(e) {
-		var t = e.memoizedState;
-		t !== null && (lh._currentValue = t.memoizedState, Te(ke, e)), t = Ee.current;
-		var n = pp(t, e.type);
-		t !== n && (Te(De, e), Te(Ee, n));
+	function je() {
+		j(De), j(Oe), j(ke);
 	}
 	function Me(e) {
-		De.current === e && (M(Ee), M(De)), ke.current === e && (M(ke), lh._currentValue = Se);
+		var t = e.memoizedState;
+		t !== null && (lh._currentValue = t.memoizedState, Ee(Ae, e)), t = De.current;
+		var n = pp(t, e.type);
+		t !== n && (Ee(Oe, e), Ee(De, n));
 	}
-	var Ne, Pe;
-	function Fe(e) {
-		if (Ne === void 0) try {
+	function Ne(e) {
+		Oe.current === e && (j(De), j(Oe)), Ae.current === e && (j(Ae), lh._currentValue = Ce);
+	}
+	var Pe, Fe;
+	function Ie(e) {
+		if (Pe === void 0) try {
 			throw Error();
 		} catch (e) {
 			var t = e.stack.trim().match(/\n( *(at )?)/);
-			Ne = t && t[1] || "", Pe = -1 < e.stack.indexOf("\n    at") ? " (<anonymous>)" : -1 < e.stack.indexOf("@") ? "@unknown:0:0" : "";
+			Pe = t && t[1] || "", Fe = -1 < e.stack.indexOf("\n    at") ? " (<anonymous>)" : -1 < e.stack.indexOf("@") ? "@unknown:0:0" : "";
 		}
-		return "\n" + Ne + e + Pe;
+		return "\n" + Pe + e + Fe;
 	}
-	var Ie = !1;
-	function P(e, t) {
-		if (!e || Ie) return "";
-		Ie = !0;
+	var Le = !1;
+	function N(e, t) {
+		if (!e || Le) return "";
+		Le = !0;
 		var n = Error.prepareStackTrace;
 		Error.prepareStackTrace = void 0;
 		try {
@@ -979,39 +979,39 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				}
 			}
 		} finally {
-			Ie = !1, Error.prepareStackTrace = n;
+			Le = !1, Error.prepareStackTrace = n;
 		}
-		return (n = e ? e.displayName || e.name : "") ? Fe(n) : "";
+		return (n = e ? e.displayName || e.name : "") ? Ie(n) : "";
 	}
-	function Le(e, t) {
+	function Re(e, t) {
 		switch (e.tag) {
 			case 26:
 			case 27:
-			case 5: return Fe(e.type);
-			case 16: return Fe("Lazy");
-			case 13: return e.child !== t && t !== null ? Fe("Suspense Fallback") : Fe("Suspense");
-			case 19: return Fe("SuspenseList");
+			case 5: return Ie(e.type);
+			case 16: return Ie("Lazy");
+			case 13: return e.child !== t && t !== null ? Ie("Suspense Fallback") : Ie("Suspense");
+			case 19: return Ie("SuspenseList");
 			case 0:
-			case 15: return P(e.type, !1);
-			case 11: return P(e.type.render, !1);
-			case 1: return P(e.type, !0);
-			case 31: return Fe("Activity");
-			case 30: return Fe("ViewTransition");
+			case 15: return N(e.type, !1);
+			case 11: return N(e.type.render, !1);
+			case 1: return N(e.type, !0);
+			case 31: return Ie("Activity");
+			case 30: return Ie("ViewTransition");
 			default: return "";
 		}
 	}
-	function Re(e) {
+	function ze(e) {
 		try {
 			var t = "", n = null;
 			do
-				t += Le(e, n), n = e, e = e.return;
+				t += Re(e, n), n = e, e = e.return;
 			while (e);
 			return t;
 		} catch (e) {
 			return "\nError generating stack: " + e.message + "\n" + e.stack;
 		}
 	}
-	var ze = Object.prototype.hasOwnProperty, Be = t.unstable_scheduleCallback, Ve = t.unstable_cancelCallback, He = t.unstable_shouldYield, Ue = t.unstable_requestPaint, We = t.unstable_now, Ge = t.unstable_getCurrentPriorityLevel, Ke = t.unstable_ImmediatePriority, qe = t.unstable_UserBlockingPriority, Je = t.unstable_NormalPriority, Ye = t.unstable_LowPriority, Xe = t.unstable_IdlePriority, Ze = t.log, Qe = t.unstable_setDisableYieldValue, $e = null, et = null;
+	var Be = Object.prototype.hasOwnProperty, Ve = t.unstable_scheduleCallback, He = t.unstable_cancelCallback, Ue = t.unstable_shouldYield, P = t.unstable_requestPaint, We = t.unstable_now, Ge = t.unstable_getCurrentPriorityLevel, Ke = t.unstable_ImmediatePriority, qe = t.unstable_UserBlockingPriority, Je = t.unstable_NormalPriority, Ye = t.unstable_LowPriority, Xe = t.unstable_IdlePriority, Ze = t.log, Qe = t.unstable_setDisableYieldValue, $e = null, et = null;
 	function tt(e) {
 		if (typeof Ze == "function" && Qe(e), et && typeof et.setStrictMode == "function") try {
 			et.setStrictMode($e, e);
@@ -1201,15 +1201,15 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		return e &= -e, 2 < e ? 8 < e ? e & 134217727 ? 32 : 268435456 : 8 : 2;
 	}
 	function Ct() {
-		var e = A.p;
+		var e = Se.p;
 		return e === 0 ? (e = window.event, e === void 0 ? 32 : Th(e.type)) : e;
 	}
 	function wt(e, t) {
-		var n = A.p;
+		var n = Se.p;
 		try {
-			return A.p = e, t();
+			return Se.p = e, t();
 		} finally {
-			A.p = n;
+			Se.p = n;
 		}
 	}
 	var Tt = Math.random().toString(36).slice(2), Et = "__reactFiber$" + Tt, Dt = "__reactProps$" + Tt, Ot = "__reactContainer$" + Tt, kt = "__reactEvents$" + Tt, At = "__reactListeners$" + Tt, jt = "__reactHandles$" + Tt, Mt = "__reactResources$" + Tt, Nt = "__reactMarker$" + Tt, Pt = "__reactLoad$" + Tt;
@@ -1265,7 +1265,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	}
 	var Kt = RegExp("^[:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD][:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\-.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040]*$"), qt = {}, Jt = {};
 	function Yt(e) {
-		return ze.call(Jt, e) ? !0 : ze.call(qt, e) ? !1 : Kt.test(e) ? Jt[e] = !0 : (qt[e] = !0, !1);
+		return Be.call(Jt, e) ? !0 : Be.call(qt, e) ? !1 : Kt.test(e) ? Jt[e] = !0 : (qt[e] = !0, !1);
 	}
 	var Xt = !1;
 	function Zt() {
@@ -1957,7 +1957,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		if (n.length !== r.length) return !1;
 		for (r = 0; r < n.length; r++) {
 			var i = n[r];
-			if (!ze.call(t, i) || !Gr(e[i], t[i])) return !1;
+			if (!Be.call(t, i) || !Gr(e[i], t[i])) return !1;
 		}
 		return !0;
 	}
@@ -2163,7 +2163,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	function Bi(e, t, n, r, a, o) {
 		var s = 0;
 		if (r = e, typeof r == "function") Li(r) && (s = 1);
-		else if (typeof r == "string") s = Ym(e, n, Ee.current) ? 26 : e === "html" || e === "head" || e === "body" ? 27 : 5;
+		else if (typeof r == "string") s = Ym(e, n, De.current) ? 26 : e === "html" || e === "head" || e === "body" ? 27 : 5;
 		else a: switch (r) {
 			case fe: return e = Ii(31, n, t, a), e.elementType = fe, e.lanes = o, e;
 			case O: return Vi(n.children, a, o, t);
@@ -2226,13 +2226,13 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			return n === void 0 ? (t = {
 				value: e,
 				source: t,
-				stack: Re(t)
+				stack: ze(t)
 			}, Gi.set(e, t), t) : n;
 		}
 		return {
 			value: e,
 			source: t,
-			stack: Re(t)
+			stack: ze(t)
 		};
 	}
 	var qi = [], Ji = 0, Yi = null, Xi = 0, Zi = [], Qi = 0, $i = null, ea = 1, ta = "";
@@ -2338,12 +2338,12 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	function _a(e) {
 		la === null ? la = [e] : la.push(e);
 	}
-	var va = we(null), ya = null, ba = null;
+	var va = Te(null), ya = null, ba = null;
 	function xa(e, t, n) {
-		Te(va, t._currentValue), t._currentValue = n;
+		Ee(va, t._currentValue), t._currentValue = n;
 	}
 	function Sa(e) {
-		e._currentValue = va.current, M(va);
+		e._currentValue = va.current, j(va);
 	}
 	function Ca(e, t, n) {
 		for (; e !== null;) {
@@ -2401,7 +2401,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					var c = a.type;
 					Gr(a.pendingProps.value, s.value) || (e === null ? e = [c] : e.push(c));
 				}
-			} else if (a === ke.current) {
+			} else if (a === Ae.current) {
 				if (s = a.alternate, s === null) throw Error(i(387));
 				s.memoizedState.memoizedState !== a.memoizedState.memoizedState && (e === null ? e = [lh] : e.push(lh));
 			}
@@ -2539,13 +2539,13 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}
 		Ka !== null && Ka(e, t);
 	};
-	var qa = we(null);
+	var qa = Te(null);
 	function Ja() {
 		var e = qa.current;
 		return e === null ? $u.pooledCache : e;
 	}
 	function Ya(e, t) {
-		t === null ? Te(qa, qa.current) : Te(qa, t.pool);
+		t === null ? Ee(qa, qa.current) : Ee(qa, t.pool);
 	}
 	function Xa() {
 		var e = Ja();
@@ -2952,39 +2952,39 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		var n = e.callbacks;
 		if (n !== null) for (e.callbacks = null, e = 0; e < n.length; e++) Eo(n[e], t);
 	}
-	var Oo = we(null), ko = we(0);
+	var Oo = Te(null), ko = Te(0);
 	function Ao(e, t) {
-		e = ad, Te(ko, e), Te(Oo, t), ad = e | t.baseLanes;
+		e = ad, Ee(ko, e), Ee(Oo, t), ad = e | t.baseLanes;
 	}
 	function jo() {
-		Te(ko, ad), Te(Oo, Oo.current);
+		Ee(ko, ad), Ee(Oo, Oo.current);
 	}
 	function Mo() {
-		ad = ko.current, M(Oo), M(ko);
+		ad = ko.current, j(Oo), j(ko);
 	}
-	var No = we(null), Po = null;
+	var No = Te(null), Po = null;
 	function Fo(e) {
 		var t = e.alternate;
-		Te(Bo, Bo.current & 1), Te(No, e), Po === null && (t === null || Oo.current !== null || t.memoizedState !== null) && (Po = e);
+		Ee(Bo, Bo.current & 1), Ee(No, e), Po === null && (t === null || Oo.current !== null || t.memoizedState !== null) && (Po = e);
 	}
 	function Io(e) {
-		Te(Bo, Bo.current), Te(No, e), Po === null && (Po = e);
+		Ee(Bo, Bo.current), Ee(No, e), Po === null && (Po = e);
 	}
 	function Lo(e) {
-		e.tag === 22 ? (Te(Bo, Bo.current), Te(No, e), Po === null && (Po = e)) : Ro();
+		e.tag === 22 ? (Ee(Bo, Bo.current), Ee(No, e), Po === null && (Po = e)) : Ro();
 	}
 	function Ro() {
-		Te(Bo, Bo.current), Te(No, No.current);
+		Ee(Bo, Bo.current), Ee(No, No.current);
 	}
 	function zo(e) {
-		M(No), Po === e && (Po = null), M(Bo);
+		j(No), Po === e && (Po = null), j(Bo);
 	}
-	var Bo = we(0);
+	var Bo = Te(0);
 	function Vo(e, t) {
-		Te(No, No.current), Te(Bo, t);
+		Ee(No, No.current), Ee(Bo, t);
 	}
 	function Ho(e) {
-		M(Bo), M(No), Po === e && (Po = null);
+		j(Bo), j(No), Po === e && (Po = null);
 	}
 	function Uo(e) {
 		for (var t = e; t !== null;) {
@@ -3506,8 +3506,8 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		return Gr(n, t) ? n : Oo.current === null ? !(Wo & 106) || Wo & 1073741824 && !(Y & 261930) ? (kc = !0, e.memoizedState = n) : (e = Nd(), z.lanes |= e, sd |= e, t) : (e = qs(e, n, r), Gr(e, t) || (kc = !0), e);
 	}
 	function Ys(e, t, n, r, i) {
-		var a = A.p;
-		A.p = a !== 0 && 8 > a ? a : 8;
+		var a = Se.p;
+		Se.p = a !== 0 && 8 > a ? a : 8;
 		var o = k.T, s = {};
 		s.types = o === null ? null : o.types, k.T = s, oc(e, !1, t, n);
 		try {
@@ -3520,14 +3520,14 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				reason: n
 			}, Md());
 		} finally {
-			A.p = a, o !== null && s.types !== null && (o.types = s.types), k.T = o;
+			Se.p = a, o !== null && s.types !== null && (o.types = s.types), k.T = o;
 		}
 	}
 	function Xs() {}
 	function Zs(e, t, n, r) {
 		if (e.tag !== 5) throw Error(i(476));
 		var a = Qs(e).queue;
-		Ys(e, a, t, Se, n === null ? Xs : function() {
+		Ys(e, a, t, Ce, n === null ? Xs : function() {
 			return q(e), n(r);
 		});
 	}
@@ -3535,15 +3535,15 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		var t = e.memoizedState;
 		if (t !== null) return t;
 		t = {
-			memoizedState: Se,
-			baseState: Se,
+			memoizedState: Ce,
+			baseState: Ce,
 			baseQueue: null,
 			queue: {
 				pending: null,
 				lanes: 0,
 				dispatch: null,
 				lastRenderedReducer: ps,
-				lastRenderedState: Se
+				lastRenderedState: Ce
 			},
 			next: null
 		};
@@ -4338,14 +4338,14 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	function sl(e, t, n) {
 		switch (t.tag) {
 			case 3:
-				N(t, t.stateNode.containerInfo), xa(t, Na, e.memoizedState.cache), ha();
+				M(t, t.stateNode.containerInfo), xa(t, Na, e.memoizedState.cache), ha();
 				break;
 			case 27:
 			case 5:
-				je(t);
+				Me(t);
 				break;
 			case 4:
-				N(t, t.stateNode.containerInfo);
+				M(t, t.stateNode.containerInfo);
 				break;
 			case 10:
 				xa(t, t.type, t.memoizedProps.value);
@@ -4413,7 +4413,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			case 1: return r = t.type, a = vc(r, t.pendingProps), Uc(e, t, r, a, n);
 			case 3:
 				a: {
-					if (N(t, t.stateNode.containerInfo), e === null) throw Error(i(387));
+					if (M(t, t.stateNode.containerInfo), e === null) throw Error(i(387));
 					r = t.pendingProps;
 					var o = t.memoizedState;
 					a = o.element, vo(e, t), To(t, r, null, n);
@@ -4448,12 +4448,12 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					t = t.child;
 				}
 				return t;
-			case 26: return Bc(e, t), e === null ? (n = Fm(t.type, null, t.pendingProps, null)) ? t.memoizedState = n : I || (t.stateNode = mp(t.type, t.pendingProps, Oe.current, t)) : t.memoizedState = Fm(t.type, e.memoizedProps, t.pendingProps, e.memoizedState), null;
-			case 27: return je(t), e === null && I && (r = t.stateNode = _m(t.type, t.pendingProps, Oe.current), sa = t, ua = !0, a = ca, wp(t.type) ? (fm = a, ca = dm(r.firstChild)) : ca = a), Ac(e, t, t.pendingProps.children, n), Bc(e, t), e === null && (t.flags |= 4194304), t.child;
-			case 5: return e === null && I && ((a = r = ca) && (r = am(r, t.type, t.pendingProps, ua), r === null ? a = !1 : (t.stateNode = r, sa = t, ca = dm(r.firstChild), ua = !1, a = !0)), a || fa(t)), je(t), a = t.type, o = t.pendingProps, s = e === null ? null : e.memoizedProps, r = o.children, hp(a, o) ? r = null : s !== null && hp(a, s) && (t.flags |= 32), t.memoizedState !== null && (a = ts(e, t, rs, null, null, n), lh._currentValue = a), Bc(e, t), Ac(e, t, r, n), t.child;
+			case 26: return Bc(e, t), e === null ? (n = Fm(t.type, null, t.pendingProps, null)) ? t.memoizedState = n : I || (t.stateNode = mp(t.type, t.pendingProps, ke.current, t)) : t.memoizedState = Fm(t.type, e.memoizedProps, t.pendingProps, e.memoizedState), null;
+			case 27: return Me(t), e === null && I && (r = t.stateNode = _m(t.type, t.pendingProps, ke.current), sa = t, ua = !0, a = ca, wp(t.type) ? (fm = a, ca = dm(r.firstChild)) : ca = a), Ac(e, t, t.pendingProps.children, n), Bc(e, t), e === null && (t.flags |= 4194304), t.child;
+			case 5: return e === null && I && ((a = r = ca) && (r = am(r, t.type, t.pendingProps, ua), r === null ? a = !1 : (t.stateNode = r, sa = t, ca = dm(r.firstChild), ua = !1, a = !0)), a || fa(t)), Me(t), a = t.type, o = t.pendingProps, s = e === null ? null : e.memoizedProps, r = o.children, hp(a, o) ? r = null : s !== null && hp(a, s) && (t.flags |= 32), t.memoizedState !== null && (a = ts(e, t, rs, null, null, n), lh._currentValue = a), Bc(e, t), Ac(e, t, r, n), t.child;
 			case 6: return e === null && I && ((e = n = ca) && (n = om(n, t.pendingProps, ua), n === null ? e = !1 : (t.stateNode = n, sa = t, ca = null, e = !0)), e || fa(t)), null;
 			case 13: return Jc(e, t, n);
-			case 4: return N(t, t.stateNode.containerInfo), r = t.pendingProps, e === null ? t.child = mo(t, null, r, n) : Ac(e, t, r, n), t.child;
+			case 4: return M(t, t.stateNode.containerInfo), r = t.pendingProps, e === null ? t.child = mo(t, null, r, n) : Ac(e, t, r, n), t.child;
 			case 11: return jc(e, t, t.type, t.pendingProps, n);
 			case 7: return r = t.pendingProps, Bc(e, t), Ac(e, t, r, n), t.child;
 			case 8: return Ac(e, t, t.pendingProps.children, n), t.child;
@@ -4536,30 +4536,30 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			case 9:
 			case 14: return ml(t), null;
 			case 1: return ml(t), null;
-			case 3: return n = t.stateNode, r = null, e !== null && (r = e.memoizedState.cache), t.memoizedState.cache !== r && (t.flags |= 2048), Sa(Na), Ae(), n.pendingContext && (n.context = n.pendingContext, n.pendingContext = null), (e === null || e.child === null) && (ma(t) ? ll(t) : e === null || e.memoizedState.isDehydrated && !(t.flags & 256) || (t.flags |= 1024, ga())), ml(t), null;
+			case 3: return n = t.stateNode, r = null, e !== null && (r = e.memoizedState.cache), t.memoizedState.cache !== r && (t.flags |= 2048), Sa(Na), je(), n.pendingContext && (n.context = n.pendingContext, n.pendingContext = null), (e === null || e.child === null) && (ma(t) ? ll(t) : e === null || e.memoizedState.isDehydrated && !(t.flags & 256) || (t.flags |= 1024, ga())), ml(t), null;
 			case 26:
 				var a = t.type, o = t.memoizedState;
 				return e === null ? (ll(t), o === null ? (ml(t), ul(t, a, null, r, n)) : (ml(t), dl(t, o))) : o ? o === e.memoizedState ? (ml(t), t.flags &= -16777217) : (ll(t), ml(t), dl(t, o)) : (e = e.memoizedProps, e !== r && ll(t), ml(t), ul(t, a, e, r, n)), null;
 			case 27:
-				if (Me(t), n = Oe.current, a = t.type, e !== null && t.stateNode != null) e.memoizedProps !== r && ll(t);
+				if (Ne(t), n = ke.current, a = t.type, e !== null && t.stateNode != null) e.memoizedProps !== r && ll(t);
 				else {
 					if (!r) {
 						if (t.stateNode === null) throw Error(i(166));
 						return ml(t), t.subtreeFlags &= -33554433, null;
 					}
-					e = Ee.current, ma(t) ? pa(t, e) : (e = _m(a, r, n), t.stateNode = e, ll(t));
+					e = De.current, ma(t) ? pa(t, e) : (e = _m(a, r, n), t.stateNode = e, ll(t));
 				}
 				return ml(t), t.subtreeFlags &= -33554433, null;
 			case 5:
-				if (Me(t), a = t.type, e !== null && t.stateNode != null) e.memoizedProps !== r && ll(t);
+				if (Ne(t), a = t.type, e !== null && t.stateNode != null) e.memoizedProps !== r && ll(t);
 				else {
 					if (!r) {
 						if (t.stateNode === null) throw Error(i(166));
 						return ml(t), t.subtreeFlags &= -33554433, null;
 					}
-					if (o = Ee.current, ma(t)) pa(t, o);
+					if (o = De.current, ma(t)) pa(t, o);
 					else {
-						var s = dp(Oe.current);
+						var s = dp(ke.current);
 						switch (o) {
 							case 1:
 								o = s.createElementNS("http://www.w3.org/2000/svg", a);
@@ -4618,7 +4618,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				if (e && t.stateNode != null) e.memoizedProps !== r && ll(t);
 				else {
 					if (typeof r != "string" && t.stateNode === null) throw Error(i(166));
-					if (e = Oe.current, ma(t)) {
+					if (e = ke.current, ma(t)) {
 						if (e = t.stateNode, n = t.memoizedProps, r = null, a = sa, a !== null) switch (a.tag) {
 							case 27:
 							case 5: r = a.memoizedProps;
@@ -4654,7 +4654,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					if (!a) return t.flags & 256 ? (zo(t), t) : (zo(t), null);
 				}
 				return zo(t), t.flags & 128 ? (t.lanes = n, t) : (n = r !== null, e = e !== null && e.memoizedState !== null, n && (r = t.child, a = null, r.alternate !== null && r.alternate.memoizedState !== null && r.alternate.memoizedState.cachePool !== null && (a = r.alternate.memoizedState.cachePool.pool), o = null, r.memoizedState !== null && r.memoizedState.cachePool !== null && (o = r.memoizedState.cachePool.pool), o !== a && (r.flags |= 2048)), n !== e && n && (t.child.flags |= 8192), fl(t, t.updateQueue), ml(t), null);
-			case 4: return Ae(), e === null && Gf(t.stateNode.containerInfo), t.flags |= 67108864, ml(t), null;
+			case 4: return je(), e === null && Gf(t.stateNode.containerInfo), t.flags |= 67108864, ml(t), null;
 			case 10: return Sa(t.type), ml(t), null;
 			case 19:
 				if (Ho(t), r = t.memoizedState, r === null) return ml(t), null;
@@ -4690,11 +4690,11 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 						}
 						n = !0;
 					}
-					return r.rendering = e, r.tail = e.sibling, r.renderingStartTime = We(), e.sibling = null, o = Bo.current, o = a ? o & 1 | 2 : o & 1, r.tailMode === "visible" || r.tailMode === "collapsed" || !n || I ? Vo(t, o) : (n = o, Te(No, t), Te(Bo, n), Po === null && (Po = t)), I && na(t, r.treeForkCount), e;
+					return r.rendering = e, r.tail = e.sibling, r.renderingStartTime = We(), e.sibling = null, o = Bo.current, o = a ? o & 1 | 2 : o & 1, r.tailMode === "visible" || r.tailMode === "collapsed" || !n || I ? Vo(t, o) : (n = o, Ee(No, t), Ee(Bo, n), Po === null && (Po = t)), I && na(t, r.treeForkCount), e;
 				}
 				return ml(t), null;
 			case 22:
-			case 23: return zo(t), Mo(), r = t.memoizedState !== null, e === null ? r && (t.flags |= 8192) : e.memoizedState !== null !== r && (t.flags |= 8192), r ? n & 536870912 && !(t.flags & 128) && (ml(t), t.subtreeFlags & 6 && (t.flags |= 8192)) : ml(t), n = t.updateQueue, n !== null && fl(t, n.retryQueue), n = null, e !== null && e.memoizedState !== null && e.memoizedState.cachePool !== null && (n = e.memoizedState.cachePool.pool), r = null, t.memoizedState !== null && t.memoizedState.cachePool !== null && (r = t.memoizedState.cachePool.pool), r !== n && (t.flags |= 2048), e !== null && M(qa), null;
+			case 23: return zo(t), Mo(), r = t.memoizedState !== null, e === null ? r && (t.flags |= 8192) : e.memoizedState !== null !== r && (t.flags |= 8192), r ? n & 536870912 && !(t.flags & 128) && (ml(t), t.subtreeFlags & 6 && (t.flags |= 8192)) : ml(t), n = t.updateQueue, n !== null && fl(t, n.retryQueue), n = null, e !== null && e.memoizedState !== null && e.memoizedState.cachePool !== null && (n = e.memoizedState.cachePool.pool), r = null, t.memoizedState !== null && t.memoizedState.cachePool !== null && (r = t.memoizedState.cachePool.pool), r !== n && (t.flags |= 2048), e !== null && j(qa), null;
 			case 24: return n = null, e !== null && (n = e.memoizedState.cache), t.memoizedState.cache !== n && (t.flags |= 2048), Sa(Na), ml(t), null;
 			case 25: return null;
 			case 30: return t.flags |= 33554432, ml(t), null;
@@ -4704,10 +4704,10 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	function gl(e, t) {
 		switch (aa(t), t.tag) {
 			case 1: return e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, t) : null;
-			case 3: return Sa(Na), Ae(), e = t.flags, e & 65536 && !(e & 128) ? (t.flags = e & -65537 | 128, t) : null;
+			case 3: return Sa(Na), je(), e = t.flags, e & 65536 && !(e & 128) ? (t.flags = e & -65537 | 128, t) : null;
 			case 26:
 			case 27:
-			case 5: return Me(t), null;
+			case 5: return Ne(t), null;
 			case 31:
 				if (t.memoizedState !== null) {
 					if (zo(t), t.alternate === null) throw Error(i(340));
@@ -4721,10 +4721,10 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				}
 				return e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, t) : null;
 			case 19: return Ho(t), e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, e = t.memoizedState, e !== null && (e.rendering = null, e.tail = null), t.flags |= 4, t) : null;
-			case 4: return Ae(), null;
+			case 4: return je(), null;
 			case 10: return Sa(t.type), null;
 			case 22:
-			case 23: return zo(t), Mo(), e !== null && M(qa), e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, t) : null;
+			case 23: return zo(t), Mo(), e !== null && j(qa), e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, t) : null;
 			case 24: return Sa(Na), null;
 			case 25: return null;
 			default: return null;
@@ -4733,15 +4733,15 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	function _l(e, t) {
 		switch (aa(t), t.tag) {
 			case 3:
-				Sa(Na), Ae();
+				Sa(Na), je();
 				break;
 			case 26:
 			case 27:
 			case 5:
-				Me(t);
+				Ne(t);
 				break;
 			case 4:
-				Ae();
+				je();
 				break;
 			case 31:
 				t.memoizedState !== null && zo(t);
@@ -4757,7 +4757,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 				break;
 			case 22:
 			case 23:
-				zo(t), Mo(), e !== null && M(qa);
+				zo(t), Mo(), e !== null && j(qa);
 				break;
 			case 24: Sa(Na);
 		}
@@ -6296,7 +6296,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		return ba = ya = null, k.H = r, k.A = a, Qu = n, J === null ? ($u = null, Y = 0, Oi(), od) : 0;
 	}
 	function Zd() {
-		for (; J !== null && !He();) Qd(J);
+		for (; J !== null && !Ue();) Qd(J);
 	}
 	function Qd(e) {
 		var t = cl(e.alternate, e, ad);
@@ -6387,11 +6387,11 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		if (wd = s, s |= Di, _t(e, n, s, r, i, a), Od = null, (n & 335544064) === n ? (kd = Ra(e), r = 10262) : (kd = null, r = 10256), (t.subtreeFlags & r) !== 0 || (t.flags & r) !== 0 ? (e.callbackNode = null, e.callbackPriority = 0, bf(Je, function() {
 			return pf(), null;
 		})) : (e.callbackNode = null, e.callbackPriority = 0), Il = !1, r = !!(t.flags & 13878), t.subtreeFlags & 13878 || r) {
-			r = k.T, k.T = null, i = A.p, A.p = 2, a = Qu, Qu |= 4;
+			r = k.T, k.T = null, i = Se.p, Se.p = 2, a = Qu, Qu |= 4;
 			try {
 				du(e, t, n);
 			} finally {
-				Qu = a, A.p = i, k.T = r;
+				Qu = a, Se.p = i, k.T = r;
 			}
 		}
 		bd = 1, Il ? Dd = Pp(o, e.containerInfo, kd, cf, lf, sf, uf, pf, of, null, null) : (cf(), lf(), uf());
@@ -6411,8 +6411,8 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			var e = xd, t = Sd, n = Cd, r = !!(t.flags & 13878);
 			if (t.subtreeFlags & 13878 || r) {
 				r = k.T, k.T = null;
-				var i = A.p;
-				A.p = 2;
+				var i = Se.p;
+				Se.p = 2;
 				var a = Qu;
 				Qu |= 4;
 				try {
@@ -6447,7 +6447,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					}
 					vh = !!lp, up = lp = null;
 				} finally {
-					Qu = a, A.p = i, k.T = r;
+					Qu = a, Se.p = i, k.T = r;
 				}
 			}
 			e.current = t, bd = 2;
@@ -6459,14 +6459,14 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			var e = xd, t = Sd, n = !!(t.flags & 8772);
 			if (t.subtreeFlags & 8772 || n) {
 				n = k.T, k.T = null;
-				var r = A.p;
-				A.p = 2;
+				var r = Se.p;
+				Se.p = 2;
 				var i = Qu;
 				Qu |= 4;
 				try {
 					pu(e, t.alternate, t);
 				} finally {
-					Qu = i, A.p = r, k.T = n;
+					Qu = i, Se.p = r, k.T = n;
 				}
 			}
 			bd = 3;
@@ -6476,20 +6476,20 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		if (bd === 4 || bd === 3) {
 			bd = 0;
 			var e = Dd;
-			Dd = null, Ue();
+			Dd = null, P();
 			var t = xd, n = Sd, r = Cd, i = Ed, a = (r & 335544064) === r ? 10262 : 10256;
 			if ((n.subtreeFlags & a) !== 0 || (n.flags & a) !== 0 ? bd = 5 : (bd = 0, Sd = xd = null, df(t, t.pendingLanes)), a = t.pendingLanes, a === 0 && (yd = null), St(r), n = n.stateNode, et && typeof et.onCommitFiberRoot == "function") try {
 				et.onCommitFiberRoot($e, n, void 0, (n.current.flags & 128) == 128);
 			} catch {}
 			if (i !== null) {
-				n = k.T, a = A.p, A.p = 2, k.T = null;
+				n = k.T, a = Se.p, Se.p = 2, k.T = null;
 				try {
 					for (var o = t.onRecoverableError, s = 0; s < i.length; s++) {
 						var c = i[s];
 						o(c.value, { componentStack: c.stack });
 					}
 				} finally {
-					k.T = n, A.p = a;
+					k.T = n, Se.p = a;
 				}
 			}
 			if (i = Od, o = kd, kd = null, i !== null && (Od = null, o === null && (o = []), e !== null)) for (c = 0; c < i.length; c++) n = (0, i[c])(o), n !== void 0 && e.finished.finally(n);
@@ -6506,9 +6506,9 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		if (bd !== 5) return !1;
 		var e = xd, t = wd;
 		wd = 0;
-		var n = St(Cd), r = k.T, a = A.p;
+		var n = St(Cd), r = k.T, a = Se.p;
 		try {
-			A.p = 32 > n ? 32 : n, k.T = null, n = Td, Td = null;
+			Se.p = 32 > n ? 32 : n, k.T = null, n = Td, Td = null;
 			var o = xd, s = Cd;
 			if (bd = 0, Sd = xd = null, Cd = 0, Qu & 6) throw Error(i(331));
 			var c = Qu;
@@ -6517,7 +6517,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			} catch {}
 			return !0;
 		} finally {
-			A.p = a, k.T = r, df(e, t);
+			Se.p = a, k.T = r, df(e, t);
 		}
 	}
 	function mf(e, t, n) {
@@ -6579,7 +6579,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		r !== null && r.delete(t), vf(e, n);
 	}
 	function bf(e, t) {
-		return Be(e, t);
+		return Ve(e, t);
 	}
 	var xf = null, Sf = null, Cf = !1, wf = !1, Tf = !1, Ef = 0;
 	function Df(e) {
@@ -6625,10 +6625,10 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 			var o = 31 - nt(a), s = 1 << o, c = i[o];
 			c === -1 ? ((s & n) === 0 || (s & r) !== 0) && (i[o] = pt(s, t)) : c <= t && (e.expiredLanes |= s), a &= ~s;
 		}
-		if (t = $u, n = Y, n = ut(e, e === t ? n : 0, e.cancelPendingCommit !== null || e.timeoutHandle !== -1), r = e.callbackNode, n === 0 || e === t && (ed === 2 || ed === 9) || e.cancelPendingCommit !== null) return r !== null && r !== null && Ve(r), e.callbackNode = null, e.callbackPriority = 0;
+		if (t = $u, n = Y, n = ut(e, e === t ? n : 0, e.cancelPendingCommit !== null || e.timeoutHandle !== -1), r = e.callbackNode, n === 0 || e === t && (ed === 2 || ed === 9) || e.cancelPendingCommit !== null) return r !== null && r !== null && He(r), e.callbackNode = null, e.callbackPriority = 0;
 		if (!(n & 3) || dt(e, n)) {
 			if (t = n & -n, t === e.callbackPriority) return t;
-			switch (r !== null && Ve(r), St(n)) {
+			switch (r !== null && He(r), St(n)) {
 				case 2:
 				case 8:
 					n = qe;
@@ -6641,9 +6641,9 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					break;
 				default: n = Je;
 			}
-			return r = Mf.bind(null, e), n = Be(n, r), e.callbackPriority = t, e.callbackNode = n, t;
+			return r = Mf.bind(null, e), n = Ve(n, r), e.callbackPriority = t, e.callbackNode = n, t;
 		}
-		return r !== null && r !== null && Ve(r), e.callbackPriority = 2, e.callbackNode = null, 2;
+		return r !== null && r !== null && He(r), e.callbackPriority = 2, e.callbackNode = null, 2;
 	}
 	function Mf(e, t) {
 		if (bd !== 0 && bd !== 5) return e.callbackNode = null, e.callbackPriority = 0, null;
@@ -6658,7 +6658,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	}
 	function Pf() {
 		Sp(function() {
-			Qu & 6 ? Be(Ke, kf) : Af();
+			Qu & 6 ? Ve(Ke, kf) : Af();
 		});
 	}
 	function Ff() {
@@ -8185,8 +8185,8 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}
 		return e.nodeType === 9 ? e : e.ownerDocument;
 	}
-	var Cm = A.d;
-	A.d = {
+	var Cm = Se.d;
+	Se.d = {
 		f: wm,
 		r: Tm,
 		D: Om,
@@ -8348,7 +8348,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}
 	}
 	function Fm(e, t, n, r) {
-		var a = (a = Oe.current) ? Sm(a) : null;
+		var a = (a = ke.current) ? Sm(a) : null;
 		if (!a) throw Error(i(446));
 		switch (e) {
 			case "meta":
@@ -8604,8 +8604,8 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		$$typeof: oe,
 		Provider: null,
 		Consumer: null,
-		_currentValue: Se,
-		_currentValue2: Se,
+		_currentValue: Ce,
+		_currentValue2: Ce,
 		_threadCount: 0
 	};
 	function uh(e, t, n, r, i, a, o, s, c) {
@@ -8651,21 +8651,21 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	function yh(e, t, n, r) {
 		var i = k.T;
 		k.T = null;
-		var a = A.p;
+		var a = Se.p;
 		try {
-			A.p = 2, xh(e, t, n, r);
+			Se.p = 2, xh(e, t, n, r);
 		} finally {
-			A.p = a, k.T = i;
+			Se.p = a, k.T = i;
 		}
 	}
 	function bh(e, t, n, r) {
 		var i = k.T;
 		k.T = null;
-		var a = A.p;
+		var a = Se.p;
 		try {
-			A.p = 8, xh(e, t, n, r);
+			Se.p = 8, xh(e, t, n, r);
 		} finally {
-			A.p = a, k.T = i;
+			Se.p = a, k.T = i;
 		}
 	}
 	function xh(e, t, n, r) {
@@ -9010,7 +9010,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	};
 	var qh = n.version;
 	if (qh !== "19.3.1") throw Error(i(527, qh, "19.3.1"));
-	A.findDOMNode = function(e) {
+	Se.findDOMNode = function(e) {
 		var t = e._reactInternals;
 		if (t === void 0) throw typeof e.render == "function" ? Error(i(188)) : (e = Object.keys(e).join(","), Error(i(268, e)));
 		return e = d(t), e = e === null ? null : p(e), e = e === null ? null : e.stateNode, e;
@@ -9278,7 +9278,7 @@ function k(e, t) {
 		t.push(1);
 	}
 }
-function A() {
+function Se() {
 	let e = this.buf[this.pos++], t = e & 127;
 	if (!(e & 128) || (e = this.buf[this.pos++], t |= (e & 127) << 7, !(e & 128)) || (e = this.buf[this.pos++], t |= (e & 127) << 14, !(e & 128)) || (e = this.buf[this.pos++], t |= (e & 127) << 21, !(e & 128))) return this.assertBounds(), t;
 	e = this.buf[this.pos++], t |= (e & 15) << 28;
@@ -9286,7 +9286,7 @@ function A() {
 	if (e & 128) throw Error("invalid varint");
 	return this.assertBounds(), t >>> 0;
 }
-function Se() {
+function Ce() {
 	let e = /* @__PURE__ */ new DataView(/* @__PURE__ */ new ArrayBuffer(8));
 	if (typeof BigInt == "function" && typeof e.getBigInt64 == "function" && typeof e.getBigUint64 == "function" && typeof e.setBigInt64 == "function" && typeof e.setBigUint64 == "function" && (typeof process != "object" || typeof process.env != "object" || process.env.BUF_BIGINT_DISABLE !== "1")) {
 		let t = BigInt("-9223372036854775808"), n = BigInt("9223372036854775807"), r = BigInt("0"), i = BigInt("18446744073709551615");
@@ -9347,76 +9347,76 @@ function Se() {
 		}
 	};
 }
-var Ce = Se(), j;
+var we = Ce(), A;
 (function(e) {
 	e[e.DOUBLE = 1] = "DOUBLE", e[e.FLOAT = 2] = "FLOAT", e[e.INT64 = 3] = "INT64", e[e.UINT64 = 4] = "UINT64", e[e.INT32 = 5] = "INT32", e[e.FIXED64 = 6] = "FIXED64", e[e.FIXED32 = 7] = "FIXED32", e[e.BOOL = 8] = "BOOL", e[e.STRING = 9] = "STRING", e[e.BYTES = 12] = "BYTES", e[e.UINT32 = 13] = "UINT32", e[e.SFIXED32 = 15] = "SFIXED32", e[e.SFIXED64 = 16] = "SFIXED64", e[e.SINT32 = 17] = "SINT32", e[e.SINT64 = 18] = "SINT64";
-})(j || (j = {}));
-var we;
+})(A || (A = {}));
+var Te;
 (function(e) {
 	e[e.BIGINT = 0] = "BIGINT", e[e.STRING = 1] = "STRING";
-})(we || (we = {}));
-function M(e, t, n) {
+})(Te || (Te = {}));
+function j(e, t, n) {
 	if (t === n) return !0;
-	if (e == j.BYTES) {
+	if (e == A.BYTES) {
 		if (!(t instanceof Uint8Array) || !(n instanceof Uint8Array) || t.length !== n.length) return !1;
 		for (let e = 0; e < t.length; e++) if (t[e] !== n[e]) return !1;
 		return !0;
 	}
 	switch (e) {
-		case j.UINT64:
-		case j.FIXED64:
-		case j.INT64:
-		case j.SFIXED64:
-		case j.SINT64: return t == n;
+		case A.UINT64:
+		case A.FIXED64:
+		case A.INT64:
+		case A.SFIXED64:
+		case A.SINT64: return t == n;
 	}
 	return !1;
 }
-function Te(e, t) {
+function Ee(e, t) {
 	switch (e) {
-		case j.BOOL: return !1;
-		case j.UINT64:
-		case j.FIXED64:
-		case j.INT64:
-		case j.SFIXED64:
-		case j.SINT64: return t == 0 ? Ce.zero : "0";
-		case j.DOUBLE:
-		case j.FLOAT: return 0;
-		case j.BYTES: return /* @__PURE__ */ new Uint8Array();
-		case j.STRING: return "";
+		case A.BOOL: return !1;
+		case A.UINT64:
+		case A.FIXED64:
+		case A.INT64:
+		case A.SFIXED64:
+		case A.SINT64: return t == 0 ? we.zero : "0";
+		case A.DOUBLE:
+		case A.FLOAT: return 0;
+		case A.BYTES: return /* @__PURE__ */ new Uint8Array();
+		case A.STRING: return "";
 		default: return 0;
 	}
 }
-function Ee(e, t) {
+function De(e, t) {
 	switch (e) {
-		case j.BOOL: return t === !1;
-		case j.STRING: return t === "";
-		case j.BYTES: return t instanceof Uint8Array && !t.byteLength;
+		case A.BOOL: return t === !1;
+		case A.STRING: return t === "";
+		case A.BYTES: return t instanceof Uint8Array && !t.byteLength;
 		default: return t == 0;
 	}
 }
-function De(e, t) {
+function Oe(e, t) {
 	this.v = e, this.k = t;
 }
-function Oe(e, t) {
+function ke(e, t) {
 	(t == null || t > e.length) && (t = e.length);
 	for (var n = 0, r = Array(t); n < t; n++) r[n] = e[n];
 	return r;
 }
-function ke(e) {
+function Ae(e) {
 	if (Array.isArray(e)) return e;
 }
-function N(e, t, n) {
-	return (t = ze(t)) in e ? Object.defineProperty(e, t, {
+function M(e, t, n) {
+	return (t = Be(t)) in e ? Object.defineProperty(e, t, {
 		value: n,
 		enumerable: !0,
 		configurable: !0,
 		writable: !0
 	}) : e[t] = n, e;
 }
-function Ae(e) {
+function je(e) {
 	if (typeof Symbol < "u" && e[Symbol.iterator] != null || e["@@iterator"] != null) return Array.from(e);
 }
-function je(e, t) {
+function Me(e, t) {
 	var n = e == null ? null : typeof Symbol < "u" && e[Symbol.iterator] || e["@@iterator"];
 	if (n != null) {
 		var r, i, a, o, s = [], c = !0, l = !1;
@@ -9437,10 +9437,10 @@ function je(e, t) {
 		return s;
 	}
 }
-function Me() {
+function Ne() {
 	throw TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
-function Ne(e, t) {
+function Pe(e, t) {
 	var n = Object.keys(e);
 	if (Object.getOwnPropertySymbols) {
 		var r = Object.getOwnPropertySymbols(e);
@@ -9450,27 +9450,27 @@ function Ne(e, t) {
 	}
 	return n;
 }
-function Pe(e) {
+function Fe(e) {
 	for (var t = 1; t < arguments.length; t++) {
 		var n = arguments[t] == null ? {} : arguments[t];
-		t % 2 ? Ne(Object(n), !0).forEach(function(t) {
-			N(e, t, n[t]);
-		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : Ne(Object(n)).forEach(function(t) {
+		t % 2 ? Pe(Object(n), !0).forEach(function(t) {
+			M(e, t, n[t]);
+		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : Pe(Object(n)).forEach(function(t) {
 			Object.defineProperty(e, t, Object.getOwnPropertyDescriptor(n, t));
 		});
 	}
 	return e;
 }
-function Fe(e, t) {
+function Ie(e, t) {
 	if (e == null) return {};
-	var n, r, i = Ie(e, t);
+	var n, r, i = Le(e, t);
 	if (Object.getOwnPropertySymbols) {
 		var a = Object.getOwnPropertySymbols(e);
 		for (r = 0; r < a.length; r++) n = a[r], t.indexOf(n) === -1 && {}.propertyIsEnumerable.call(e, n) && (i[n] = e[n]);
 	}
 	return i;
 }
-function Ie(e, t) {
+function Le(e, t) {
 	if (e == null) return {};
 	var n = {};
 	for (var r in e) if ({}.hasOwnProperty.call(e, r)) {
@@ -9479,13 +9479,13 @@ function Ie(e, t) {
 	}
 	return n;
 }
-function P(e, t) {
-	return ke(e) || je(e, t) || Be(e, t) || Me();
+function N(e, t) {
+	return Ae(e) || Me(e, t) || Ve(e, t) || Ne();
 }
-function Le(e) {
-	return ke(e) || Ae(e) || Be(e) || Me();
+function Re(e) {
+	return Ae(e) || je(e) || Ve(e) || Ne();
 }
-function Re(e, t) {
+function ze(e, t) {
 	if (typeof e != "object" || !e) return e;
 	var n = e[Symbol.toPrimitive];
 	if (n !== void 0) {
@@ -9495,27 +9495,27 @@ function Re(e, t) {
 	}
 	return (t === "string" ? String : Number)(e);
 }
-function ze(e) {
-	var t = Re(e, "string");
+function Be(e) {
+	var t = ze(e, "string");
 	return typeof t == "symbol" ? t : t + "";
 }
-function Be(e, t) {
+function Ve(e, t) {
 	if (e) {
-		if (typeof e == "string") return Oe(e, t);
+		if (typeof e == "string") return ke(e, t);
 		var n = {}.toString.call(e).slice(8, -1);
-		return n === "Object" && e.constructor && (n = e.constructor.name), n === "Map" || n === "Set" ? Array.from(e) : n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n) ? Oe(e, t) : void 0;
+		return n === "Object" && e.constructor && (n = e.constructor.name), n === "Map" || n === "Set" ? Array.from(e) : n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n) ? ke(e, t) : void 0;
 	}
 }
-function Ve(e) {
+function He(e) {
 	return function() {
-		return new He(e.apply(this, arguments));
+		return new Ue(e.apply(this, arguments));
 	};
 }
-function He(e) {
+function Ue(e) {
 	var t, n;
 	function r(t, n) {
 		try {
-			var a = e[t](n), o = a.value, s = o instanceof De;
+			var a = e[t](n), o = a.value, s = o instanceof Oe;
 			Promise.resolve(s ? o.v : o).then(function(n) {
 				if (s) {
 					var c = t === "return" && o.k ? t : "next";
@@ -9549,19 +9549,19 @@ function He(e) {
 		});
 	}, typeof e.return != "function" && (this.return = void 0);
 }
-He.prototype[typeof Symbol == "function" && Symbol.asyncIterator || "@@asyncIterator"] = function() {
+Ue.prototype[typeof Symbol == "function" && Symbol.asyncIterator || "@@asyncIterator"] = function() {
 	return this;
-}, He.prototype.next = function(e) {
+}, Ue.prototype.next = function(e) {
 	return this._invoke("next", e);
-}, He.prototype.throw = function(e) {
+}, Ue.prototype.throw = function(e) {
 	return this._invoke("throw", e);
-}, He.prototype.return = function(e) {
+}, Ue.prototype.return = function(e) {
 	return this._invoke("return", e);
 };
-var Ue;
+var P;
 (function(e) {
 	e[e.Varint = 0] = "Varint", e[e.Bit64 = 1] = "Bit64", e[e.LengthDelimited = 2] = "LengthDelimited", e[e.StartGroup = 3] = "StartGroup", e[e.EndGroup = 4] = "EndGroup", e[e.Bit32 = 5] = "Bit32";
-})(Ue || (Ue = {}));
+})(P || (P = {}));
 var We = class {
 	constructor(e) {
 		this.stack = [], this.textEncoder = e ?? new TextEncoder(), this.chunks = [], this.buf = [];
@@ -9631,28 +9631,28 @@ var We = class {
 		return ne(e), e = (e << 1 ^ e >> 31) >>> 0, k(e, this.buf), this;
 	}
 	sfixed64(e) {
-		let t = /* @__PURE__ */ new Uint8Array(8), n = new DataView(t.buffer), r = Ce.enc(e);
+		let t = /* @__PURE__ */ new Uint8Array(8), n = new DataView(t.buffer), r = we.enc(e);
 		return n.setInt32(0, r.lo, !0), n.setInt32(4, r.hi, !0), this.raw(t);
 	}
 	fixed64(e) {
-		let t = /* @__PURE__ */ new Uint8Array(8), n = new DataView(t.buffer), r = Ce.uEnc(e);
+		let t = /* @__PURE__ */ new Uint8Array(8), n = new DataView(t.buffer), r = we.uEnc(e);
 		return n.setInt32(0, r.lo, !0), n.setInt32(4, r.hi, !0), this.raw(t);
 	}
 	int64(e) {
-		let t = Ce.enc(e);
+		let t = we.enc(e);
 		return pe(t.lo, t.hi, this.buf), this;
 	}
 	sint64(e) {
-		let t = Ce.enc(e), n = t.hi >> 31;
+		let t = we.enc(e), n = t.hi >> 31;
 		return pe(t.lo << 1 ^ n, (t.hi << 1 | t.lo >>> 31) ^ n, this.buf), this;
 	}
 	uint64(e) {
-		let t = Ce.uEnc(e);
+		let t = we.uEnc(e);
 		return pe(t.lo, t.hi, this.buf), this;
 	}
 }, Ge = class {
 	constructor(e, t) {
-		this.varint64 = fe, this.uint32 = A, this.buf = e, this.len = e.length, this.pos = 0, this.view = new DataView(e.buffer, e.byteOffset, e.byteLength), this.textDecoder = t ?? new TextDecoder();
+		this.varint64 = fe, this.uint32 = Se, this.buf = e, this.len = e.length, this.pos = 0, this.view = new DataView(e.buffer, e.byteOffset, e.byteLength), this.textDecoder = t ?? new TextDecoder();
 	}
 	tag() {
 		let e = this.uint32(), t = e >>> 3, n = e & 7;
@@ -9662,21 +9662,21 @@ var We = class {
 	skip(e, t) {
 		let n = this.pos;
 		switch (e) {
-			case Ue.Varint:
+			case P.Varint:
 				for (; this.buf[this.pos++] & 128;);
 				break;
-			case Ue.Bit64: this.pos += 4;
-			case Ue.Bit32:
+			case P.Bit64: this.pos += 4;
+			case P.Bit32:
 				this.pos += 4;
 				break;
-			case Ue.LengthDelimited:
+			case P.LengthDelimited:
 				let n = this.uint32();
 				this.pos += n;
 				break;
-			case Ue.StartGroup:
+			case P.StartGroup:
 				for (;;) {
-					let e = P(this.tag(), 2), n = e[0], r = e[1];
-					if (r === Ue.EndGroup) {
+					let e = N(this.tag(), 2), n = e[0], r = e[1];
+					if (r === P.EndGroup) {
 						if (t !== void 0 && n !== t) throw Error("invalid end group tag");
 						break;
 					}
@@ -9698,17 +9698,17 @@ var We = class {
 		return e >>> 1 ^ -(e & 1);
 	}
 	int64() {
-		return Ce.dec(...this.varint64());
+		return we.dec(...this.varint64());
 	}
 	uint64() {
-		return Ce.uDec(...this.varint64());
+		return we.uDec(...this.varint64());
 	}
 	sint64() {
-		let e = P(this.varint64(), 2), t = e[0], n = e[1], r = -(t & 1);
-		return t = (t >>> 1 | (n & 1) << 31) ^ r, n = n >>> 1 ^ r, Ce.dec(t, n);
+		let e = N(this.varint64(), 2), t = e[0], n = e[1], r = -(t & 1);
+		return t = (t >>> 1 | (n & 1) << 31) ^ r, n = n >>> 1 ^ r, we.dec(t, n);
 	}
 	bool() {
-		let e = P(this.varint64(), 2), t = e[0], n = e[1];
+		let e = N(this.varint64(), 2), t = e[0], n = e[1];
 		return t !== 0 || n !== 0;
 	}
 	fixed32() {
@@ -9718,10 +9718,10 @@ var We = class {
 		return this.view.getInt32((this.pos += 4) - 4, !0);
 	}
 	fixed64() {
-		return Ce.uDec(this.sfixed32(), this.sfixed32());
+		return we.uDec(this.sfixed32(), this.sfixed32());
 	}
 	sfixed64() {
-		return Ce.dec(this.sfixed32(), this.sfixed32());
+		return we.dec(this.sfixed32(), this.sfixed32());
 	}
 	float() {
 		return this.view.getFloat32((this.pos += 4) - 4, !0);
@@ -9762,7 +9762,7 @@ function Je(e) {
 	if (t.default !== void 0) return t.default;
 	switch (t.kind) {
 		case "enum": return t.T.values[0].no;
-		case "scalar": return Te(t.T, t.L);
+		case "scalar": return Ee(t.T, t.L);
 		case "message":
 			let e = t.T, n = new e();
 			return e.fieldWrapper ? e.fieldWrapper.unwrapField(n) : n;
@@ -9825,7 +9825,7 @@ var Qe = {
 };
 function $e(e, t, n) {
 	nt(t, e);
-	let r = t.runtime.bin.makeReadOptions(n), i = Ye(e.getType().runtime.bin.listUnknownFields(e), t.field), a = P(qe(t), 2), o = a[0], s = a[1];
+	let r = t.runtime.bin.makeReadOptions(n), i = Ye(e.getType().runtime.bin.listUnknownFields(e), t.field), a = N(qe(t), 2), o = a[0], s = a[1];
 	for (let e of i) t.runtime.bin.readField(o, r.readerFactory(e.data), t.field, e.wireType, r);
 	return s();
 }
@@ -9841,7 +9841,7 @@ function et(e, t, n, r) {
 	s.opt || s.repeated || s.kind != "enum" && s.kind != "scalar" || (s = Object.assign(Object.assign({}, t.field), { opt: !0 })), t.runtime.bin.writeField(s, n, o, a);
 	let c = i.readerFactory(o.finish());
 	for (; c.pos < c.len;) {
-		let t = P(c.tag(), 2), n = t[0], r = t[1], i = c.skip(r, n);
+		let t = N(c.tag(), 2), n = t[0], r = t[1], i = c.skip(r, n);
 		e.getType().runtime.bin.onUnknownField(e, n, r, i);
 	}
 }
@@ -9858,7 +9858,7 @@ function rt(e, t) {
 	if (e.oneof) return t[e.oneof.localName].case === n;
 	switch (e.kind) {
 		case "enum":
-		case "scalar": return e.opt || e.req ? t[n] !== void 0 : e.kind == "enum" ? t[n] !== e.T.values[0].no : !Ee(e.T, t[n]);
+		case "scalar": return e.opt || e.req ? t[n] !== void 0 : e.kind == "enum" ? t[n] !== e.T.values[0].no : !De(e.T, t[n]);
 		case "message": return t[n] !== void 0;
 		case "map": return Object.keys(t[n]).length > 0;
 	}
@@ -9875,7 +9875,7 @@ function it(e, t) {
 			t[n] = r ? e.T.values[0].no : void 0;
 			break;
 		case "scalar":
-			t[n] = r ? Te(e.T, e.L) : void 0;
+			t[n] = r ? Ee(e.T, e.L) : void 0;
 			break;
 		case "message": t[n] = void 0;
 	}
@@ -9888,7 +9888,7 @@ function at(e, t) {
 function ot(e, t) {
 	return at(t) || !e.fieldWrapper ? t : e.fieldWrapper.wrapField(t);
 }
-j.DOUBLE, j.FLOAT, j.INT64, j.UINT64, j.INT32, j.UINT32, j.BOOL, j.STRING, j.BYTES;
+A.DOUBLE, A.FLOAT, A.INT64, A.UINT64, A.INT32, A.UINT32, A.BOOL, A.STRING, A.BYTES;
 var st = { ignoreUnknownFields: !1 }, ct = {
 	emitDefaultValues: !1,
 	enumAsInteger: !1,
@@ -9911,7 +9911,7 @@ function pt() {
 			r = r ?? new e();
 			let i = /* @__PURE__ */ new Map(), a = n.typeRegistry;
 			for (let s of Object.entries(t)) {
-				var o = P(s, 2);
+				var o = N(s, 2);
 				let t = o[0], c = o[1], l = e.fields.findJsonName(t);
 				if (l) {
 					if (l.oneof) {
@@ -9927,7 +9927,7 @@ function pt() {
 						let o = a.findExtension(t.substring(1, t.length - 1));
 						if (o && o.extendee.typeName == e.typeName) {
 							i = !0;
-							let e = P(qe(o), 2), t = e[0], a = e[1];
+							let e = N(qe(o), 2), t = e[0], a = e[1];
 							ht(t, c, o.field, n, o), et(r, o, a(), n);
 						}
 					}
@@ -9962,10 +9962,10 @@ function pt() {
 			return r;
 		},
 		readScalar(e, t, n) {
-			return _t(e, t, n ?? we.BIGINT, !0);
+			return _t(e, t, n ?? Te.BIGINT, !0);
 		},
 		writeScalar(e, t, n) {
-			if (t !== void 0 && (n || Ee(e, t))) return St(e, t);
+			if (t !== void 0 && (n || De(e, t))) return St(e, t);
 		},
 		debug: mt
 	};
@@ -10007,7 +10007,7 @@ function ht(e, t, n, r, i) {
 		if (typeof t != "object" || Array.isArray(t)) throw Error(`cannot decode field ${i.typeName}.${n.name} from JSON: ${mt(t)}`);
 		let s = e[a];
 		for (let e of Object.entries(t)) {
-			var o = P(e, 2);
+			var o = N(e, 2);
 			let a = o[0], c = o[1];
 			if (c === null) throw Error(`cannot decode field ${i.typeName}.${n.name} from JSON: map value null`);
 			let l;
@@ -10026,7 +10026,7 @@ function ht(e, t, n, r, i) {
 					e !== ft && (s[l] = e);
 					break;
 				case "scalar": try {
-					s[l] = _t(n.V.T, c, we.BIGINT, !0);
+					s[l] = _t(n.V.T, c, Te.BIGINT, !0);
 				} catch (e) {
 					let r = `cannot decode map value for field ${i.typeName}.${n.name} from JSON: ${mt(t)}`;
 					throw e instanceof Error && e.message.length > 0 && (r += `: ${e.message}`), Error(r);
@@ -10065,52 +10065,52 @@ function ht(e, t, n, r, i) {
 	}
 }
 function gt(e, t) {
-	if (e === j.BOOL) switch (t) {
+	if (e === A.BOOL) switch (t) {
 		case "true":
 			t = !0;
 			break;
 		case "false": t = !1;
 	}
-	return _t(e, t, we.BIGINT, !0).toString();
+	return _t(e, t, Te.BIGINT, !0).toString();
 }
 function _t(e, t, n, r) {
-	if (t === null) return r ? Te(e, n) : dt;
+	if (t === null) return r ? Ee(e, n) : dt;
 	switch (e) {
-		case j.DOUBLE:
-		case j.FLOAT:
+		case A.DOUBLE:
+		case A.FLOAT:
 			if (t === "NaN") return NaN;
 			if (t === "Infinity") return Infinity;
 			if (t === "-Infinity") return -Infinity;
 			if (t === "" || typeof t == "string" && t.trim().length !== t.length || typeof t != "string" && typeof t != "number") break;
 			let r = Number(t);
 			if (Number.isNaN(r) || !Number.isFinite(r)) break;
-			return e == j.FLOAT && re(r), r;
-		case j.INT32:
-		case j.FIXED32:
-		case j.SFIXED32:
-		case j.SINT32:
-		case j.UINT32:
+			return e == A.FLOAT && re(r), r;
+		case A.INT32:
+		case A.FIXED32:
+		case A.SFIXED32:
+		case A.SINT32:
+		case A.UINT32:
 			let i;
 			if (typeof t == "number" ? i = t : typeof t == "string" && t.length > 0 && t.trim().length === t.length && (i = Number(t)), i === void 0) break;
-			return e == j.UINT32 || e == j.FIXED32 ? O(i) : ne(i), i;
-		case j.INT64:
-		case j.SFIXED64:
-		case j.SINT64:
+			return e == A.UINT32 || e == A.FIXED32 ? O(i) : ne(i), i;
+		case A.INT64:
+		case A.SFIXED64:
+		case A.SINT64:
 			if (typeof t != "number" && typeof t != "string") break;
-			let a = Ce.parse(t);
+			let a = we.parse(t);
 			return n ? a.toString() : a;
-		case j.FIXED64:
-		case j.UINT64:
+		case A.FIXED64:
+		case A.UINT64:
 			if (typeof t != "number" && typeof t != "string") break;
-			let o = Ce.uParse(t);
+			let o = we.uParse(t);
 			return n ? o.toString() : o;
-		case j.BOOL:
+		case A.BOOL:
 			if (typeof t != "boolean") break;
 			return t;
-		case j.STRING:
+		case A.STRING:
 			if (typeof t != "string") break;
 			return t;
-		case j.BYTES:
+		case A.BYTES:
 			if (t === "") return /* @__PURE__ */ new Uint8Array();
 			if (typeof t != "string") break;
 			return Qe.dec(t);
@@ -10140,14 +10140,14 @@ function bt(e, t, n) {
 		switch (e.V.kind) {
 			case "scalar":
 				for (let t of s) {
-					var r = P(t, 2);
+					var r = N(t, 2);
 					let n = r[0], i = r[1];
 					o[n.toString()] = St(e.V.T, i);
 				}
 				break;
 			case "message":
 				for (let e of s) {
-					var i = P(e, 2);
+					var i = N(e, 2);
 					let t = i[0], r = i[1];
 					o[t.toString()] = r.toJson(n);
 				}
@@ -10155,7 +10155,7 @@ function bt(e, t, n) {
 			case "enum":
 				let t = e.V.T;
 				for (let e of s) {
-					var a = P(e, 2);
+					var a = N(e, 2);
 					let r = a[0], i = a[1];
 					o[r.toString()] = xt(t, i, n.enumAsInteger);
 				}
@@ -10187,21 +10187,21 @@ function xt(e, t, n) {
 }
 function St(e, t) {
 	switch (e) {
-		case j.INT32:
-		case j.SFIXED32:
-		case j.SINT32:
-		case j.FIXED32:
-		case j.UINT32: return w(typeof t == "number"), t;
-		case j.FLOAT:
-		case j.DOUBLE: return w(typeof t == "number"), Number.isNaN(t) ? "NaN" : t === Infinity ? "Infinity" : t === -Infinity ? "-Infinity" : t;
-		case j.STRING: return w(typeof t == "string"), t;
-		case j.BOOL: return w(typeof t == "boolean"), t;
-		case j.UINT64:
-		case j.FIXED64:
-		case j.INT64:
-		case j.SFIXED64:
-		case j.SINT64: return w(typeof t == "bigint" || typeof t == "string" || typeof t == "number"), t.toString();
-		case j.BYTES: return w(t instanceof Uint8Array), Qe.enc(t);
+		case A.INT32:
+		case A.SFIXED32:
+		case A.SINT32:
+		case A.FIXED32:
+		case A.UINT32: return w(typeof t == "number"), t;
+		case A.FLOAT:
+		case A.DOUBLE: return w(typeof t == "number"), Number.isNaN(t) ? "NaN" : t === Infinity ? "Infinity" : t === -Infinity ? "-Infinity" : t;
+		case A.STRING: return w(typeof t == "string"), t;
+		case A.BOOL: return w(typeof t == "boolean"), t;
+		case A.UINT64:
+		case A.FIXED64:
+		case A.INT64:
+		case A.SFIXED64:
+		case A.SINT64: return w(typeof t == "bigint" || typeof t == "string" || typeof t == "number"), t.toString();
+		case A.BYTES: return w(t instanceof Uint8Array), Qe.enc(t);
 	}
 }
 var Ct = Symbol("@bufbuild/protobuf/unknown-fields"), wt = {
@@ -10242,8 +10242,8 @@ function Ot() {
 		readMessage(e, t, n, r, i) {
 			let a = e.getType(), o = i ? t.len : t.pos + n, s, c;
 			for (; t.pos < o;) {
-				var l = P(t.tag(), 2);
-				if (s = l[0], c = l[1], i === !0 && c == Ue.EndGroup) break;
+				var l = N(t.tag(), 2);
+				if (s = l[0], c = l[1], i === !0 && c == P.EndGroup) break;
 				let n = a.fields.find(s);
 				if (n) kt(e, t, n, c, r);
 				else {
@@ -10251,7 +10251,7 @@ function Ot() {
 					r.readUnknownFields && this.onUnknownField(e, s, c, n);
 				}
 			}
-			if (i && (c != Ue.EndGroup || s !== n)) throw Error("invalid end group tag");
+			if (i && (c != P.EndGroup || s !== n)) throw Error("invalid end group tag");
 		},
 		readField: kt,
 		writeMessage(e, t, n) {
@@ -10270,10 +10270,10 @@ function kt(e, t, n, r, i) {
 	switch (n.oneof && (e = e[n.oneof.localName], e.case != o && delete e.value, e.case = o, o = "value"), n.kind) {
 		case "scalar":
 		case "enum":
-			let s = n.kind == "enum" ? j.INT32 : n.T, c = Nt;
+			let s = n.kind == "enum" ? A.INT32 : n.T, c = Nt;
 			if (n.kind == "scalar" && n.L > 0 && (c = Mt), a) {
 				let n = e[o];
-				if (r == Ue.LengthDelimited && s != j.STRING && s != j.BYTES) {
+				if (r == P.LengthDelimited && s != A.STRING && s != A.BYTES) {
 					let e = t.uint32() + t.pos;
 					for (; t.pos < e;) n.push(c(t, s));
 				} else n.push(c(t, s));
@@ -10284,7 +10284,7 @@ function kt(e, t, n, r, i) {
 			a ? e[o].push(At(t, new l(), i, n)) : at(e[o]) ? At(t, e[o], i, n) : (e[o] = At(t, new l(), i, n), l.fieldWrapper && !n.oneof && !n.repeated && (e[o] = l.fieldWrapper.unwrapField(e[o])));
 			break;
 		case "map":
-			let u = P(jt(n, t, i), 2), d = u[0], f = u[1];
+			let u = N(jt(n, t, i), 2), d = u[0], f = u[1];
 			e[o][d] = f;
 	}
 }
@@ -10294,7 +10294,7 @@ function At(e, t, n, r) {
 }
 function jt(e, t, n) {
 	let r = t.uint32(), i = t.pos + r, a, o;
-	for (; t.pos < i;) switch (P(t.tag(), 1)[0]) {
+	for (; t.pos < i;) switch (N(t.tag(), 1)[0]) {
 		case 1:
 			a = Nt(t, e.K);
 			break;
@@ -10308,9 +10308,9 @@ function jt(e, t, n) {
 			case "message": o = At(t, new e.V.T(), n, void 0);
 		}
 	}
-	if (a === void 0 && (a = Te(e.K, we.BIGINT)), typeof a != "string" && typeof a != "number" && (a = a.toString()), o === void 0) switch (e.V.kind) {
+	if (a === void 0 && (a = Ee(e.K, Te.BIGINT)), typeof a != "string" && typeof a != "number" && (a = a.toString()), o === void 0) switch (e.V.kind) {
 		case "scalar":
-			o = Te(e.V.T, we.BIGINT);
+			o = Ee(e.V.T, Te.BIGINT);
 			break;
 		case "enum":
 			o = e.V.T.values[0].no;
@@ -10325,21 +10325,21 @@ function Mt(e, t) {
 }
 function Nt(e, t) {
 	switch (t) {
-		case j.STRING: return e.string();
-		case j.BOOL: return e.bool();
-		case j.DOUBLE: return e.double();
-		case j.FLOAT: return e.float();
-		case j.INT32: return e.int32();
-		case j.INT64: return e.int64();
-		case j.UINT64: return e.uint64();
-		case j.FIXED64: return e.fixed64();
-		case j.BYTES: return e.bytes();
-		case j.FIXED32: return e.fixed32();
-		case j.SFIXED32: return e.sfixed32();
-		case j.SFIXED64: return e.sfixed64();
-		case j.SINT64: return e.sint64();
-		case j.UINT32: return e.uint32();
-		case j.SINT32: return e.sint32();
+		case A.STRING: return e.string();
+		case A.BOOL: return e.bool();
+		case A.DOUBLE: return e.double();
+		case A.FLOAT: return e.float();
+		case A.INT32: return e.int32();
+		case A.INT64: return e.int64();
+		case A.UINT64: return e.uint64();
+		case A.FIXED64: return e.fixed64();
+		case A.BYTES: return e.bytes();
+		case A.FIXED32: return e.fixed32();
+		case A.SFIXED32: return e.sfixed32();
+		case A.SFIXED64: return e.sfixed64();
+		case A.SINT64: return e.sint64();
+		case A.UINT32: return e.uint32();
+		case A.SINT32: return e.sint32();
 	}
 }
 function Pt(e, t, n, r) {
@@ -10348,7 +10348,7 @@ function Pt(e, t, n, r) {
 	switch (e.kind) {
 		case "scalar":
 		case "enum":
-			let o = e.kind == "enum" ? j.INT32 : e.T;
+			let o = e.kind == "enum" ? A.INT32 : e.T;
 			if (i) {
 				if (w(Array.isArray(t)), e.packed) Rt(n, o, e.no, t);
 				else for (let r of t) Lt(n, o, e.no, r);
@@ -10363,69 +10363,69 @@ function Pt(e, t, n, r) {
 		case "map":
 			w(typeof t == "object" && !!t);
 			for (let i of Object.entries(t)) {
-				var a = P(i, 2);
+				var a = N(i, 2);
 				let t = a[0], o = a[1];
 				Ft(n, r, e, t, o);
 			}
 	}
 }
 function Ft(e, t, n, r, i) {
-	e.tag(n.no, Ue.LengthDelimited), e.fork();
+	e.tag(n.no, P.LengthDelimited), e.fork();
 	let a = r;
 	switch (n.K) {
-		case j.INT32:
-		case j.FIXED32:
-		case j.UINT32:
-		case j.SFIXED32:
-		case j.SINT32:
+		case A.INT32:
+		case A.FIXED32:
+		case A.UINT32:
+		case A.SFIXED32:
+		case A.SINT32:
 			a = Number.parseInt(r);
 			break;
-		case j.BOOL: w(r == "true" || r == "false"), a = r == "true";
+		case A.BOOL: w(r == "true" || r == "false"), a = r == "true";
 	}
 	switch (Lt(e, n.K, 1, a), n.V.kind) {
 		case "scalar":
 			Lt(e, n.V.T, 2, i);
 			break;
 		case "enum":
-			Lt(e, j.INT32, 2, i);
+			Lt(e, A.INT32, 2, i);
 			break;
-		case "message": w(i !== void 0), e.tag(2, Ue.LengthDelimited).bytes(i.toBinary(t));
+		case "message": w(i !== void 0), e.tag(2, P.LengthDelimited).bytes(i.toBinary(t));
 	}
 	e.join();
 }
 function It(e, t, n, r) {
 	let i = ot(n.T, r);
-	n.delimited ? e.tag(n.no, Ue.StartGroup).raw(i.toBinary(t)).tag(n.no, Ue.EndGroup) : e.tag(n.no, Ue.LengthDelimited).bytes(i.toBinary(t));
+	n.delimited ? e.tag(n.no, P.StartGroup).raw(i.toBinary(t)).tag(n.no, P.EndGroup) : e.tag(n.no, P.LengthDelimited).bytes(i.toBinary(t));
 }
 function Lt(e, t, n, r) {
 	w(r !== void 0);
-	let i = P(zt(t), 2), a = i[0], o = i[1];
+	let i = N(zt(t), 2), a = i[0], o = i[1];
 	e.tag(n, a)[o](r);
 }
 function Rt(e, t, n, r) {
 	if (!r.length) return;
-	e.tag(n, Ue.LengthDelimited).fork();
-	let i = P(zt(t), 2)[1];
+	e.tag(n, P.LengthDelimited).fork();
+	let i = N(zt(t), 2)[1];
 	for (let t = 0; t < r.length; t++) e[i](r[t]);
 	e.join();
 }
 function zt(e) {
-	let t = Ue.Varint;
+	let t = P.Varint;
 	switch (e) {
-		case j.BYTES:
-		case j.STRING:
-			t = Ue.LengthDelimited;
+		case A.BYTES:
+		case A.STRING:
+			t = P.LengthDelimited;
 			break;
-		case j.DOUBLE:
-		case j.FIXED64:
-		case j.SFIXED64:
-			t = Ue.Bit64;
+		case A.DOUBLE:
+		case A.FIXED64:
+		case A.SFIXED64:
+			t = P.Bit64;
 			break;
-		case j.FIXED32:
-		case j.SFIXED32:
-		case j.FLOAT: t = Ue.Bit32;
+		case A.FIXED32:
+		case A.SFIXED32:
+		case A.FLOAT: t = P.Bit32;
 	}
-	let n = j[e].toLowerCase();
+	let n = A[e].toLowerCase();
 	return [t, n];
 }
 function Bt() {
@@ -10441,7 +10441,7 @@ function Bt() {
 						let e = o[n].case;
 						if (e === void 0) continue;
 						let t = i.findField(e), s = o[n].value;
-						t && t.kind == "message" && !at(s, t.T) ? s = new t.T(s) : t && t.kind === "scalar" && t.T === j.BYTES && (s = Ht(s)), a[n] = {
+						t && t.kind == "message" && !at(s, t.T) ? s = new t.T(s) : t && t.kind === "scalar" && t.T === A.BYTES && (s = Ht(s)), a[n] = {
 							case: e,
 							value: s
 						};
@@ -10449,14 +10449,14 @@ function Bt() {
 					case "scalar":
 					case "enum":
 						let c = o[n];
-						i.T === j.BYTES && (c = i.repeated ? c.map(Ht) : Ht(c)), a[n] = c;
+						i.T === A.BYTES && (c = i.repeated ? c.map(Ht) : Ht(c)), a[n] = c;
 						break;
 					case "map":
 						switch (i.V.kind) {
 							case "scalar":
 							case "enum":
-								if (i.V.T === j.BYTES) for (let e of Object.entries(o[n])) {
-									var r = P(e, 2);
+								if (i.V.T === A.BYTES) for (let e of Object.entries(o[n])) {
+									var r = N(e, 2);
 									let t = r[0], i = r[1];
 									a[n][t] = Ht(i);
 								}
@@ -10487,8 +10487,8 @@ function Bt() {
 					if (r.length !== i.length) return !1;
 					switch (e.kind) {
 						case "message": return r.every((t, n) => e.T.equals(t, i[n]));
-						case "scalar": return r.every((t, n) => M(e.T, t, i[n]));
-						case "enum": return r.every((e, t) => M(j.INT32, e, i[t]));
+						case "scalar": return r.every((t, n) => j(e.T, t, i[n]));
+						case "enum": return r.every((e, t) => j(A.INT32, e, i[t]));
 					}
 					throw Error(`repeated cannot contain ${e.kind}`);
 				}
@@ -10496,16 +10496,16 @@ function Bt() {
 					case "message":
 						let t = r, n = i;
 						return e.T.fieldWrapper && (t !== void 0 && !at(t) && (t = e.T.fieldWrapper.wrapField(t)), n !== void 0 && !at(n) && (n = e.T.fieldWrapper.wrapField(n))), e.T.equals(t, n);
-					case "enum": return M(j.INT32, r, i);
-					case "scalar": return M(e.T, r, i);
+					case "enum": return j(A.INT32, r, i);
+					case "scalar": return j(e.T, r, i);
 					case "oneof":
 						if (r.case !== i.case) return !1;
 						let a = e.findField(r.case);
 						if (a === void 0) return !0;
 						switch (a.kind) {
 							case "message": return a.T.equals(r.value, i.value);
-							case "enum": return M(j.INT32, r.value, i.value);
-							case "scalar": return M(a.T, r.value, i.value);
+							case "enum": return j(A.INT32, r.value, i.value);
+							case "scalar": return j(a.T, r.value, i.value);
 						}
 						throw Error(`oneof cannot contain ${a.kind}`);
 					case "map":
@@ -10514,10 +10514,10 @@ function Bt() {
 							case "message":
 								let t = e.V.T;
 								return o.every((e) => t.equals(r[e], i[e]));
-							case "enum": return o.every((e) => M(j.INT32, r[e], i[e]));
+							case "enum": return o.every((e) => j(A.INT32, r[e], i[e]));
 							case "scalar":
 								let n = e.V.T;
-								return o.every((e) => M(n, r[e], i[e]));
+								return o.every((e) => j(n, r[e], i[e]));
 						}
 				}
 			});
@@ -10530,7 +10530,7 @@ function Bt() {
 				else if (n.kind == "map") {
 					a = r[n.localName];
 					for (let e of Object.entries(t)) {
-						var i = P(e, 2);
+						var i = N(e, 2);
 						let t = i[0], n = i[1];
 						a[t] = Vt(n);
 					}
@@ -10680,7 +10680,7 @@ function tn(e, t) {
 	let n = [], r;
 	for (let t of typeof e == "function" ? e() : e) {
 		let e = t;
-		if (e.localName = Gt(t.name, t.oneof !== void 0), e.jsonName = t.jsonName ?? qt(t.name), e.repeated = t.repeated ?? !1, t.kind == "scalar" && (e.L = t.L ?? we.BIGINT), e.delimited = t.delimited ?? !1, e.req = t.req ?? !1, e.opt = t.opt ?? !1, t.packed === void 0 && (e.packed = t.kind == "enum" || t.kind == "scalar" && t.T != j.BYTES && t.T != j.STRING), t.oneof !== void 0) {
+		if (e.localName = Gt(t.name, t.oneof !== void 0), e.jsonName = t.jsonName ?? qt(t.name), e.repeated = t.repeated ?? !1, t.kind == "scalar" && (e.L = t.L ?? Te.BIGINT), e.delimited = t.delimited ?? !1, e.req = t.req ?? !1, e.opt = t.opt ?? !1, t.packed === void 0 && (e.packed = t.kind == "enum" || t.kind == "scalar" && t.T != A.BYTES && t.T != A.STRING), t.oneof !== void 0) {
 			let n = typeof t.oneof == "string" ? t.oneof : t.oneof.name;
 			r && r.name == n || (r = new en(n)), e.oneof = r, r.addField(e);
 		}
@@ -10703,12 +10703,12 @@ var F = Ut("proto3", (e) => new Wt(e, (e) => tn(e)), (e) => {
 			case "map":
 				r[n] = {};
 				break;
-			case "scalar": r[n] = Te(t.T, t.L);
+			case "scalar": r[n] = Ee(t.T, t.L);
 		}
 	}
 }), nn = class e extends ue {
 	constructor(e) {
-		super(), this.seconds = Ce.zero, this.nanos = 0, F.util.initPartial(e, this);
+		super(), this.seconds = we.zero, this.nanos = 0, F.util.initPartial(e, this);
 	}
 	fromJson(e, t) {
 		if (typeof e != "string") throw Error(`cannot decode google.protobuf.Timestamp from JSON: ${F.json.debug(e)}`);
@@ -10717,7 +10717,7 @@ var F = Ut("proto3", (e) => new Wt(e, (e) => tn(e)), (e) => {
 		let r = Date.parse(n[1] + "-" + n[2] + "-" + n[3] + "T" + n[4] + ":" + n[5] + ":" + n[6] + (n[8] ? n[8] : "Z"));
 		if (Number.isNaN(r)) throw Error("cannot decode google.protobuf.Timestamp from JSON: invalid RFC 3339 string");
 		if (r < Date.parse("0001-01-01T00:00:00Z") || r > Date.parse("9999-12-31T23:59:59Z")) throw Error("cannot decode message google.protobuf.Timestamp from JSON: must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive");
-		return this.seconds = Ce.parse(r / 1e3), this.nanos = 0, n[7] && (this.nanos = parseInt("1" + n[7] + "0".repeat(9 - n[7].length)) - 1e9), this;
+		return this.seconds = we.parse(r / 1e3), this.nanos = 0, n[7] && (this.nanos = parseInt("1" + n[7] + "0".repeat(9 - n[7].length)) - 1e9), this;
 	}
 	toJson(e) {
 		let t = Number(this.seconds) * 1e3;
@@ -10739,7 +10739,7 @@ var F = Ut("proto3", (e) => new Wt(e, (e) => tn(e)), (e) => {
 	static fromDate(t) {
 		let n = t.getTime();
 		return new e({
-			seconds: Ce.parse(Math.floor(n / 1e3)),
+			seconds: we.parse(Math.floor(n / 1e3)),
 			nanos: n % 1e3 * 1e6
 		});
 	}
@@ -17575,7 +17575,7 @@ var G;
 function gs(e) {
 	let t = {};
 	for (let r of Object.entries(e)) {
-		var n = P(r, 2);
+		var n = N(r, 2);
 		let e = n[0], i = n[1];
 		i !== void 0 && (t[e] = i);
 	}
@@ -18301,7 +18301,7 @@ function Uc() {
 	i.width = e, i.height = t;
 	let a = i.getContext("2d");
 	a?.fillRect(0, 0, i.width, i.height), r && a && (a.beginPath(), a.arc(e / 2, t / 2, 50, 0, Math.PI * 2, !0), a.closePath(), a.fillStyle = "grey", a.fill());
-	let o = P(i.captureStream().getTracks(), 1)[0];
+	let o = N(i.captureStream().getTracks(), 1)[0];
 	if (!o) throw Error("Could not get empty media stream video track");
 	return o.enabled = n, o;
 }
@@ -18311,7 +18311,7 @@ function qc() {
 		let e = new AudioContext(), t = e.createOscillator(), n = e.createGain();
 		n.gain.setValueAtTime(0, 0);
 		let r = e.createMediaStreamDestination();
-		if (t.connect(n), n.connect(r), t.start(), Wc = P(r.stream.getAudioTracks(), 1)[0], !Wc) throw e.close().catch(() => {}), Error("Could not get empty media stream audio track");
+		if (t.connect(n), n.connect(r), t.start(), Wc = N(r.stream.getAudioTracks(), 1)[0], !Wc) throw e.close().catch(() => {}), Error("Could not get empty media stream audio track");
 		Wc.enabled = !1, Gc = e;
 	}
 	let e = Wc.clone();
@@ -18490,7 +18490,7 @@ function El() {
 	return Sl() && !_c();
 }
 function Dl(e, t) {
-	let n = P(rc(t.id), 2)[1];
+	let n = N(rc(t.id), 2)[1];
 	if (n?.startsWith("TR")) return n;
 	if (e.id.startsWith("TR")) return e.id;
 }
@@ -19709,7 +19709,7 @@ function Ru(e) {
 }
 var zu = ["client"], Bu = class {
 	constructor() {
-		N(this, "listeners", /* @__PURE__ */ new Map());
+		M(this, "listeners", /* @__PURE__ */ new Map());
 	}
 	on(e, t) {
 		let n = this.listeners.get(e);
@@ -19787,7 +19787,7 @@ var zu = ["client"], Bu = class {
 	return t.delete(e), r;
 }, qu = Symbol("machina.type"), Ju = 20, Yu = class {
 	constructor(e) {
-		N(this, "id", void 0), N(this, "initialState", void 0), N(this, qu, "BehavioralFsm"), N(this, "states", void 0), N(this, "emitter", new Bu()), N(this, "clients", /* @__PURE__ */ new WeakMap()), N(this, "knownClients", /* @__PURE__ */ new Set()), N(this, "childSubscriptions", []), N(this, "disposed", !1), N(this, "transitionDepth", 0), this.id = e.id, this.initialState = e.initialState, this.states = e.states, this.wrapChildLinks(), this.setupChildSubscriptions();
+		M(this, "id", void 0), M(this, "initialState", void 0), M(this, qu, "BehavioralFsm"), M(this, "states", void 0), M(this, "emitter", new Bu()), M(this, "clients", /* @__PURE__ */ new WeakMap()), M(this, "knownClients", /* @__PURE__ */ new Set()), M(this, "childSubscriptions", []), M(this, "disposed", !1), M(this, "transitionDepth", 0), this.id = e.id, this.initialState = e.initialState, this.states = e.states, this.wrapChildLinks(), this.setupChildSubscriptions();
 	}
 	handle(e, t) {
 		if (this.disposed) return;
@@ -19891,7 +19891,7 @@ var zu = ["client"], Bu = class {
 			if (!n) throw Error(`rehydrate: state "${t}" in FSM "${this.id}" has no _child, but the snapshot has a children["${t}"] entry.`);
 			a.push(...n.planRehydrate(e, i[t]));
 		}
-		let o = r.map((e) => Pe({
+		let o = r.map((e) => Fe({
 			inputName: e.inputName,
 			args: Ku(e.args)
 		}, e.untilState === void 0 ? {} : { untilState: e.untilState }));
@@ -19903,7 +19903,7 @@ var zu = ["client"], Bu = class {
 		}), a;
 	}
 	rehydrateCompositePath(e, t) {
-		let n = Le(t.split(".")), r = n[0], i = Oe(n).slice(1);
+		let n = Re(t.split(".")), r = n[0], i = ke(n).slice(1);
 		if (!Object.hasOwn(this.states, r)) throw Error(`rehydrate: unknown state "${r}" in FSM "${this.id}". Valid states: ${Object.keys(this.states).join(", ")}`);
 		if (i.length > 0) {
 			let n = i.join("."), a = this.states[r]?._child;
@@ -20146,10 +20146,10 @@ function Xu(e) {
 }
 var Zu = class {
 	constructor(e) {
-		N(this, "id", void 0), N(this, "initialState", void 0), N(this, qu, "Fsm"), N(this, "states", void 0), N(this, "bfsm", void 0), N(this, "context", void 0), N(this, "emitter", new Bu()), N(this, "disposed", !1), this.id = e.id, this.initialState = e.initialState, this.context = e.context ?? {}, this.bfsm = new Yu(e), this.states = e.states, this.bfsm.on("*", (e, t) => {
+		M(this, "id", void 0), M(this, "initialState", void 0), M(this, qu, "Fsm"), M(this, "states", void 0), M(this, "bfsm", void 0), M(this, "context", void 0), M(this, "emitter", new Bu()), M(this, "disposed", !1), this.id = e.id, this.initialState = e.initialState, this.context = e.context ?? {}, this.bfsm = new Yu(e), this.states = e.states, this.bfsm.on("*", (e, t) => {
 			if (t && typeof t == "object" && "client" in t) {
 				t.client;
-				let n = Fe(t, zu);
+				let n = Ie(t, zu);
 				this.emitter.emit(e, n);
 			} else this.emitter.emit(e, t);
 		}), this.bfsm.transition(this.context, e.initialState);
@@ -20701,12 +20701,12 @@ var pd = 250, md = 5e3, hd = class {
 	sendPing() {
 		return Promise.all([this.sendRequest({
 			case: "ping",
-			value: Ce.parse(Date.now())
+			value: we.parse(Date.now())
 		}), this.sendRequest({
 			case: "pingReq",
 			value: new Ji({
-				timestamp: Ce.parse(Date.now()),
-				rtt: Ce.parse(this.rtt)
+				timestamp: we.parse(Date.now()),
+				rtt: we.parse(this.rtt)
 			})
 		})]);
 	}
@@ -20995,7 +20995,7 @@ var bd = class {
 	cleanup() {
 		let e = Date.now();
 		for (let n of this._map.entries()) {
-			var t = P(n, 2);
+			var t = N(n, 2);
 			let r = t[0];
 			t[1].expiresAt < e && this._map.delete(r);
 		}
@@ -21007,7 +21007,7 @@ var bd = class {
 	forEach(e) {
 		this.cleanup();
 		for (let n of this._map.entries()) {
-			var t = P(n, 2);
+			var t = N(n, 2);
 			let r = t[0], i = t[1];
 			i.expiresAt >= Date.now() && e(i.value, r, this.asValueMap());
 		}
@@ -21016,7 +21016,7 @@ var bd = class {
 		this.cleanup();
 		let t = [], n = this.asValueMap();
 		for (let i of n.entries()) {
-			var r = P(i, 2);
+			var r = N(i, 2);
 			let a = r[0], o = r[1];
 			t.push(e(o, a, n));
 		}
@@ -21025,7 +21025,7 @@ var bd = class {
 	asValueMap() {
 		let e = /* @__PURE__ */ new Map();
 		for (let n of this._map.entries()) {
-			var t = P(n, 2);
+			var t = N(n, 2);
 			let r = t[0], i = t[1];
 			i.expiresAt >= Date.now() && e.set(r, i.value);
 		}
@@ -23148,7 +23148,7 @@ function Kf(e, t, n, r) {
 	let p;
 	if (f.length > 0) {
 		let e = f[0];
-		f.length > 1 && (p = P(f, 2)[1]);
+		f.length > 1 && (p = N(f, 2)[1]);
 		let r = Math.max(t, n);
 		if (r >= 960 && p) return d(Qf(t, n, [
 			e,
@@ -23450,7 +23450,7 @@ var np = 5e3, rp = class extends Lf {
 				let n = Kf(this.source === q.Source.ScreenShare, e.width, e.height, Object.assign({}, this.publishOptions));
 				yield this.applyEncodingsToSender(this.sender, n), this.encodings = n, this.lastEncodedDimensions = e;
 				for (let e of this.simulcastCodecs) {
-					var t = P(e, 2);
+					var t = N(e, 2);
 					let n = t[0], r = t[1];
 					if (!r.sender || r.sender.transport?.state === "closed" || !Es(n)) continue;
 					let i = Object.assign({}, this.publishOptions), a = Jf(this, n, i);
@@ -23857,7 +23857,7 @@ var mp = 64e3, hp = class extends Na.EventEmitter {
 						version: u.serverVersion,
 						region: u.serverRegion
 					}), i.log.info(`connected to Livekit Server ${Object.entries(d).map((e) => {
-						let t = P(e, 2);
+						let t = N(e, 2);
 						return `${t[0]}: ${t[1]}`;
 					}).join(", ")}`), {
 						joinResponse: u,
@@ -24493,7 +24493,7 @@ var mp = 64e3, hp = class extends Na.EventEmitter {
 	getTrackIdForReceiver(e) {
 		let t = this.pcManager?.getMidForReceiver(e);
 		if (t) {
-			let e = Object.entries(this.midToTrackId).find((e) => P(e, 1)[0] === t);
+			let e = Object.entries(this.midToTrackId).find((e) => N(e, 1)[0] === t);
 			if (e) return e[1];
 		}
 	}
@@ -24848,12 +24848,12 @@ var Ep = 15e3, Dp = 5e9, Op = class {
 		if (t.length > 0 || n.length > 0) {
 			let a = new fs(`Participant ${e} unexpectedly disconnected in the middle of sending data`, ds.AbnormalEnd);
 			for (let e of n) {
-				var r = P(e, 2);
+				var r = N(e, 2);
 				let t = r[0];
 				r[1].controller.error(a), this.byteStreamControllers.delete(t);
 			}
 			for (let e of t) {
-				var i = P(e, 2);
+				var i = N(e, 2);
 				let t = i[0];
 				i[1].controller.error(a), this.textStreamControllers.delete(t);
 			}
@@ -25601,7 +25601,7 @@ var Tm = class e extends bm {
 	}
 	subscribe(e) {
 		try {
-			let t = P(this.manager.openSubscriptionStream(this.info.sid, e?.signal, e?.bufferSize), 2), n = t[0];
+			let t = N(this.manager.openSubscriptionStream(this.info.sid, e?.signal, e?.bufferSize), 2), n = t[0];
 			return t[1].catch(() => {}), n;
 		} catch (e) {
 			throw e;
@@ -25699,7 +25699,7 @@ var Tm = class e extends bm {
 			r += $p;
 			let t = 4 * (e + 1) - fm;
 			if (r + t > n.byteLength) throw _m.headerOverrun();
-			let i = new DataView(n.buffer, n.byteOffset + r, t), a = P(Tm.fromBinary(i), 2), o = a[0], s = a[1];
+			let i = new DataView(n.buffer, n.byteOffset + r, t), a = N(Tm.fromBinary(i), 2), o = a[0], s = a[1];
 			f = o, r += s;
 		}
 		return [new e({
@@ -25741,7 +25741,7 @@ var Mm = class e extends bm {
 		return r;
 	}
 	static fromBinary(t) {
-		let n = ku(t), r = P(Am.fromBinary(n), 2), i = r[0], a = r[1], o = n.buffer.slice(n.byteOffset + a, n.byteOffset + n.byteLength);
+		let n = ku(t), r = N(Am.fromBinary(n), 2), i = r[0], a = r[1], o = n.buffer.slice(n.byteOffset + a, n.byteOffset + n.byteLength);
 		return [new e(i, new Uint8Array(o)), n.byteLength];
 	}
 	toJSON() {
@@ -26020,7 +26020,7 @@ var Rm = class e extends es {
 	}
 	closeStreamControllers(e, t) {
 		for (let r of e) {
-			var n = P(r, 2);
+			var n = N(r, 2);
 			let e = n[0], i = n[1];
 			i();
 			try {
@@ -26035,17 +26035,17 @@ var Rm = class e extends es {
 			if (e.size === 0) return;
 			let t = /* @__PURE__ */ new Map();
 			for (let r of e.entries()) {
-				var n = P(r, 2);
+				var n = N(r, 2);
 				let e = n[0], i = n[1], a = /* @__PURE__ */ new Set();
 				for (let t of i) a.add(t.sid), this.descriptors.has(t.sid) || this.handleSidReassigned(e, t) || (yield this.handleTrackPublished(e, t));
 				t.set(e, a);
 			}
 			for (let e of t.entries()) {
-				var r = P(e, 2);
+				var r = N(e, 2);
 				let t = r[0], n = r[1], i = Array.from(this.descriptors.entries()).filter((e) => {
-					let n = P(e, 2);
+					let n = N(e, 2);
 					return n[0], n[1].publisherIdentity === t;
-				}).map((e) => P(e, 1)[0]).filter((e) => !n.has(e));
+				}).map((e) => N(e, 1)[0]).filter((e) => !n.has(e));
 				for (let e of i) this.handleTrackUnpublished(e);
 			}
 		});
@@ -26074,13 +26074,13 @@ var Rm = class e extends es {
 	}
 	handleSidReassigned(e, t) {
 		let n = Array.from(this.descriptors.entries()).find((n) => {
-			let r = P(n, 2);
+			let r = N(n, 2);
 			r[0];
 			let i = r[1];
 			return i.publisherIdentity === e && i.info.pubHandle === t.pubHandle;
 		});
 		if (!n) return !1;
-		let r = P(n, 2), i = r[0], a = r[1], o = a.info, s = o.name, c = o.usesE2ee;
+		let r = N(n, 2), i = r[0], a = r[1], o = a.info, s = o.name, c = o.usesE2ee;
 		if (s !== t.name || c !== t.usesE2ee) return Vm.warn(`Info mismatch for ${i}, treating as new publication`), !1;
 		let l = t.sid;
 		if (Vm.debug(`SID reassigned: ${i} -> ${l}`), !this.descriptors.delete(i)) return !1;
@@ -26103,7 +26103,7 @@ var Rm = class e extends es {
 	}
 	receivedSfuSubscriberHandles(e) {
 		for (let n of e.entries()) {
-			var t = P(n, 2);
+			var t = N(n, 2);
 			let e = t[0], r = t[1];
 			this.registerSubscriberHandle(e, r);
 		}
@@ -26143,7 +26143,7 @@ var Rm = class e extends es {
 		return R(this, void 0, void 0, function* () {
 			let t;
 			try {
-				t = P(Mm.fromBinary(e), 1)[0];
+				t = N(Mm.fromBinary(e), 1)[0];
 			} catch (e) {
 				Vm.error(`Failed to deserialize packet: ${e}`);
 				return;
@@ -26175,7 +26175,7 @@ var Rm = class e extends es {
 	}
 	resendSubscriptionUpdates() {
 		for (let t of this.descriptors) {
-			var e = P(t, 2);
+			var e = N(t, 2);
 			let n = e[0];
 			e[1].subscription.type !== "none" && this.emit("sfuUpdateSubscription", {
 				sid: n,
@@ -26523,7 +26523,7 @@ var nh = ma(pa.DataTracks), rh = {
 	sfuWillRepublishTracks() {
 		var e, t;
 		for (let r of this.descriptors.entries()) {
-			var n = P(r, 2);
+			var n = N(r, 2);
 			let i = n[0], a = n[1];
 			switch (a.type) {
 				case "pending":
@@ -26719,12 +26719,12 @@ var hh = class extends Na.EventEmitter {
 	handleParticipantDisconnected(e) {
 		var t;
 		for (let t of this.pendingAcks) {
-			var n = P(t, 2);
+			var n = N(t, 2);
 			let r = n[0];
 			n[1].participantIdentity === e && this.pendingAcks.delete(r);
 		}
 		for (let n of this.pendingResponses) {
-			var r = P(n, 2);
+			var r = N(n, 2);
 			let a = r[0];
 			var i = r[1];
 			let o = i.participantIdentity, s = i.completionFuture;
@@ -27125,13 +27125,13 @@ var wh = class extends Na.EventEmitter {
 	}
 	getTrackPublication(e) {
 		for (let t of this.trackPublications) {
-			let n = P(t, 2)[1];
+			let n = N(t, 2)[1];
 			if (n.source === e) return n;
 		}
 	}
 	getTrackPublicationByName(e) {
 		for (let t of this.trackPublications) {
-			let n = P(t, 2)[1];
+			let n = N(t, 2)[1];
 			if (n.trackName === e) return n;
 		}
 	}
@@ -27389,7 +27389,7 @@ var Eh = class extends wh {
 							}
 						}); performance.now() - s < 5e3 && !t;) {
 							if ((!r || this.name === r) && (!n || this.metadata === n) && (!i || Object.entries(i).every((e) => {
-								let t = P(e, 2), n = t[0], r = t[1];
+								let t = N(e, 2), n = t[0], r = t[1];
 								return this.attributes[n] === r || r === "" && !this.attributes[n];
 							}))) {
 								this.pendingSignalRequests.delete(o), e();
@@ -27466,7 +27466,7 @@ var Eh = class extends wh {
 					try {
 						let e = [];
 						for (let n of t) this.log.info("publishing track", K(n)), e.push(this.publishTrack(n, r));
-						i = P(yield Promise.all(e), 1)[0];
+						i = N(yield Promise.all(e), 1)[0];
 					} catch (e) {
 						throw t?.forEach((e) => {
 							e.stop();
@@ -27478,7 +27478,7 @@ var Eh = class extends wh {
 			} else if (!i?.track && this.pendingPublishing.has(e) && (i = yield this.waitForPendingPublicationOfSource(e), i || this.log.info("waiting for pending publication promise timed out", { source: e })), i && i.track) {
 				if (e === q.Source.ScreenShare) {
 					let e = [this.unpublishTrack(i.track)], t = this.getTrackPublication(q.Source.ScreenShareAudio);
-					t && t.track && e.push(this.unpublishTrack(t.track)), i = P(yield Promise.all(e), 1)[0];
+					t && t.track && e.push(this.unpublishTrack(t.track)), i = N(yield Promise.all(e), 1)[0];
 				} else yield i.mute();
 			}
 			return i;
@@ -27898,7 +27898,7 @@ var Eh = class extends wh {
 				}
 				if (fl(e)) {
 					for (let t of e.simulcastCodecs) {
-						let e = P(t, 2)[1];
+						let e = N(t, 2)[1];
 						if (e.sender) {
 							try {
 								i = this.engine.removeTrack(e.sender);
@@ -27995,7 +27995,7 @@ var Eh = class extends wh {
 				attachedFiles: t?.attachments
 			}, r = new Un({ value: {
 				case: "chatMessage",
-				value: new $n(Object.assign(Object.assign({}, n), { timestamp: Ce.parse(n.timestamp) }))
+				value: new $n(Object.assign(Object.assign({}, n), { timestamp: we.parse(n.timestamp) }))
 			} });
 			return yield this.engine.sendDataPacket(r, X.RELIABLE), this.emit(U.ChatMessage, n), n;
 		});
@@ -28008,8 +28008,8 @@ var Eh = class extends wh {
 			}), r = new Un({ value: {
 				case: "chatMessage",
 				value: new $n(Object.assign(Object.assign({}, n), {
-					timestamp: Ce.parse(n.timestamp),
-					editTimestamp: Ce.parse(n.editTimestamp)
+					timestamp: we.parse(n.timestamp),
+					editTimestamp: we.parse(n.editTimestamp)
 				}))
 			} });
 			return yield this.engine.sendDataPacket(r, X.RELIABLE), this.emit(U.ChatMessage, n), n;
@@ -28042,7 +28042,7 @@ var Eh = class extends wh {
 	}
 	performRpc(e) {
 		return this.rpcClientManager.performRpc(e).then((e) => {
-			let t = P(e, 2);
+			let t = N(e, 2);
 			return t[0], t[1];
 		});
 	}
@@ -28098,7 +28098,7 @@ var Eh = class extends wh {
 		return R(this, void 0, void 0, function* () {
 			let t = Date.now();
 			for (; Date.now() < t + 1e4;) {
-				let t = Array.from(this.pendingPublishPromises.entries()).find((t) => P(t, 1)[0].source === e);
+				let t = Array.from(this.pendingPublishPromises.entries()).find((t) => N(t, 1)[0].source === e);
 				if (t) return t[1];
 				yield ic(20);
 			}
@@ -28388,7 +28388,7 @@ var Eh = class extends wh {
 	}
 	removeRemoteDataTrack(e) {
 		for (let n of this.dataTracks.entries()) {
-			var t = P(n, 2);
+			var t = N(n, 2);
 			let r = t[0];
 			e === t[1].info.sid && this.dataTracks.delete(r);
 		}
@@ -28693,7 +28693,7 @@ var Ih = class e extends Na.EventEmitter {
 		}, this.getRemoteParticipantClientProtocol = (e) => this.remoteParticipants.get(e)?.clientProtocol ?? 0, this.getRemoteParticipantCapabilities = (e) => this.remoteParticipants.get(e)?.capabilities ?? [], this.getAllRemoteParticipantIdentities = () => Array.from(this.remoteParticipants.keys()), this.logWebRTCStats = () => R(this, void 0, void 0, function* () {
 			let e = this.engine?.pcManager;
 			if (e) try {
-				let t = P(yield Promise.all([e.publisher.getStats(), e.subscriber?.getStats()]), 2), n = t[0], r = t[1], i = n && xs(n), a = r && xs(r);
+				let t = N(yield Promise.all([e.publisher.getStats(), e.subscriber?.getStats()]), 2), n = t[0], r = t[1], i = n && xs(n), a = r && xs(r);
 				this.statsLog.info("webrtc stats", {
 					publisher: i?.connection,
 					subscriber: a?.connection,
@@ -28887,7 +28887,7 @@ var Ih = class e extends Na.EventEmitter {
 			e.info ? this.outgoingDataTrackManager.receivedSfuUnpublishResponse(e.info.pubHandle) : this.log.warn(`received UnPublishDataTrackResponse, but event.info was ${e.info}, so skipping.`);
 		}).on(W.DataTrackSubscriberHandles, (e) => {
 			let t = new Map(Object.entries(e.subHandles).map((e) => {
-				let t = P(e, 2), n = t[0], r = t[1];
+				let t = N(e, 2), n = t[0], r = t[1];
 				return [parseInt(n, 10), r.trackSid];
 			}));
 			this.incomingDataTrackManager.receivedSfuSubscriberHandles(t);
@@ -29416,7 +29416,7 @@ var Ih = class e extends Na.EventEmitter {
 	}
 	emitBufferedEvents() {
 		this.bufferedEvents.forEach((e) => {
-			let t = P(e, 2), n = t[0], r = t[1];
+			let t = N(e, 2), n = t[0], r = t[1];
 			this.emit(n, ...r);
 		}), this.bufferedEvents = [];
 	}
@@ -29447,7 +29447,7 @@ var Ih = class e extends Na.EventEmitter {
 				name: "simulated-room",
 				emptyTimeout: 0,
 				maxParticipants: 0,
-				creationTime: Ce.parse((/* @__PURE__ */ new Date()).getTime()),
+				creationTime: we.parse((/* @__PURE__ */ new Date()).getTime()),
 				metadata: "",
 				numParticipants: 1,
 				numPublishers: 1,
@@ -29492,7 +29492,7 @@ var Ih = class e extends Na.EventEmitter {
 					identity: `simulated-${e}`,
 					state: En.ACTIVE,
 					tracks: [],
-					joinedAt: Ce.parse(Date.now())
+					joinedAt: we.parse(Date.now())
 				}), r = this.getOrCreateParticipant(t.identity, t);
 				if (n.video) {
 					let i = Uc(160 * (n.aspectRatios[e % n.aspectRatios.length] ?? 1), 160, !1, !0), a = new jn({
@@ -29558,81 +29558,81 @@ function Hh(e) {
 var Uh = class extends Error {
 	constructor(e, t) {
 		var n;
-		super(e, t), N(this, "code", "ERR_JOSE_GENERIC"), this.name = this.constructor.name, (n = Error.captureStackTrace) == null || n.call(Error, this, this.constructor);
+		super(e, t), M(this, "code", "ERR_JOSE_GENERIC"), this.name = this.constructor.name, (n = Error.captureStackTrace) == null || n.call(Error, this, this.constructor);
 	}
 };
-N(Uh, "code", "ERR_JOSE_GENERIC"), N(class extends Uh {
+M(Uh, "code", "ERR_JOSE_GENERIC"), M(class extends Uh {
 	constructor(e, t) {
 		let n = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : "unspecified", r = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : "unspecified";
 		super(e, { cause: {
 			claim: n,
 			reason: r,
 			payload: t
-		} }), N(this, "code", "ERR_JWT_CLAIM_VALIDATION_FAILED"), N(this, "claim", void 0), N(this, "reason", void 0), N(this, "payload", void 0), this.claim = n, this.reason = r, this.payload = t;
+		} }), M(this, "code", "ERR_JWT_CLAIM_VALIDATION_FAILED"), M(this, "claim", void 0), M(this, "reason", void 0), M(this, "payload", void 0), this.claim = n, this.reason = r, this.payload = t;
 	}
-}, "code", "ERR_JWT_CLAIM_VALIDATION_FAILED"), N(class extends Uh {
+}, "code", "ERR_JWT_CLAIM_VALIDATION_FAILED"), M(class extends Uh {
 	constructor(e, t) {
 		let n = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : "unspecified", r = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : "unspecified";
 		super(e, { cause: {
 			claim: n,
 			reason: r,
 			payload: t
-		} }), N(this, "code", "ERR_JWT_EXPIRED"), N(this, "claim", void 0), N(this, "reason", void 0), N(this, "payload", void 0), this.claim = n, this.reason = r, this.payload = t;
+		} }), M(this, "code", "ERR_JWT_EXPIRED"), M(this, "claim", void 0), M(this, "reason", void 0), M(this, "payload", void 0), this.claim = n, this.reason = r, this.payload = t;
 	}
-}, "code", "ERR_JWT_EXPIRED"), N(class extends Uh {
+}, "code", "ERR_JWT_EXPIRED"), M(class extends Uh {
 	constructor() {
-		super(...arguments), N(this, "code", "ERR_JOSE_ALG_NOT_ALLOWED");
+		super(...arguments), M(this, "code", "ERR_JOSE_ALG_NOT_ALLOWED");
 	}
-}, "code", "ERR_JOSE_ALG_NOT_ALLOWED"), N(class extends Uh {
+}, "code", "ERR_JOSE_ALG_NOT_ALLOWED"), M(class extends Uh {
 	constructor() {
-		super(...arguments), N(this, "code", "ERR_JOSE_NOT_SUPPORTED");
+		super(...arguments), M(this, "code", "ERR_JOSE_NOT_SUPPORTED");
 	}
-}, "code", "ERR_JOSE_NOT_SUPPORTED"), N(class extends Uh {
+}, "code", "ERR_JOSE_NOT_SUPPORTED"), M(class extends Uh {
 	constructor() {
 		let e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "decryption operation failed", t = arguments.length > 1 ? arguments[1] : void 0;
-		super(e, t), N(this, "code", "ERR_JWE_DECRYPTION_FAILED");
+		super(e, t), M(this, "code", "ERR_JWE_DECRYPTION_FAILED");
 	}
-}, "code", "ERR_JWE_DECRYPTION_FAILED"), N(class extends Uh {
+}, "code", "ERR_JWE_DECRYPTION_FAILED"), M(class extends Uh {
 	constructor() {
-		super(...arguments), N(this, "code", "ERR_JWE_INVALID");
+		super(...arguments), M(this, "code", "ERR_JWE_INVALID");
 	}
-}, "code", "ERR_JWE_INVALID"), N(class extends Uh {
+}, "code", "ERR_JWE_INVALID"), M(class extends Uh {
 	constructor() {
-		super(...arguments), N(this, "code", "ERR_JWS_INVALID");
+		super(...arguments), M(this, "code", "ERR_JWS_INVALID");
 	}
 }, "code", "ERR_JWS_INVALID");
 var Wh = class extends Uh {
 	constructor() {
-		super(...arguments), N(this, "code", "ERR_JWT_INVALID");
+		super(...arguments), M(this, "code", "ERR_JWT_INVALID");
 	}
 };
-N(Wh, "code", "ERR_JWT_INVALID"), N(class extends Uh {
+M(Wh, "code", "ERR_JWT_INVALID"), M(class extends Uh {
 	constructor() {
-		super(...arguments), N(this, "code", "ERR_JWK_INVALID");
+		super(...arguments), M(this, "code", "ERR_JWK_INVALID");
 	}
-}, "code", "ERR_JWK_INVALID"), N(class extends Uh {
+}, "code", "ERR_JWK_INVALID"), M(class extends Uh {
 	constructor() {
-		super(...arguments), N(this, "code", "ERR_JWKS_INVALID");
+		super(...arguments), M(this, "code", "ERR_JWKS_INVALID");
 	}
-}, "code", "ERR_JWKS_INVALID"), N(class extends Uh {
+}, "code", "ERR_JWKS_INVALID"), M(class extends Uh {
 	constructor() {
 		let e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "no applicable key found in the JSON Web Key Set", t = arguments.length > 1 ? arguments[1] : void 0;
-		super(e, t), N(this, "code", "ERR_JWKS_NO_MATCHING_KEY");
+		super(e, t), M(this, "code", "ERR_JWKS_NO_MATCHING_KEY");
 	}
-}, "code", "ERR_JWKS_NO_MATCHING_KEY"), N(class extends Uh {
+}, "code", "ERR_JWKS_NO_MATCHING_KEY"), M(class extends Uh {
 	constructor() {
 		let e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "multiple matching keys found in the JSON Web Key Set", t = arguments.length > 1 ? arguments[1] : void 0;
-		super(e, t), N(this, Symbol.asyncIterator, Ve(function* () {})), N(this, "code", "ERR_JWKS_MULTIPLE_MATCHING_KEYS");
+		super(e, t), M(this, Symbol.asyncIterator, He(function* () {})), M(this, "code", "ERR_JWKS_MULTIPLE_MATCHING_KEYS");
 	}
-}, "code", "ERR_JWKS_MULTIPLE_MATCHING_KEYS"), N(class extends Uh {
+}, "code", "ERR_JWKS_MULTIPLE_MATCHING_KEYS"), M(class extends Uh {
 	constructor() {
 		let e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "request timed out", t = arguments.length > 1 ? arguments[1] : void 0;
-		super(e, t), N(this, "code", "ERR_JWKS_TIMEOUT");
+		super(e, t), M(this, "code", "ERR_JWKS_TIMEOUT");
 	}
-}, "code", "ERR_JWKS_TIMEOUT"), N(class extends Uh {
+}, "code", "ERR_JWKS_TIMEOUT"), M(class extends Uh {
 	constructor() {
 		let e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "signature verification failed", t = arguments.length > 1 ? arguments[1] : void 0;
-		super(e, t), N(this, "code", "ERR_JWS_SIGNATURE_VERIFICATION_FAILED");
+		super(e, t), M(this, "code", "ERR_JWS_SIGNATURE_VERIFICATION_FAILED");
 	}
 }, "code", "ERR_JWS_SIGNATURE_VERIFICATION_FAILED");
 var Gh = "The input to be decoded is not correctly encoded.";
@@ -32762,65 +32762,103 @@ function ob(e) {
 			try {
 				await e?.();
 			} catch {}
-		}, u = [], d = "", f = "", p = !1, m = !0, h = !1, g = (t, n) => e.emit(H.DataReceived, new TextEncoder().encode(JSON.stringify(n)), void 0, void 0, t), _ = () => ({
+		}, u = [], d = "", f = "", p = !1, m = !0, h = !0, g = 0, _, v, y = (e) => !h && g === e, b = (t, n) => e.emit(H.DataReceived, new TextEncoder().encode(JSON.stringify(n)), void 0, void 0, t), x = () => ({
 			id: f || d,
 			items: u
-		}), v = () => g("ha.speech_state", {
+		}), S = () => b("ha.speech_state", {
 			stt_enabled: p,
 			audio_output: m
-		}), y = (e, t = "") => n.call({
+		}), C = (e, t = "") => n.call({
 			type: "backend_butler/native/control",
 			command: e,
 			payload: t
-		}), b = (e) => g("ha.conversation_error", { message: e });
+		}), w = (e, t) => {
+			y(t) && b("ha.conversation_error", { message: e });
+		};
 		return r.onFinished = (e) => {
-			h || y("playback_finished", String(e)).catch(() => b("Reply playback could not be confirmed. Reconnect to continue."));
-		}, r.onFailure = () => e.emit(H.AudioPlaybackStatusChanged, !1), Object.defineProperty(e, "canPlaybackAudio", {
+			let t = g;
+			y(t) && C("playback_finished", String(e)).catch(() => w("Reply playback could not be confirmed. Reconnect to continue.", t));
+		}, r.onFailure = () => {
+			h || e.emit(H.AudioPlaybackStatusChanged, !1);
+		}, Object.defineProperty(e, "canPlaybackAudio", {
 			configurable: !0,
 			get: () => !r.blocked && r.context?.state === "running"
 		}), e.startAudio = async () => {
-			await r.unlock(), e.emit(H.AudioPlaybackStatusChanged, !0);
+			let t = g;
+			await r.unlock(), y(t) && e.emit(H.AudioPlaybackStatusChanged, !0);
 		}, e.localParticipant.performRpc = async ({ method: t, payload: i = "" }) => {
-			if (t === "get_conversation") return JSON.stringify(_());
-			t === "start_turn" && (r.stop(), r.muted = !1, p = !0), t === "end_turn" && e.startAudio().catch(() => e.emit(H.AudioPlaybackStatusChanged, !1)), (t === "end_turn" || t === "cancel_turn") && (p = !1, await n.call({ type: "backend_butler/native/stop" })), t === "set_audio_output" && (m = i === "on", r.muted = !m, m || r.stop()), v();
+			if (t === "get_conversation") return JSON.stringify(x());
+			let a = g;
+			if (!y(a)) return "ok";
 			try {
-				await y(t, i);
+				if (t === "start_turn" && (r.stop(), r.muted = !1, p = !0), t === "end_turn" && e.startAudio().catch(() => {
+					y(a) && e.emit(H.AudioPlaybackStatusChanged, !1);
+				}), (t === "end_turn" || t === "cancel_turn") && (p = !1, await n.call({ type: "backend_butler/native/stop" }), !y(a))) return "ok";
+				t === "set_audio_output" && (m = i === "on", r.muted = !m, m || r.stop()), S(), await C(t, i);
 			} catch (e) {
-				throw b("The speech turn failed. Please retry."), e;
+				if (!y(a)) return "ok";
+				throw w("The speech turn failed. Please retry.", a), e;
 			}
 			return "ok";
 		}, {
 			room: e,
 			player: r,
-			control: y,
+			control: C,
 			nativeClient: n,
-			start: async () => {
-				h = !1, e.startAudio().catch(() => e.emit(H.AudioPlaybackStatusChanged, !1)), o = await i().connection.subscribeMessage((e) => {
-					h || (e.type === "conversation" && (f = e.conversation_id || f, u = e.items, g("ha.conversation", _())), e.type === "idle" && g("ha.session_idle", { reason: "idle_timeout" }), e.type === "state" && s(e.state), e.type === "audio" && r.push(e), e.type === "audio_end" && r.finish(e.segment), e.type === "audio_clear" && r.stop(), e.type === "error" && b(e.message));
-				}, await n.message({ type: "backend_butler/native/events" }));
-				try {
-					let t = await y("connect");
-					if (h) {
-						await y("disconnect"), await c();
-						return;
+			start: () => {
+				if (_) return _;
+				let t = v;
+				v = void 0, h = !1;
+				let l = ++g;
+				e.startAudio().catch(() => {
+					y(l) && e.emit(H.AudioPlaybackStatusChanged, !1);
+				});
+				let p = (async () => {
+					if (await t?.catch(() => {}), y(l)) try {
+						let t = await n.message({ type: "backend_butler/native/events" });
+						if (!y(l)) return;
+						let c = await i().connection.subscribeMessage((e) => {
+							y(l) && (e.type === "conversation" && (f = e.conversation_id || f, u = e.items, b("ha.conversation", x())), e.type === "idle" && b("ha.session_idle", { reason: "idle_timeout" }), e.type === "state" && s(e.state), e.type === "audio" && r.push(e), e.type === "audio_end" && r.finish(e.segment), e.type === "audio_clear" && r.stop(), e.type === "error" && w(e.message, l));
+						}, t);
+						if (!y(l)) {
+							await c();
+							return;
+						}
+						o = c;
+						let p = await C("connect");
+						if (!y(l)) return;
+						u = p.items, d = p.session_id, f = p.conversation_id || d, e.state = Q.Connected, e.remoteParticipants.set("native-speech", {
+							identity: "native-speech",
+							kind: Dn.AGENT,
+							isAgent: !0,
+							audioTrackPublications: /* @__PURE__ */ new Map()
+						}), a(!0), e.emit(H.ConnectionStateChanged, Q.Connected), b("ha.conversation", x()), S();
+					} catch (e) {
+						if (!y(l)) return;
+						throw await c(), await C("disconnect").catch(() => {}), e;
 					}
-					u = t.items, d = t.session_id, f = t.conversation_id || d, e.state = Q.Connected, e.remoteParticipants.set("native-speech", {
-						identity: "native-speech",
-						kind: Dn.AGENT,
-						isAgent: !0,
-						audioTrackPublications: /* @__PURE__ */ new Map()
-					}), a(!0), e.emit(H.ConnectionStateChanged, Q.Connected), g("ha.conversation", _()), v();
-				} catch (e) {
-					throw await c(), await y("disconnect").catch(() => {}), e;
-				}
+				})();
+				return _ = p, p.finally(() => {
+					_ === p && (_ = void 0);
+				}).catch(() => {}), p;
 			},
-			end: async () => {
-				h = !0, p = !1, r.stop(), await c(), await y("disconnect").catch(() => {}), await r.close(), e.state = Q.Disconnected, a(!1), s("disconnected"), e.emit(H.ConnectionStateChanged, Q.Disconnected);
+			end: () => {
+				if (v) return v;
+				h = !0, g++, p = !1, r.stop(), e.state = Q.Disconnected, e.remoteParticipants.delete("native-speech"), a(!1), s("disconnected"), e.emit(H.ConnectionStateChanged, Q.Disconnected);
+				let t = _;
+				return v = (async () => {
+					await t?.catch(() => {}), await c();
+					try {
+						await C("disconnect");
+					} finally {
+						await r.close();
+					}
+				})(), v;
 			}
 		};
 	}, [e, t]);
 	return (0, _.useEffect)(() => () => {
-		u.end();
+		u.end().catch((e) => console.error("Native session cleanup failed", e));
 	}, [u]), {
 		...u,
 		get isConnected() {
@@ -33329,8 +33367,15 @@ function ux(e) {
 	}
 	return n < e.length && t.push(e.slice(n)), t;
 }
+// src/lib/logo.ts
+var dx = "160 162 704 704", fx = [
+	"M749.942 220.58C814.037 285.517 847.277 360.473 851.65 451.672C852.85 524.818 836.905 584.683 798.107 646.903C816.745 698.038 833.92 751.768 852.025 803.36C832.712 798.988 810.362 795.163 790.682 791.323L665.695 766.828C618.287 788.975 576.242 801.478 523.285 802.985C431.761 806.18 342.835 772.213 276.748 708.808C212.578 647.36 175.077 563.188 172.307 474.386C169.745 398.835 192.519 324.596 237.006 263.479C249.022 247.018 259.48 235.645 273.417 220.948C275.84 223.88 287.478 251.398 290.068 257.307L327.609 342.739L511.99 761.698C522.782 738.763 533.552 712.828 543.812 689.45L602.95 555.05L749.942 220.58Z",
+	"M506.905 434.37C518.26 431.575 529.727 438.541 532.48 449.908C535.232 461.274 528.22 472.712 516.842 475.418C505.525 478.11 494.162 471.146 491.429 459.841C488.694 448.537 495.617 437.15 506.905 434.37Z",
+	"M508.16 521.797C519.575 519.712 530.54 527.219 532.708 538.627C534.883 550.027 527.443 561.044 516.058 563.294C504.56 565.574 493.403 558.044 491.209 546.524C489.016 535.004 496.625 523.905 508.16 521.797Z",
+	"M510.202 609.23C521.82 608.255 532.027 616.872 533.032 628.482C534.03 640.092 525.442 650.322 513.832 651.35C502.185 652.377 491.916 643.76 490.912 632.112C489.908 620.465 498.555 610.212 510.202 609.23Z"
+], px = "M408.633 220.664C428.508 230.775 451.307 246.223 471.295 256.877C480.312 261.412 489.669 269.054 499.455 271.644C522.885 277.845 539.438 264.565 558.323 253.605L615.293 220.648C615.3 234.676 616.403 354.8 614.7 357.238L612.885 356.602C580.988 340.038 548.385 316.924 515.58 301.693C513.09 300.538 505.845 302.407 503.43 303.694C471.585 320.639 440.174 340.756 408.582 357.973L408.633 220.664Z";
 // src/components/Conversation.tsx
-function dx({ items: e, autoscroll: t = !0, startAtEnd: n = !1, reflowKey: r, approvals: i = !1, approvalRoom: a, onPrompt: o, unavailable: s = !1, notice: c, voice: l = !1, compact: u = !1, before: d }) {
+function mx({ items: e, autoscroll: t = !0, startAtEnd: n = !1, reflowKey: r, approvals: i = !1, approvalRoom: a, onPrompt: o, unavailable: s = !1, notice: c, voice: l = !1, compact: u = !1, before: d }) {
 	let [f, p] = (0, _.useState)(null), m = (0, _.useRef)(new Set(e.filter((e) => e.kind === "message" && e.role === "agent" && !e.interim).map((e) => e.id)));
 	(0, _.useEffect)(() => {
 		if (!l) return;
@@ -33381,10 +33426,12 @@ function dx({ items: e, autoscroll: t = !0, startAtEnd: n = !1, reflowKey: r, ap
 		r
 	]);
 	let w = !!c;
-	return (0, _.useEffect)(() => {
+	(0, _.useEffect)(() => {
 		let t = h.current;
 		t && w && (!e.length || g.current) && (t.scrollTop = t.scrollHeight);
-	}, [w, e.length]), /* @__PURE__ */ (0, $.jsxs)("div", {
+	}, [w, e.length]);
+	let T = l && !s;
+	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "lk-convo",
 		ref: h,
 		onScroll: b,
@@ -33397,40 +33444,53 @@ function dx({ items: e, autoscroll: t = !0, startAtEnd: n = !1, reflowKey: r, ap
 				children: f && /* @__PURE__ */ (0, $.jsx)("span", { children: f.text }, f.id)
 			}),
 			d,
-			e.length ? e.map((e) => e.kind === "message" ? /* @__PURE__ */ (0, $.jsx)(fx, { item: e }, e.id) : /* @__PURE__ */ (0, $.jsx)(mx, {
+			e.length ? e.map((e) => e.kind === "message" ? /* @__PURE__ */ (0, $.jsx)(hx, { item: e }, e.id) : /* @__PURE__ */ (0, $.jsx)(_x, {
 				item: e,
 				onToggle: S
 			}, e.id)) : u ? null : /* @__PURE__ */ (0, $.jsxs)("div", {
-				className: "lk-empty",
-				children: [
+				className: T ? "lk-empty lk-empty--call" : "lk-empty",
+				children: [T ? /* @__PURE__ */ (0, $.jsx)("div", {
+					className: "lk-empty-brand",
+					children: /* @__PURE__ */ (0, $.jsxs)("svg", {
+						viewBox: dx,
+						"aria-hidden": "true",
+						focusable: "false",
+						children: [fx.map((e) => /* @__PURE__ */ (0, $.jsx)("path", {
+							d: e,
+							fill: "#f2f2f3"
+						}, e)), /* @__PURE__ */ (0, $.jsx)("path", {
+							d: px,
+							fill: "#FC6B02"
+						})]
+					})
+				}) : /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [
 					/* @__PURE__ */ (0, $.jsx)("ha-icon", {
-						icon: s ? "mdi:connection" : l ? "mdi:microphone-outline" : "backend_butler:logo",
+						icon: s ? "mdi:connection" : "backend_butler:logo",
 						"aria-hidden": "true"
 					}),
-					/* @__PURE__ */ (0, $.jsx)("h2", { children: s ? "Connection needs attention" : l ? u ? "How can I help?" : "Ready to talk?" : "How can I help at home?" }),
-					/* @__PURE__ */ (0, $.jsx)("p", { children: s ? "Use the recovery options below to try again." : l ? u ? "Tap the microphone or type below." : "Use the microphone to talk, or type a message below." : "Ask about your home, control devices, or schedule a task." }),
-					o && !s && /* @__PURE__ */ (0, $.jsx)("div", {
-						className: "lk-starters",
-						"aria-label": "Suggested requests",
-						children: [
-							"Which lights are on?",
-							"What’s the temperature at home?",
-							"What tasks are scheduled?"
-						].map((e) => /* @__PURE__ */ (0, $.jsx)("button", {
-							type: "button",
-							className: "lk-chip",
-							onClick: () => o(e),
-							children: e
-						}, e))
-					})
-				]
+					/* @__PURE__ */ (0, $.jsx)("h2", { children: s ? "Connection needs attention" : "How can I help at home?" }),
+					/* @__PURE__ */ (0, $.jsx)("p", { children: s ? "Use the recovery options below to try again." : "Ask about your home, control devices, or schedule a task." })
+				] }), o && !s && /* @__PURE__ */ (0, $.jsx)("div", {
+					className: "lk-starters",
+					"aria-label": "Suggested requests",
+					children: [
+						"Which lights are on?",
+						"What’s the temperature at home?",
+						"What tasks are scheduled?"
+					].map((e) => /* @__PURE__ */ (0, $.jsx)("button", {
+						type: "button",
+						className: "lk-chip",
+						onClick: () => o(e),
+						children: e
+					}, e))
+				})]
 			}),
 			i && /* @__PURE__ */ (0, $.jsx)(Jb, { room: a }),
 			c
 		]
 	});
 }
-function fx({ item: e }) {
+function hx({ item: e }) {
 	let t = new Date(e.ts), n = t.toDateString() === (/* @__PURE__ */ new Date()).toDateString(), r = t.toLocaleString(void 0, {
 		...n ? {} : {
 			month: "short",
@@ -33467,13 +33527,13 @@ function fx({ item: e }) {
 		})
 	});
 }
-var px = {
+var gx = {
 	running: "Running…",
 	done: "Done",
 	error: "Failed",
 	cancelled: "Cancelled"
 };
-function mx({ item: e, onToggle: t }) {
+function _x({ item: e, onToggle: t }) {
 	let [n, r] = (0, _.useState)(!1), i = (0, _.useId)(), a = Fb(e.name), o = e.name === "update_from", s = Ib(e.args), c = e.status === "error", l = e.output, u = l != null && e.outputChars != null && e.outputChars > l.length, d = e.args != null && !(typeof e.args == "object" && !Object.keys(e.args).length);
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "lk-act-row",
@@ -33501,7 +33561,7 @@ function mx({ item: e, onToggle: t }) {
 					}),
 					e.status !== "done" && /* @__PURE__ */ (0, $.jsx)("span", {
 						className: "lk-act-badge",
-						children: px[e.status]
+						children: gx[e.status]
 					}),
 					/* @__PURE__ */ (0, $.jsx)("ha-icon", {
 						className: "lk-act-chev",
@@ -33530,7 +33590,7 @@ function mx({ item: e, onToggle: t }) {
 						"data-status": e.status,
 						children: [
 							/* @__PURE__ */ (0, $.jsx)("span", { className: "lk-act-dot" }),
-							px[e.status],
+							gx[e.status],
 							/* @__PURE__ */ (0, $.jsx)("span", {
 								className: "lk-act-name",
 								children: e.name
@@ -33576,13 +33636,13 @@ function mx({ item: e, onToggle: t }) {
 	});
 }
 // src/lib/entities.ts
-function hx(e) {
+function vx(e) {
 	return e.split(".")[0];
 }
-function gx(e, t) {
+function yx(e, t) {
 	return e.states[t]?.attributes?.friendly_name || t;
 }
-var _x = /* @__PURE__ */ new Set([
+var bx = /* @__PURE__ */ new Set([
 	"off",
 	"unavailable",
 	"unknown",
@@ -33593,15 +33653,15 @@ var _x = /* @__PURE__ */ new Set([
 	"not_home",
 	""
 ]);
-function vx(e) {
+function xx(e) {
 	if (!e) return !1;
 	let t = (e.state ?? "").toString().toLowerCase();
-	if (_x.has(t)) return !1;
+	if (bx.has(t)) return !1;
 	let n = Number(t);
 	return !(t !== "" && !Number.isNaN(n));
 }
-function yx(e) {
-	let t = hx(e);
+function Sx(e) {
+	let t = vx(e);
 	return [
 		"light",
 		"switch",
@@ -33622,7 +33682,7 @@ function yx(e) {
 		service: "turn_on"
 	} : null;
 }
-var bx = {
+var Cx = {
 	light: "mdi:lightbulb",
 	switch: "mdi:toggle-switch-variant",
 	fan: "mdi:fan",
@@ -33640,11 +33700,11 @@ var bx = {
 	humidifier: "mdi:air-humidifier",
 	camera: "mdi:cctv"
 };
-function xx(e, t) {
+function wx(e, t) {
 	let n = e.states[t];
-	return n?.attributes?.icon ? n.attributes.icon : bx[hx(t)] || "mdi:help-circle-outline";
+	return n?.attributes?.icon ? n.attributes.icon : Cx[vx(t)] || "mdi:help-circle-outline";
 }
-function Sx(e) {
+function Tx(e) {
 	let t = (e.state ?? "").toString(), n = t.toLowerCase();
 	if (n === "" || n === "unknown") return "—";
 	if (n === "unavailable") return "N/A";
@@ -33657,7 +33717,7 @@ function Sx(e) {
 	}
 	return t.charAt(0).toUpperCase() + t.slice(1);
 }
-function Cx(e, t) {
+function Ex(e, t) {
 	let n = new Set(t.map((e) => e.toLowerCase().trim())), r = /* @__PURE__ */ new Set();
 	for (let [t, i] of Object.entries(e.areas ?? {})) {
 		let e = i?.name?.toLowerCase?.() ?? "";
@@ -33665,9 +33725,9 @@ function Cx(e, t) {
 	}
 	return r;
 }
-function wx(e, t) {
+function Dx(e, t) {
 	if (!t.length || !e.entities) return [];
-	let n = Cx(e, t);
+	let n = Ex(e, t);
 	if (!n.size) return [];
 	let r = [];
 	for (let [t, i] of Object.entries(e.entities)) {
@@ -33680,8 +33740,8 @@ function wx(e, t) {
 	}
 	return r;
 }
-function Tx(e, t) {
-	if (hx(t) !== "light") return !1;
+function Ox(e, t) {
+	if (vx(t) !== "light") return !1;
 	let n = e.states[t], r = e.entities?.[t];
 	return [
 		t,
@@ -33690,11 +33750,11 @@ function Tx(e, t) {
 		r?.original_name
 	].some((e) => typeof e == "string" && /\bsegment(?:\s*#?\s*\d+)?\b/i.test(e.replace(/[_-]+/g, " ")));
 }
-function Ex(e, t) {
+function kx(e, t) {
 	let n = e.entities?.[t];
 	return n ? !!(n.hidden_by || n.disabled_by || n.entity_category === "diagnostic" || n.entity_category === "config") : !1;
 }
-var Dx = /* @__PURE__ */ new Set([
+var Ax = /* @__PURE__ */ new Set([
 	"light",
 	"switch",
 	"fan",
@@ -33705,9 +33765,9 @@ var Dx = /* @__PURE__ */ new Set([
 	"humidifier",
 	"siren"
 ]);
-function Ox(e, t) {
-	let n = hx(t);
-	if (!Dx.has(n)) return !1;
+function jx(e, t) {
+	let n = vx(t);
+	if (!Ax.has(n)) return !1;
 	if (n !== "switch") return !0;
 	let r = e.entities?.[t], i = r?.platform ?? "";
 	if ([
@@ -33725,13 +33785,13 @@ function Ox(e, t) {
 	].join(" ").replace(/[_-]+/g, " ");
 	return !/\b(mute|music mode|dreamview|alternative speed|qbittorrent|transmission|deluge)\b/i.test(a);
 }
-function kx(e, t) {
-	return !!e.states[t] && Ox(e, t) && !Tx(e, t) && !Ex(e, t);
+function Mx(e, t) {
+	return !!e.states[t] && jx(e, t) && !Ox(e, t) && !kx(e, t);
 }
-function Ax(e, t, n) {
-	return kx(e, n) ? t && t.size ? t.has(n) : !0 : !1;
+function Nx(e, t, n) {
+	return Mx(e, n) ? t && t.size ? t.has(n) : !0 : !1;
 }
-var jx = {
+var Px = {
 	light: ["light", "lamp"],
 	climate: [
 		"ac",
@@ -33765,17 +33825,17 @@ var jx = {
 	vacuum: ["vacuum", "robot"],
 	camera: ["camera"]
 };
-function Mx(e) {
+function Fx(e) {
 	return e.toLowerCase().split(/[\s,_\-/]+/).map((e) => e.trim()).filter((e) => e.length >= 2);
 }
-function Nx(e, t, n) {
+function Ix(e, t, n) {
 	if (!n) return 0;
 	let r = n.toLowerCase(), i = 0;
-	Mx(gx(e, t)).some((e) => r.includes(e)) && (i += 6);
-	let a = jx[hx(t)];
+	Fx(yx(e, t)).some((e) => r.includes(e)) && (i += 6);
+	let a = Px[vx(t)];
 	return a && a.some((e) => r.includes(e)) && (i += 4), i;
 }
-var Px = {
+var Lx = {
 	light: 0,
 	climate: 1,
 	media_player: 2,
@@ -33790,8 +33850,8 @@ var Px = {
 	binary_sensor: 20,
 	sensor: 21
 };
-function Fx(e, t, n) {
-	let { agentAreas: r, actedOn: i, exposed: a, query: o, recent: s } = n, c = (t.entities ?? []).filter((t) => kx(e, t)), l = t.entities?.length || t.areas?.length ? [] : Object.keys(e.states).filter((t) => Ax(e, a, t)), u = [...wx(e, t.areas ?? []), ...t.follow_agent === !1 ? [] : wx(e, r)].filter((t) => Ax(e, a, t)), d = Array.from(/* @__PURE__ */ new Set([...i.ordered, ...s])).filter((t) => Ax(e, a, t)), f = Array.from(/* @__PURE__ */ new Set([
+function Rx(e, t, n) {
+	let { agentAreas: r, actedOn: i, exposed: a, query: o, recent: s } = n, c = (t.entities ?? []).filter((t) => Mx(e, t)), l = t.entities?.length || t.areas?.length ? [] : Object.keys(e.states).filter((t) => Nx(e, a, t)), u = [...Dx(e, t.areas ?? []), ...t.follow_agent === !1 ? [] : Dx(e, r)].filter((t) => Nx(e, a, t)), d = Array.from(/* @__PURE__ */ new Set([...i.ordered, ...s])).filter((t) => Nx(e, a, t)), f = Array.from(/* @__PURE__ */ new Set([
 		...c,
 		...u,
 		...l,
@@ -33800,17 +33860,17 @@ function Fx(e, t, n) {
 	return f.sort((t, n) => {
 		let r = m.get(t) ?? Infinity, i = m.get(n) ?? Infinity;
 		if (r !== i) return r - i;
-		let a = Nx(e, n, o) - Nx(e, t, o);
+		let a = Ix(e, n, o) - Ix(e, t, o);
 		if (a !== 0) return a;
-		let s = (Px[hx(t)] ?? 15) - (Px[hx(n)] ?? 15);
-		return s === 0 ? gx(e, t).localeCompare(gx(e, n)) : s;
+		let s = (Lx[vx(t)] ?? 15) - (Lx[vx(n)] ?? 15);
+		return s === 0 ? yx(e, t).localeCompare(yx(e, n)) : s;
 	}).map((e) => ({
 		entityId: e,
 		touched: p.has(e)
 	}));
 }
 // src/lib/acted-on.ts
-var Ix = 6e3, Lx = /* @__PURE__ */ new Set([
+var zx = 6e3, Bx = /* @__PURE__ */ new Set([
 	"light",
 	"switch",
 	"fan",
@@ -33825,29 +33885,29 @@ var Ix = 6e3, Lx = /* @__PURE__ */ new Set([
 	"input_boolean",
 	"lawn_mower"
 ]);
-function Rx(e) {
+function Vx(e) {
 	return /^(get|list)/i.test(e) ? !0 : /livecontext|status|state|context|areas|domains|devices|info/i.test(e);
 }
-function zx(e) {
+function Hx(e) {
 	return e.replace(/\s+/g, " ").trim().toLowerCase();
 }
-function Bx(e, t) {
+function Ux(e, t) {
 	let n = /* @__PURE__ */ new Map();
 	for (let r of t) {
-		let t = gx(e, r);
+		let t = yx(e, r);
 		for (let e of [t, ...t.split(",")]) {
-			let t = zx(e);
+			let t = Hx(e);
 			t && !n.has(t) && n.set(t, r);
 		}
 	}
 	return n;
 }
-function Vx(e) {
+function Wx(e) {
 	if (!e || typeof e == "string") return [];
 	let t = e.name;
 	return typeof t == "string" ? [t] : Array.isArray(t) ? t.map(String) : [];
 }
-function Hx(e) {
+function Gx(e) {
 	if (!e || typeof e == "string") return [];
 	let t = e, n = [];
 	for (let e of ["instruction", "description"]) {
@@ -33856,15 +33916,15 @@ function Hx(e) {
 	}
 	return n;
 }
-function Ux(e, t, n, r) {
-	let i = Bx(e, t), a = [], o = /* @__PURE__ */ new Set(), s = null;
+function Kx(e, t, n, r) {
+	let i = Ux(e, t), a = [], o = /* @__PURE__ */ new Set(), s = null;
 	for (let e = n.length - 1; e >= 0; e--) {
 		let t = n[e];
-		if (t.status === "error" || t.status === "cancelled" || Rx(t.name)) continue;
-		let c = /* @__PURE__ */ new Set(), l = Vx(t.args);
-		t.name === "schedule_task" && l.push(...Hx(t.args));
+		if (t.status === "error" || t.status === "cancelled" || Vx(t.name)) continue;
+		let c = /* @__PURE__ */ new Set(), l = Wx(t.args);
+		t.name === "schedule_task" && l.push(...Gx(t.args));
 		for (let e of l) {
-			let t = zx(e);
+			let t = Hx(e);
 			if (!t) continue;
 			let n = i.get(t);
 			if (n) c.add(n);
@@ -33873,7 +33933,7 @@ function Ux(e, t, n, r) {
 				break;
 			}
 		}
-		let u = zx(t.name);
+		let u = Hx(t.name);
 		u && i.has(u) && c.add(i.get(u));
 		let d = r.get(t.callId);
 		if (d) for (let e of d) c.add(e);
@@ -33887,36 +33947,36 @@ function Ux(e, t, n, r) {
 		latest: s ?? /* @__PURE__ */ new Set()
 	};
 }
-function Wx(e) {
+function qx(e) {
 	return e.last_updated ?? e.last_changed ?? e.state ?? "";
 }
-function Gx(e, t) {
-	return Object.keys(e.states).filter((n) => Lx.has(hx(n)) && Ax(e, t, n));
+function Jx(e, t) {
+	return Object.keys(e.states).filter((n) => Bx.has(vx(n)) && Nx(e, t, n));
 }
-function Kx(e, t) {
+function Yx(e, t) {
 	let n = /* @__PURE__ */ new Map();
 	for (let r of t) {
 		let t = e.states[r];
-		t && n.set(r, Wx(t));
+		t && n.set(r, qx(t));
 	}
 	return n;
 }
-function qx(e, t, n) {
+function Xx(e, t, n) {
 	let r = [];
 	for (let i of n) {
 		let n = e.get(i), a = t.states[i];
-		n !== void 0 && a && Wx(a) !== n && r.push(i);
+		n !== void 0 && a && qx(a) !== n && r.push(i);
 	}
 	return r;
 }
-function Jx(e) {
+function Zx(e) {
 	for (let t = e.length - 1; t >= 0; t--) {
 		let n = e[t];
-		if (n.status !== "error" && n.status !== "cancelled" && !Rx(n.name)) return n;
+		if (n.status !== "error" && n.status !== "cancelled" && !Vx(n.name)) return n;
 	}
 	return null;
 }
-function Yx(e, t, n) {
+function Qx(e, t, n) {
 	let [r, i] = (0, _.useState)(() => /* @__PURE__ */ new Map()), a = (0, _.useRef)(null), o = (0, _.useRef)(void 0), s = (0, _.useRef)(e);
 	s.current = e;
 	let c = (0, _.useRef)(t);
@@ -33931,20 +33991,20 @@ function Yx(e, t, n) {
 		}
 		let e = s.current;
 		if (!e) return;
-		let t = Jx(n);
+		let t = Zx(n);
 		if (!t) return;
 		let r = Date.now();
-		a.current ? (a.current.activeCallId = t.callId, a.current.until = r + Ix) : a.current = {
-			baseline: Kx(e, Gx(e, c.current)),
+		a.current ? (a.current.activeCallId = t.callId, a.current.until = r + zx) : a.current = {
+			baseline: Yx(e, Jx(e, c.current)),
 			activeCallId: t.callId,
-			until: r + Ix
+			until: r + zx
 		}, l(), o.current = window.setTimeout(() => {
 			a.current = null, o.current = void 0;
-		}, Ix);
+		}, zx);
 	}, [n]), (0, _.useEffect)(() => {
 		let t = a.current;
 		if (!e || !t || Date.now() >= t.until) return;
-		let n = qx(t.baseline, e, Gx(e, c.current));
+		let n = Xx(t.baseline, e, Jx(e, c.current));
 		n.length && i((e) => {
 			let r = new Set(e.get(t.activeCallId) ?? []), i = !1;
 			for (let e of n) r.has(e) || (r.add(e), i = !0);
@@ -33953,8 +34013,8 @@ function Yx(e, t, n) {
 			return a.set(t.activeCallId, r), a;
 		});
 	}, [e]), (0, _.useEffect)(() => () => l(), []);
-	let u = (0, _.useMemo)(() => e ? Object.keys(e.states).filter((n) => Ax(e, t, n)) : [], [e, t]);
-	return (0, _.useMemo)(() => e ? Ux(e, u, n, r) : {
+	let u = (0, _.useMemo)(() => e ? Object.keys(e.states).filter((n) => Nx(e, t, n)) : [], [e, t]);
+	return (0, _.useMemo)(() => e ? Kx(e, u, n, r) : {
 		ordered: [],
 		latest: /* @__PURE__ */ new Set()
 	}, [
@@ -33964,9 +34024,9 @@ function Yx(e, t, n) {
 		r
 	]);
 }
-function Xx(e, t, n) {
+function $x(e, t, n) {
 	if (n <= 0) return [];
-	let r = Date.now() - n * 6e4, i = Gx(e, t), a = [], o = /* @__PURE__ */ new Map();
+	let r = Date.now() - n * 6e4, i = Jx(e, t), a = [], o = /* @__PURE__ */ new Map();
 	for (let t of i) {
 		let n = e.states[t], i = Date.parse(n?.last_changed ?? "");
 		if (!(i >= r) || n.state === "unavailable" || n.state === "unknown") continue;
@@ -33978,8 +34038,8 @@ function Xx(e, t, n) {
 	return a.filter(([, e]) => (o.get(Math.floor(e / 1e3)) ?? 0) < s).sort((e, t) => t[1] - e[1]).map(([e]) => e);
 }
 // src/lib/exposed.ts
-var Zx = null, Qx = null;
-async function $x(e) {
+var eS = null, tS = null;
+async function nS(e) {
 	if (!e.callWS) return /* @__PURE__ */ new Set();
 	try {
 		let t = await e.callWS({ type: "homeassistant/expose_entity/list" }), n = t?.exposed_entities ?? t ?? {}, r = /* @__PURE__ */ new Set();
@@ -33989,21 +34049,21 @@ async function $x(e) {
 		return /* @__PURE__ */ new Set();
 	}
 }
-function eS(e) {
-	let [t, n] = (0, _.useState)(Zx);
+function rS(e) {
+	let [t, n] = (0, _.useState)(eS);
 	return (0, _.useEffect)(() => {
 		if (!e || t) return;
-		Qx || (Qx = $x(e));
+		tS || (tS = nS(e));
 		let r = !0;
-		return Qx.then((e) => {
-			Zx = e, r && n(e);
+		return tS.then((e) => {
+			eS = e, r && n(e);
 		}), () => {
 			r = !1;
 		};
 	}, [e, t]), t;
 }
 // src/lib/service-action.ts
-function tS(e) {
+function iS(e) {
 	let t = eb(), [n, r] = (0, _.useState)(!1), [i, a] = (0, _.useState)(null), o = (0, _.useRef)(!1), s = (0, _.useRef)(null), c = (0, _.useRef)(!1), l = (0, _.useRef)(e), u = (0, _.useRef)(null);
 	l.current = e, (0, _.useEffect)(() => (c.current = !0, () => {
 		c.current = !1;
@@ -34059,12 +34119,12 @@ function tS(e) {
 	};
 }
 // src/components/DeviceTiles.tsx
-function nS({ hidden: e = !1, agentAreas: t, toolCalls: n, query: r, showRecent: i }) {
-	let a = tb(), o = nb(), s = eb().host, c = eS(a), l = Yx(a, c, n), u = i ? o.recent_minutes ?? 60 : 0, d = (0, _.useMemo)(() => a ? Xx(a, c, u) : [], [
+function aS({ hidden: e = !1, agentAreas: t, toolCalls: n, query: r, showRecent: i }) {
+	let a = tb(), o = nb(), s = eb().host, c = rS(a), l = Qx(a, c, n), u = i ? o.recent_minutes ?? 60 : 0, d = (0, _.useMemo)(() => a ? $x(a, c, u) : [], [
 		a,
 		c,
 		u
-	]), f = (0, _.useMemo)(() => a ? Fx(a, o, {
+	]), f = (0, _.useMemo)(() => a ? Rx(a, o, {
 		agentAreas: t,
 		actedOn: l,
 		exposed: c,
@@ -34097,7 +34157,7 @@ function nS({ hidden: e = !1, agentAreas: t, toolCalls: n, query: r, showRecent:
 		}), /* @__PURE__ */ (0, $.jsx)("div", {
 			className: "lk-tiles",
 			ref: p,
-			children: f.map((e) => /* @__PURE__ */ (0, $.jsx)(rS, {
+			children: f.map((e) => /* @__PURE__ */ (0, $.jsx)(oS, {
 				entityId: e.entityId,
 				touched: e.touched,
 				hass: a,
@@ -34106,14 +34166,14 @@ function nS({ hidden: e = !1, agentAreas: t, toolCalls: n, query: r, showRecent:
 		})]
 	});
 }
-function rS({ entityId: e, touched: t, hass: n, host: r }) {
-	let i = n.states[e], a = tS(e), o = (0, _.useRef)(!1), s = (0, _.useRef)(void 0), c = (0, _.useRef)(null), l = () => {
+function oS({ entityId: e, touched: t, hass: n, host: r }) {
+	let i = n.states[e], a = iS(e), o = (0, _.useRef)(!1), s = (0, _.useRef)(void 0), c = (0, _.useRef)(null), l = () => {
 		window.clearTimeout(s.current), c.current = null;
 	};
 	if ((0, _.useEffect)(() => (window.addEventListener("blur", l), () => {
 		l(), window.removeEventListener("blur", l);
 	}), []), !i) return null;
-	let u = vx(i), d = () => rb(r, e);
+	let u = xx(i), d = () => rb(r, e);
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "lk-tile-wrap",
 		"data-error": a.error ? "1" : "0",
@@ -34124,13 +34184,13 @@ function rS({ entityId: e, touched: t, hass: n, host: r }) {
 				"aria-busy": a.busy,
 				"data-active": u ? "1" : "0",
 				"data-touched": t ? "1" : "0",
-				title: gx(n, e),
+				title: yx(n, e),
 				onClick: () => {
 					if (o.current) {
 						o.current = !1;
 						return;
 					}
-					let t = yx(e);
+					let t = Sx(e);
 					t ? a.run(t.domain, t.service, { entity_id: e }, "Could not change this device. Check its connection and try again.") : d();
 				},
 				onPointerDown: (e) => {
@@ -34154,15 +34214,15 @@ function rS({ entityId: e, touched: t, hass: n, host: r }) {
 				children: [
 					/* @__PURE__ */ (0, $.jsx)("span", {
 						className: "lk-tile-icon",
-						children: /* @__PURE__ */ (0, $.jsx)("ha-icon", { icon: xx(n, e) })
+						children: /* @__PURE__ */ (0, $.jsx)("ha-icon", { icon: wx(n, e) })
 					}),
 					/* @__PURE__ */ (0, $.jsx)("span", {
 						className: "lk-tile-state",
-						children: Sx(i)
+						children: Tx(i)
 					}),
 					/* @__PURE__ */ (0, $.jsx)("span", {
 						className: "lk-tile-name",
-						children: gx(n, e)
+						children: yx(n, e)
 					})
 				]
 			}),
@@ -34175,7 +34235,7 @@ function rS({ entityId: e, touched: t, hass: n, host: r }) {
 				ref: a.feedbackRef,
 				className: "lk-service-error",
 				role: "alert",
-				"aria-label": `Device action failed: ${gx(n, e)}`,
+				"aria-label": `Device action failed: ${yx(n, e)}`,
 				children: [/* @__PURE__ */ (0, $.jsx)("p", { children: a.error }), /* @__PURE__ */ (0, $.jsx)("button", {
 					className: "lk-btn",
 					onClick: () => void a.retry(),
@@ -34187,7 +34247,7 @@ function rS({ entityId: e, touched: t, hass: n, host: r }) {
 	});
 }
 // src/components/CallIcon.tsx
-var iS = {
+var sS = {
 	microphone: ["M9 6a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0V6Z", "M6 11v1a6 6 0 0 0 12 0v-1m-6 7v3m-3 0h6"],
 	send: ["M12 19V5m-6 6 6-6 6 6"],
 	pause: ["M9 5v14m6-14v14"],
@@ -34202,7 +34262,7 @@ var iS = {
 	settings: ["M4 7h9m4 0h3M4 17h3m4 0h9", "M17 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM11 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"],
 	upcoming: ["M4 5h16v15H4V5Zm0 5h16M8 3v4m8-4v4M8 14h3m-3 3h6"]
 };
-function aS({ name: e }) {
+function cS({ name: e }) {
 	return /* @__PURE__ */ (0, $.jsx)("svg", {
 		viewBox: "0 0 24 24",
 		"aria-hidden": "true",
@@ -34212,11 +34272,11 @@ function aS({ name: e }) {
 		strokeWidth: "1.7",
 		strokeLinecap: "round",
 		strokeLinejoin: "round",
-		children: (iS[e] ?? iS.microphone).map((e, t) => /* @__PURE__ */ (0, $.jsx)("path", { d: e }, t))
+		children: (sS[e] ?? sS.microphone).map((e, t) => /* @__PURE__ */ (0, $.jsx)("path", { d: e }, t))
 	});
 }
 // src/components/Dock.tsx
-function oS(e) {
+function lS(e) {
 	let { mode: t, turnActive: n, autoPaused: r, micStarting: i, connecting: a, onSend: o } = e, { onTurnStart: s, onTurnEnd: c, onTurnCancel: l, onPause: u, onResume: d } = e, f = e.suggestions ?? [], p = (0, _.useRef)(null), [m, h] = (0, _.useState)(e.initialText ?? ""), g = e.draft ?? m, v = e.onDraftChange ?? h, y = (0, _.useRef)(!1), [b, x] = (0, _.useState)(!1), S = !b && !a && !i && g.trim().length > 0, C = async (e) => {
 		let t = e.trim();
 		if (!(!t || y.current || a || i)) {
@@ -34268,12 +34328,12 @@ function oS(e) {
 					"aria-label": "Send recording",
 					onClick: c,
 					disabled: i,
-					children: [/* @__PURE__ */ (0, $.jsx)("span", { children: "Send" }), /* @__PURE__ */ (0, $.jsx)(aS, { name: "send" })]
+					children: [/* @__PURE__ */ (0, $.jsx)("span", { children: "Send" }), /* @__PURE__ */ (0, $.jsx)(cS, { name: "send" })]
 				})
 			]
 		})
 	});
-	let T = t === "auto" && r, E = a ? "Connecting…" : T ? "Type, or start talking with the microphone" : "Type in this live session…";
+	let T = t === "auto" && r, E = a ? "Connecting…" : e.textOnly || T ? "Message Butler…" : "Type in this live session…";
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "lk-dock",
 		ref: p,
@@ -34288,20 +34348,20 @@ function oS(e) {
 		}), /* @__PURE__ */ (0, $.jsxs)("div", {
 			className: "lk-bar",
 			"data-paused": T ? "1" : "0",
-			children: [/* @__PURE__ */ (0, $.jsx)(sS, {
+			children: [/* @__PURE__ */ (0, $.jsx)(uS, {
 				value: g,
 				placeholder: E,
 				onChange: v,
 				onSubmit: w,
 				disabled: b || a
 			}), e.textOnly ? /* @__PURE__ */ (0, $.jsx)("button", {
-				className: "lk-send lk-send--accent",
+				className: "lk-send lk-send--message",
 				"aria-label": "Send",
 				title: "Send",
 				disabled: !S,
 				onClick: w,
-				children: /* @__PURE__ */ (0, $.jsx)(aS, { name: "send" })
-			}) : /* @__PURE__ */ (0, $.jsx)(cS, {
+				children: /* @__PURE__ */ (0, $.jsx)(cS, { name: "send" })
+			}) : /* @__PURE__ */ (0, $.jsx)(dS, {
 				canSend: S,
 				busy: b || i || a,
 				mode: t,
@@ -34314,7 +34374,7 @@ function oS(e) {
 		})]
 	});
 }
-function sS({ value: e, placeholder: t, onChange: n, onSubmit: r, onFocus: i, disabled: a = !1 }) {
+function uS({ value: e, placeholder: t, onChange: n, onSubmit: r, onFocus: i, disabled: a = !1 }) {
 	let o = (0, _.useRef)(null), s = () => {
 		let e = o.current;
 		e && (e.style.height = "auto", e.scrollHeight && (e.style.height = `${e.scrollHeight}px`));
@@ -34346,13 +34406,13 @@ function sS({ value: e, placeholder: t, onChange: n, onSubmit: r, onFocus: i, di
 		}
 	});
 }
-function cS({ canSend: e, busy: t, mode: n, paused: r, onSubmit: i, onTurnStart: a, onPause: o, onResume: s }) {
+function dS({ canSend: e, busy: t, mode: n, paused: r, onSubmit: i, onTurnStart: a, onPause: o, onResume: s }) {
 	return e ? /* @__PURE__ */ (0, $.jsx)("button", {
-		className: "lk-send lk-send--accent",
+		className: "lk-send lk-send--message",
 		"aria-label": "Send",
 		title: "Send",
 		onClick: i,
-		children: /* @__PURE__ */ (0, $.jsx)(aS, { name: "send" })
+		children: /* @__PURE__ */ (0, $.jsx)(cS, { name: "send" })
 	}) : t ? /* @__PURE__ */ (0, $.jsx)("button", {
 		className: "lk-send lk-send--accent",
 		"aria-label": "Working…",
@@ -34384,7 +34444,7 @@ function cS({ canSend: e, busy: t, mode: n, paused: r, onSubmit: i, onTurnStart:
 	});
 }
 // src/components/Header.tsx
-function lS({ mode: e, onChange: t }) {
+function fS({ mode: e, onChange: t }) {
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "lk-modeswitch",
 		role: "group",
@@ -34406,13 +34466,6 @@ function lS({ mode: e, onChange: t }) {
 		})]
 	});
 }
-// src/lib/logo.ts
-var uS = "160 162 704 704", dS = [
-	"M749.942 220.58C814.037 285.517 847.277 360.473 851.65 451.672C852.85 524.818 836.905 584.683 798.107 646.903C816.745 698.038 833.92 751.768 852.025 803.36C832.712 798.988 810.362 795.163 790.682 791.323L665.695 766.828C618.287 788.975 576.242 801.478 523.285 802.985C431.761 806.18 342.835 772.213 276.748 708.808C212.578 647.36 175.077 563.188 172.307 474.386C169.745 398.835 192.519 324.596 237.006 263.479C249.022 247.018 259.48 235.645 273.417 220.948C275.84 223.88 287.478 251.398 290.068 257.307L327.609 342.739L511.99 761.698C522.782 738.763 533.552 712.828 543.812 689.45L602.95 555.05L749.942 220.58Z",
-	"M506.905 434.37C518.26 431.575 529.727 438.541 532.48 449.908C535.232 461.274 528.22 472.712 516.842 475.418C505.525 478.11 494.162 471.146 491.429 459.841C488.694 448.537 495.617 437.15 506.905 434.37Z",
-	"M508.16 521.797C519.575 519.712 530.54 527.219 532.708 538.627C534.883 550.027 527.443 561.044 516.058 563.294C504.56 565.574 493.403 558.044 491.209 546.524C489.016 535.004 496.625 523.905 508.16 521.797Z",
-	"M510.202 609.23C521.82 608.255 532.027 616.872 533.032 628.482C534.03 640.092 525.442 650.322 513.832 651.35C502.185 652.377 491.916 643.76 490.912 632.112C489.908 620.465 498.555 610.212 510.202 609.23Z"
-], fS = "M408.633 220.664C428.508 230.775 451.307 246.223 471.295 256.877C480.312 261.412 489.669 269.054 499.455 271.644C522.885 277.845 539.438 264.565 558.323 253.605L615.293 220.648C615.3 234.676 616.403 354.8 614.7 357.238L612.885 356.602C580.988 340.038 548.385 316.924 515.58 301.693C513.09 300.538 505.845 302.407 503.43 303.694C471.585 320.639 440.174 340.756 408.582 357.973L408.633 220.664Z";
 // src/components/ConversationHeader.tsx
 function pS({ title: e, stateLabel: t, connected: n, orbState: r, announceState: i = !0, onHistory: a, onSettings: o, onUpcoming: s, upcomingCount: c }) {
 	let l = Number.isFinite(c) ? Math.max(0, Math.floor(c)) : 0;
@@ -34431,14 +34484,14 @@ function pS({ title: e, stateLabel: t, connected: n, orbState: r, announceState:
 					className: "lk-conversation-title",
 					children: [/* @__PURE__ */ (0, $.jsxs)("svg", {
 						className: "lk-call-header-mark",
-						viewBox: uS,
+						viewBox: dx,
 						"aria-hidden": "true",
 						focusable: "false",
-						children: [dS.map((e, t) => /* @__PURE__ */ (0, $.jsx)("path", {
+						children: [fx.map((e, t) => /* @__PURE__ */ (0, $.jsx)("path", {
 							d: e,
 							fill: "#f2f2f3"
 						}, t)), /* @__PURE__ */ (0, $.jsx)("path", {
-							d: fS,
+							d: px,
 							fill: "#FC6B02"
 						})]
 					}), e]
@@ -34461,7 +34514,7 @@ function pS({ title: e, stateLabel: t, connected: n, orbState: r, announceState:
 					"aria-label": `Upcoming tasks, ${l} ${l === 1 ? "task" : "tasks"}`,
 					title: "Upcoming tasks",
 					children: [
-						/* @__PURE__ */ (0, $.jsx)(aS, { name: "upcoming" }),
+						/* @__PURE__ */ (0, $.jsx)(cS, { name: "upcoming" }),
 						/* @__PURE__ */ (0, $.jsx)("span", {
 							className: "lk-conversation-upcoming-label",
 							children: "Upcoming"
@@ -34479,7 +34532,7 @@ function pS({ title: e, stateLabel: t, connected: n, orbState: r, announceState:
 					onClick: a,
 					"aria-label": "Conversation history",
 					title: "Conversation history",
-					children: /* @__PURE__ */ (0, $.jsx)(aS, { name: "history" })
+					children: /* @__PURE__ */ (0, $.jsx)(cS, { name: "history" })
 				}),
 				/* @__PURE__ */ (0, $.jsx)("button", {
 					type: "button",
@@ -34487,7 +34540,7 @@ function pS({ title: e, stateLabel: t, connected: n, orbState: r, announceState:
 					onClick: o,
 					"aria-label": "Settings",
 					title: "Settings",
-					children: /* @__PURE__ */ (0, $.jsx)(aS, { name: "settings" })
+					children: /* @__PURE__ */ (0, $.jsx)(cS, { name: "settings" })
 				})
 			]
 		})]
@@ -34580,7 +34633,7 @@ function _S(e, t) {
 	return Math.min(n + Math.max(r, 0), e.media_duration ?? Infinity);
 }
 function vS() {
-	let e = tb(), t = nb(), n = eb().host, r = e ? gS(e, t.music_entity) : null, i = r ? e?.states[r] : void 0, a = i?.state === "playing", o = tS(r ?? ""), [s, c] = (0, _.useState)(null), [, l] = (0, _.useState)(0), u = (0, _.useRef)(null), d = () => {
+	let e = tb(), t = nb(), n = eb().host, r = e ? gS(e, t.music_entity) : null, i = r ? e?.states[r] : void 0, a = i?.state === "playing", o = iS(r ?? ""), [s, c] = (0, _.useState)(null), [, l] = (0, _.useState)(0), u = (0, _.useRef)(null), d = () => {
 		u.current = null, c(null);
 	};
 	if ((0, _.useEffect)(() => (window.addEventListener("blur", d), () => window.removeEventListener("blur", d)), []), (0, _.useEffect)(() => {
@@ -34801,7 +34854,7 @@ function bS({ api: e, onClose: t, onContinue: n, active: r = !0 }) {
 		}) : S === null ? /* @__PURE__ */ (0, $.jsx)("div", {
 			className: "lk-tasks-empty",
 			children: /* @__PURE__ */ (0, $.jsx)("span", { children: "Loading…" })
-		}) : /* @__PURE__ */ (0, $.jsx)(dx, {
+		}) : /* @__PURE__ */ (0, $.jsx)(mx, {
 			before: /* @__PURE__ */ (0, $.jsx)(vS, {}),
 			items: S,
 			startAtEnd: !0
@@ -35157,52 +35210,55 @@ function kS(e, t, n, r) {
 	};
 }
 // src/components/LiveCall.tsx
-function AS({ transcript: e, onTranscript: t, feedback: n, getInputLevel: r, getOutputLevel: i, items: a, connected: o, connecting: s, micStarting: c, mode: l, turnActive: u, autoPaused: d, audioEnabled: f, onTalk: p, onSendRecording: m, onCancelRecording: h, onPause: g, onResume: v, onAudio: y, onInterrupt: b, onEnd: x, onEnableAudio: S, notice: C, approvals: w, transcriptContent: T }) {
-	let E = (0, _.useId)(), D = (0, _.useId)(), ee = (0, _.useRef)(null), te = (0, _.useRef)(null), ne = (0, _.useRef)(null), O = (0, _.useRef)(null), re = (0, _.useRef)(null), ie = (0, _.useRef)({
+function AS({ transcript: e, onTranscript: t, feedback: n, getInputLevel: r, getOutputLevel: i, items: a, connected: o, connecting: s, micStarting: c, mode: l, turnActive: u, autoPaused: d, audioEnabled: f, onTalk: p, onSendRecording: m, onCancelRecording: h, onPause: g, onResume: v, onAudio: y, onInterrupt: b, onEnd: x, onEnableAudio: S, notice: C, hasRecovery: w = !1, approvals: T, transcriptContent: E }) {
+	let D = (0, _.useId)(), ee = (0, _.useId)(), te = (0, _.useRef)(null), ne = (0, _.useRef)(null), O = (0, _.useRef)(null), re = (0, _.useRef)(null), ie = (0, _.useRef)(null), ae = (0, _.useRef)({
 		feedback: n,
 		getInputLevel: r,
 		getOutputLevel: i
 	});
-	ie.current = {
+	ae.current = {
 		feedback: n,
 		getInputLevel: r,
 		getOutputLevel: i
 	};
-	let ae = (0, _.useRef)(null);
-	(0, _.useEffect)(() => (ae.current = kS(O.current, re.current, () => ie.current.feedback.phase, () => ie.current.feedback.phase === "listening" ? ie.current.getInputLevel() : ie.current.feedback.phase === "speaking" ? ie.current.getOutputLevel() : 0), () => {
-		ae.current?.dispose(), ae.current = null;
+	let oe = (0, _.useRef)(null);
+	(0, _.useEffect)(() => (oe.current = kS(re.current, ie.current, () => ae.current.feedback.phase, () => ae.current.feedback.phase === "listening" ? ae.current.getInputLevel() : ae.current.feedback.phase === "speaking" ? ae.current.getOutputLevel() : 0), () => {
+		oe.current?.dispose(), oe.current = null;
 	}), []), (0, _.useEffect)(() => {
-		ae.current?.refresh();
+		oe.current?.refresh();
 	}, [n.phase, e]);
-	let oe = (e) => {
+	let se = (e) => {
 		t(e);
-	}, se = a.filter((e) => e.kind === "message"), ce = se[se.length - 1], le = [...se].reverse().find((e) => e.role === "user"), ue = ce?.role === "agent" ? ce : void 0, de = (0, _.useCallback)(() => {
-		let e = te.current;
+	}, ce = a.filter((e) => e.kind === "message"), le = ce[ce.length - 1], ue = [...ce].reverse().find((e) => e.role === "user"), de = le?.role === "agent" ? le : void 0, fe = (0, _.useCallback)(() => {
+		let e = ne.current;
 		if (!e?.clientHeight) return;
 		let t = Math.max(0, e.scrollHeight - e.clientHeight);
 		Math.abs(e.scrollTop - t) > 1 && (e.scrollTop = t);
 	}, []);
-	(0, _.useLayoutEffect)(de, [
-		de,
-		le?.id,
-		le?.text,
+	(0, _.useLayoutEffect)(fe, [
+		fe,
 		ue?.id,
 		ue?.text,
+		de?.id,
+		de?.text,
 		e
 	]), (0, _.useEffect)(() => {
 		let e, t = new ResizeObserver(() => {
 			e === void 0 && (e = requestAnimationFrame(() => {
-				e = void 0, de();
+				e = void 0, fe();
 			}));
 		});
-		return t.observe(te.current), t.observe(ne.current), () => {
+		return t.observe(ne.current), t.observe(O.current), () => {
 			t.disconnect(), e !== void 0 && cancelAnimationFrame(e);
 		};
-	}, [de]);
-	let fe = l === "manual" && u, pe = l === "auto" && !d, me = c || s, he = fe ? "Send recording" : pe ? "Pause listening" : l === "auto" ? o ? "Resume listening" : "Start call" : "Start talking", ge = fe ? m : pe ? g : l === "auto" ? v : p, _e = fe || c, ve = c && l === "auto";
+	}, [fe]);
+	let pe = l === "manual" && u, me = l === "auto" && !d, he = c || s, ge = pe ? "Send recording" : me ? "Pause listening" : l === "auto" ? o ? "Resume listening" : "Start call" : "Start talking", _e = pe ? m : me ? g : l === "auto" ? v : p, ve = pe || c, ye = c && l === "auto", be = !w && (n.label || S) ? /* @__PURE__ */ (0, $.jsx)(MS, {
+		feedback: n,
+		onEnableAudio: S
+	}) : null, xe = o && !he && pe, k = o && me;
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "lk-call",
-		ref: ee,
+		ref: te,
 		"data-transcript": e ? "1" : "0",
 		"data-phase": n.phase,
 		children: [
@@ -35210,23 +35266,23 @@ function AS({ transcript: e, onTranscript: t, feedback: n, getInputLevel: r, get
 				className: "lk-call-body",
 				children: [/* @__PURE__ */ (0, $.jsxs)("section", {
 					className: "lk-live-stage",
-					id: E,
+					id: D,
 					hidden: e,
 					"aria-label": "Live conversation",
 					children: [/* @__PURE__ */ (0, $.jsx)("div", {
 						className: "lk-call-captions",
-						ref: te,
+						ref: ne,
 						role: "region",
 						"aria-label": "Recent transcript",
 						tabIndex: 0,
 						children: /* @__PURE__ */ (0, $.jsxs)("div", {
-							ref: ne,
-							children: [le && /* @__PURE__ */ (0, $.jsx)("p", {
+							ref: O,
+							children: [ue && /* @__PURE__ */ (0, $.jsx)("p", {
 								className: "lk-call-user",
-								children: le.text
+								children: ue.text
 							}), /* @__PURE__ */ (0, $.jsx)("p", {
 								className: "lk-call-reply",
-								children: ue?.text || (le ? "Waiting for Butler’s reply…" : "What can I help with?")
+								children: de?.text || (ue ? "Waiting for Butler’s reply…" : "What can I help with?")
 							})]
 						})
 					}), /* @__PURE__ */ (0, $.jsxs)("div", {
@@ -35235,74 +35291,68 @@ function AS({ transcript: e, onTranscript: t, feedback: n, getInputLevel: r, get
 							className: "lk-brand-glow",
 							"data-renderer": "fallback",
 							"aria-hidden": "true",
-							children: [/* @__PURE__ */ (0, $.jsx)("canvas", { ref: O }), /* @__PURE__ */ (0, $.jsxs)("svg", {
-								ref: re,
-								viewBox: uS,
+							children: [/* @__PURE__ */ (0, $.jsx)("canvas", { ref: re }), /* @__PURE__ */ (0, $.jsxs)("svg", {
+								ref: ie,
+								viewBox: dx,
 								focusable: "false",
-								children: [dS.map((e, t) => /* @__PURE__ */ (0, $.jsx)("path", {
+								children: [fx.map((e, t) => /* @__PURE__ */ (0, $.jsx)("path", {
 									d: e,
 									fill: "#f2f2f3"
 								}, t)), /* @__PURE__ */ (0, $.jsx)("path", {
-									d: fS,
+									d: px,
 									fill: "#FC6B02"
 								})]
 							})]
-						}), !e && /* @__PURE__ */ (0, $.jsx)(MS, {
-							feedback: n,
-							onEnableAudio: S
-						})]
+						}), !e && be]
 					})]
 				}), /* @__PURE__ */ (0, $.jsx)("section", {
 					className: "lk-call-transcript",
-					id: D,
+					id: ee,
 					hidden: !e,
 					"aria-label": "Transcript",
-					children: T
+					children: E
 				})]
 			}),
-			e && /* @__PURE__ */ (0, $.jsx)(MS, {
-				feedback: n,
-				onEnableAudio: S
-			}),
+			e && be,
 			/* @__PURE__ */ (0, $.jsxs)("div", {
 				className: "lk-call-notices",
-				children: [w, C]
+				children: [T, C]
 			}),
 			/* @__PURE__ */ (0, $.jsxs)("nav", {
 				className: "lk-call-controls",
 				"aria-label": "Voice controls",
 				children: [
 					/* @__PURE__ */ (0, $.jsx)(jS, {
-						label: he,
-						caption: c ? "Starting…" : fe ? "Send" : pe ? "Pause" : l === "auto" ? o ? "Resume" : "Call" : "Talk",
-						icon: fe ? "send" : pe ? "pause" : "microphone",
+						label: ge,
+						caption: c ? "Starting…" : pe ? "Send" : me ? "Pause" : l === "auto" ? o ? "Resume" : "Call" : "Talk",
+						icon: pe ? "send" : me ? "pause" : "microphone",
 						primary: !0,
-						disabled: me,
-						onClick: ge
+						disabled: he,
+						onClick: _e
 					}),
 					/* @__PURE__ */ (0, $.jsx)(jS, {
 						label: f ? "Silence spoken replies" : "Enable spoken replies",
 						caption: f ? "Silence" : "Sound",
 						icon: f ? "sound" : "muted",
 						pressed: !f,
-						disabled: !o || me,
+						disabled: !o || he,
 						onClick: y
 					}),
 					/* @__PURE__ */ (0, $.jsx)(jS, {
-						label: ve ? "Cancel call start" : _e ? "Cancel recording" : "Stop reply audio",
-						caption: _e ? "Cancel" : "Interrupt",
-						icon: _e ? "close" : "interrupt",
-						disabled: !_e && n.phase !== "speaking",
-						onClick: _e ? l === "auto" ? g : h : b
+						label: ye ? "Cancel call start" : ve ? "Cancel recording" : "Stop reply audio",
+						caption: ve ? "Cancel" : "Stop reply",
+						icon: ve ? "close" : "interrupt",
+						disabled: !ve && n.phase !== "speaking",
+						onClick: ve ? l === "auto" ? g : h : b
 					}),
 					/* @__PURE__ */ (0, $.jsx)(jS, {
 						className: "lk-call-view",
-						label: e ? "Live" : "Transcript",
-						caption: e ? "Live" : "Transcript",
+						label: e ? "Live view" : "Transcript",
+						caption: e ? "Live view" : "Transcript",
 						icon: e ? "live" : "transcript",
 						pressed: e,
-						controls: e ? E : D,
-						onClick: () => oe(!e)
+						controls: e ? D : ee,
+						onClick: () => se(!e)
 					}),
 					/* @__PURE__ */ (0, $.jsx)(jS, {
 						label: "End voice session",
@@ -35314,11 +35364,11 @@ function AS({ transcript: e, onTranscript: t, feedback: n, getInputLevel: r, get
 					})
 				]
 			}),
-			/* @__PURE__ */ (0, $.jsxs)("div", {
+			(!e || xe || k) && /* @__PURE__ */ (0, $.jsxs)("div", {
 				className: "lk-call-utility",
-				children: [/* @__PURE__ */ (0, $.jsx)("span", { children: l === "manual" ? "Send when you’re done speaking" : d ? "Speak naturally after starting the call" : "Listening between replies" }), !e && /* @__PURE__ */ (0, $.jsx)("button", {
+				children: [(xe || k) && /* @__PURE__ */ (0, $.jsx)("span", { children: xe ? "Send when you’re done speaking" : "Listening between replies" }), !e && /* @__PURE__ */ (0, $.jsx)("button", {
 					onClick: () => {
-						oe(!0), requestAnimationFrame(() => ee.current?.querySelector("textarea")?.focus());
+						se(!0), requestAnimationFrame(() => te.current?.querySelector("textarea")?.focus({ preventScroll: !0 }));
 					},
 					children: "Type instead"
 				})]
@@ -35340,7 +35390,7 @@ function jS({ label: e, caption: t, icon: n, onClick: r, disabled: i, pressed: a
 		"data-danger": s ? "1" : "0",
 		children: [/* @__PURE__ */ (0, $.jsx)("span", {
 			className: "lk-call-circle",
-			children: /* @__PURE__ */ (0, $.jsx)(aS, { name: n })
+			children: /* @__PURE__ */ (0, $.jsx)(cS, { name: n })
 		}), /* @__PURE__ */ (0, $.jsx)("span", { children: t })]
 	});
 }
@@ -35412,8 +35462,8 @@ function NS(e) {
 		detail: "Connected. Start talking when you’re ready."
 	} : {
 		phase: "idle",
-		label: "Ready to talk",
-		detail: "Start the microphone when you’re ready."
+		label: "",
+		detail: ""
 	};
 }
 var PS = (e) => Number.isFinite(e) ? Math.min(1, Math.max(0, e)) : 0;
@@ -35497,7 +35547,7 @@ function RS({ title: e, message: t, retryLabel: n, busy: r = !1, onRetry: i, onS
 		children: [
 			/* @__PURE__ */ (0, $.jsxs)("div", {
 				role: "alert",
-				children: [/* @__PURE__ */ (0, $.jsx)("strong", { children: e }), /* @__PURE__ */ (0, $.jsx)("p", { children: t })]
+				children: [/* @__PURE__ */ (0, $.jsx)("h2", { children: e }), /* @__PURE__ */ (0, $.jsx)("p", { children: t })]
 			}),
 			/* @__PURE__ */ (0, $.jsxs)("div", {
 				className: "lk-recovery-actions",
@@ -36947,7 +36997,7 @@ function BC(e, t = !0) {
 	}, [n]), xe = (0, _.useCallback)(async (e, t = []) => {
 		let r = await ue(t, () => n.getSnapshot().hass.callApi("POST", IC, { conversation_id: e })), i = !!r?.switched;
 		return r && !i && C("A reply is still running; try again when it ends."), i;
-	}, [n, ue]), k = (0, _.useCallback)(async (e) => !!(await n.getSnapshot().hass.callApi("POST", LC, { conversation_id: e }))?.deleted, [n]), A = (0, _.useMemo)(() => {
+	}, [n, ue]), k = (0, _.useCallback)(async (e) => !!(await n.getSnapshot().hass.callApi("POST", LC, { conversation_id: e }))?.deleted, [n]), Se = (0, _.useMemo)(() => {
 		let e = [...fe], { text: t, key: n, from: r, ts: i } = ee.current, a = e.findIndex((e, n) => n >= r && e.kind === "message" && e.role === "user" && e.text === t);
 		return a >= 0 ? e[a] = {
 			...e[a],
@@ -36959,7 +37009,7 @@ function BC(e, t = !0) {
 			text: E,
 			ts: i
 		}), e;
-	}, [fe, E]), { toolCalls: Se, agentAreas: Ce } = (0, _.useMemo)(() => {
+	}, [fe, E]), { toolCalls: Ce, agentAreas: we } = (0, _.useMemo)(() => {
 		let e = [], t = /* @__PURE__ */ new Set();
 		for (let n of fe) if (n.kind === "action") {
 			e.push({
@@ -36978,9 +37028,9 @@ function BC(e, t = !0) {
 		};
 	}, [fe]);
 	return {
-		items: A,
-		toolCalls: Se,
-		agentAreas: Ce,
+		items: Se,
+		toolCalls: Ce,
+		agentAreas: we,
 		suggestions: d || E !== null ? [] : o,
 		usage: c,
 		busy: d || E !== null,
@@ -37137,13 +37187,13 @@ function $C() {
 		}));
 	}, ye = (0, _.useRef)(i);
 	ye.current = i;
-	let be = i.isConnected, xe = i.room?.localParticipant?.identity, { items: k, addTyped: A } = Hb(xe, d, me, D), { send: Se } = fb(), Ce = r.auto_connect === !0, j = r.audio_output === !0, we = r.start_on_connect === !0, [M, Te] = (0, _.useState)(() => hC(r)), [Ee, De] = (0, _.useState)(!1), [Oe, ke] = (0, _.useState)(() => hC(r) === "auto"), [N, Ae] = (0, _.useState)(!1), [je, Me] = (0, _.useState)(!1), [Ne, Pe] = (0, _.useState)(null), [Fe, Ie] = (0, _.useState)(null), P = (0, _.useRef)(null), Le = (0, _.useRef)(null), Re = (0, _.useRef)(null), [ze, Be] = (0, _.useState)(!1), Ve = (0, _.useRef)(0), He = IS([...k].reverse().find((e) => e.kind === "message" && e.role === "user")?.id), Ue = He.muted, [We, Ge] = (0, _.useState)(null), Ke = LS(i.room), qe = ze || Ke.micActive, Je = FS(i.room, be, qe && s, c && !Ue), Ye = {
-		getInputLevel: Je.getInputLevel,
-		getOutputLevel: i.player ? () => be && c && !Ue && Ke.canPlayback ? i.player.getLevel() : 0 : Je.getOutputLevel
-	}, Xe = (0, _.useRef)(!1), Ze = (0, _.useCallback)(async () => {
-		Re.current?.stop(), Re.current = null;
-		let e = Le.current;
-		Le.current = null;
+	let be = i.isConnected, xe = i.room?.localParticipant?.identity, { items: k, addTyped: Se } = Hb(xe, d, me, D), { send: Ce } = fb(), we = r.auto_connect === !0, A = r.audio_output === !0, Te = r.start_on_connect === !0, [j, Ee] = (0, _.useState)(() => hC(r)), [De, Oe] = (0, _.useState)(!1), [ke, Ae] = (0, _.useState)(() => hC(r) === "auto"), [M, je] = (0, _.useState)(!1), [Me, Ne] = (0, _.useState)(!1), [Pe, Fe] = (0, _.useState)(null), [Ie, Le] = (0, _.useState)(null), N = (0, _.useRef)(null), Re = (0, _.useRef)(null), ze = (0, _.useRef)(null), [Be, Ve] = (0, _.useState)(!1), He = (0, _.useRef)(0), Ue = (0, _.useRef)(!1), P = (0, _.useRef)(null), We = IS([...k].reverse().find((e) => e.kind === "message" && e.role === "user")?.id), Ge = We.muted, [Ke, qe] = (0, _.useState)(null), Je = LS(i.room), Ye = Be || Je.micActive, Xe = FS(i.room, be, Ye && s, c && !Ge), Ze = {
+		getInputLevel: Xe.getInputLevel,
+		getOutputLevel: i.player ? () => be && c && !Ge && Je.canPlayback ? i.player.getLevel() : 0 : Xe.getOutputLevel
+	}, Qe = (0, _.useRef)(!1), $e = (0, _.useCallback)(async () => {
+		ze.current?.stop(), ze.current = null;
+		let e = Re.current;
+		Re.current = null;
 		let t = ye.current.room?.localParticipant, n = new Set([e, ...t ? [...t.audioTrackPublications.values()].filter((e) => e.source === q.Source.Microphone).map((e) => e.track) : []].filter(Boolean));
 		for (let e of n) e.stop();
 		for (let e of n) if (t) try {
@@ -37153,85 +37203,99 @@ function $C() {
 		}
 	}, []);
 	(0, _.useEffect)(() => () => {
-		Ve.current++, P.current = null, Ze();
-	}, [Ze]);
-	let Qe = (0, _.useCallback)(async (e, t = "") => {
+		He.current++, N.current = null, $e();
+	}, [$e]);
+	let et = (0, _.useCallback)(async (e, t = "") => {
 		let n = ye.current.room, r = KC(n);
-		if (n && r) try {
+		if (!n || !r || Ue.current) return;
+		let i = He.current;
+		try {
 			return await n.localParticipant.performRpc({
 				destinationIdentity: r,
 				method: e,
 				payload: t
 			});
 		} catch (t) {
-			console.error(`${e} failed`, t);
+			!Ue.current && i === He.current && console.error(`${e} failed`, t);
 		}
-	}, []), $e = (0, _.useRef)(null), et = (0, _.useCallback)((e) => {
+	}, []), tt = (0, _.useRef)(null), nt = (0, _.useCallback)((e) => {
+		if (Ue.current) return;
+		Ue.current = !0;
 		let t = e && typeof e == "object" && "message" in e && typeof e.message == "string" ? e.message : "Conversation could not be saved. Reconnect to continue.";
-		$e.current?.settle(!1), $e.current = null, Ve.current++, P.current = null, re(t), Pe("connection"), De(!1), ke(!0), Ze().then(() => ye.current.end?.()).catch(console.error);
-	}, [Ze]);
-	Wb(i.room, "ha.conversation_error", et);
-	let tt = (0, _.useCallback)((t) => {
+		tt.current?.settle(!1), tt.current = null, He.current++, N.current = null, re(t), Fe("session"), je(!1), Oe(!1), Ae(!0);
+		let n = $e().then(() => ye.current.end?.()).then(() => !0).catch(() => (re(null), Fe("close"), !1));
+		P.current = n, n.finally(() => {
+			P.current === n && (P.current = null);
+		});
+	}, [$e]);
+	Wb(i.room, "ha.conversation_error", nt);
+	let rt = (0, _.useCallback)((t) => {
 		if (!t || typeof t != "object") return;
 		if ("error" in t) {
-			et(t);
+			nt(t);
 			return;
 		}
 		let n = t;
-		typeof n.id == "string" && Array.isArray(n.items) && ($e.current?.settle(!0), e.voiceConversationId = n.id, ee(n.items.filter((e) => e && (e.kind === "message" || e.kind === "action") && typeof e.id == "string" && typeof e.ts == "number").map((e) => e.kind === "action" ? {
+		typeof n.id == "string" && Array.isArray(n.items) && (tt.current?.settle(!0), e.voiceConversationId = n.id, ee(n.items.filter((e) => e && (e.kind === "message" || e.kind === "action") && typeof e.id == "string" && typeof e.ts == "number").map((e) => e.kind === "action" ? {
 			...e,
 			id: e.call_id ?? e.id,
 			outputChars: e.output_chars
 		} : e)));
-	}, [e, et]);
-	Wb(i.room, "ha.conversation", tt);
-	let nt = (0, _.useCallback)((e) => {
-		Te((t) => (t !== e && gC(e), e));
-	}, []), rt = () => {
-		Ge(null), He.restore(), i.room.startAudio().catch(() => Ge("Audio could not start. Check this browser’s sound permission, then try Enable reply audio again."));
-	}, it = () => {
-		c && !Ke.canPlayback ? rt() : Ue && (He.restore(), c) || Qe("set_audio_output", c ? "off" : "on");
-	}, at = (0, _.useRef)(null), ot = (0, _.useCallback)(async () => {
+	}, [e, nt]);
+	Wb(i.room, "ha.conversation", rt);
+	let it = (0, _.useCallback)((e) => {
+		Ee((t) => (t !== e && gC(e), e));
+	}, []), at = () => {
+		qe(null), We.restore();
+		let e = He.current;
+		i.room.startAudio().catch(() => {
+			!Ue.current && e === He.current && qe("Audio could not start. Check this browser’s sound permission, then try Enable reply audio again.");
+		});
+	}, ot = () => {
+		c && !Je.canPlayback ? at() : Ge && (We.restore(), c) || et("set_audio_output", c ? "off" : "on");
+	}, st = (0, _.useRef)(null), ct = (0, _.useCallback)(async () => {
+		P.current && await P.current;
 		let e = ye.current;
-		if (at.current) return at.current;
-		if (e.isConnected && $e.current?.state === !0) return !0;
-		$e.current?.settle(!1);
+		if (st.current) return st.current;
+		if (e.isConnected && tt.current?.state === !0) return !0;
+		tt.current?.settle(!1);
 		let t = xS();
-		$e.current = t;
-		let n = Ve.current;
-		return x(!1), Me(!0), Pe(null), he((e) => e + 1), at.current = (async () => {
+		tt.current = t;
+		let n = He.current;
+		return Ue.current = !1, re(null), x(!1), Ne(!0), Fe(null), he((e) => e + 1), st.current = (async () => {
 			try {
 				return e.isConnected || await e.start?.({
 					tracks: { microphone: { enabled: !1 } },
 					roomConnectOptions: { autoSubscribe: !1 }
-				}), n === Ve.current ? !await t.promise || n !== Ve.current ? (n === Ve.current && Pe("connection"), await e.end?.(), !1) : !0 : (t.settle(!1), await e.end?.(), !1);
+				}), n === He.current ? !await t.promise || n !== He.current ? (n === He.current && Fe("connection"), await e.end?.(), !1) : !0 : (t.settle(!1), await e.end?.(), !1);
 			} catch (e) {
-				return t.settle(!1), n === Ve.current && (console.error("connect failed", e), Me(!1), Pe("connection")), !1;
+				return t.settle(!1), n === He.current && (console.error("connect failed", e), Ne(!1), Fe("connection")), !1;
 			} finally {
-				Me(!1), at.current = null;
+				Ne(!1), st.current = null;
 			}
-		})(), at.current;
-	}, []), st = (0, _.useCallback)(() => {
-		let e = Ve.current, t = ye.current.room;
+		})(), st.current;
+	}, []), lt = (0, _.useCallback)(() => {
+		if (P.current) return Promise.reject(new CS("cancelled"));
+		let e = He.current, t = ye.current.room;
 		return wS(de ? {
 			acquire: async () => {
 				try {
 					let t = await ye.current.nativeClient.call({
 						type: "backend_butler/native/prepare",
-						continuous: M === "auto"
+						continuous: j === "auto"
 					});
-					if (e !== Ve.current) throw new CS("cancelled");
+					if (e !== He.current) throw new CS("cancelled");
 					if (!t?.entity_id) throw new DOMException("The native microphone receiver is unavailable", "NotSupportedError");
-					let r = new SS(n.current?.auth?.external, t.entity_id, Be, () => {
-						De(!1), ke(!0), Ie(TS(new DOMException("Native microphone session ended", "AbortError"))), Pe("microphone"), Qe("cancel_turn");
+					let r = new SS(n.current?.auth?.external, t.entity_id, Ve, () => {
+						Oe(!1), Ae(!0), Le(TS(new DOMException("Native microphone session ended", "AbortError"))), Fe("microphone"), et("cancel_turn");
 					});
-					return Re.current = r, await r.start();
+					return ze.current = r, await r.start();
 				} catch (e) {
 					throw e instanceof CS ? e : new CS("capture", e);
 				}
 			},
-			connect: ot,
-			isCurrent: () => e === Ve.current,
+			connect: ct,
+			isCurrent: () => e === He.current,
 			publish: async () => {},
 			unpublish: async (e) => e.stop(),
 			start: async () => {
@@ -37240,7 +37304,7 @@ function $C() {
 				return await t.localParticipant.performRpc({
 					destinationIdentity: e,
 					method: "set_turn_mode",
-					payload: M === "auto" ? "auto" : "manual"
+					payload: j === "auto" ? "auto" : "manual"
 				}), t.localParticipant.performRpc({
 					destinationIdentity: e,
 					method: "start_turn",
@@ -37249,11 +37313,11 @@ function $C() {
 			}
 		} : {
 			acquire: () => navigator.mediaDevices?.getUserMedia ? xh().then((t) => {
-				if (e !== Ve.current) throw t.stop(), new CS("cancelled");
-				return Le.current = t, t;
+				if (e !== He.current) throw t.stop(), new CS("cancelled");
+				return Re.current = t, t;
 			}) : Promise.reject(new DOMException("Capture is unavailable", "NotSupportedError")),
-			connect: ot,
-			isCurrent: () => e === Ve.current,
+			connect: ct,
+			isCurrent: () => e === He.current,
 			publish: (e) => t.localParticipant.publishTrack(e, { source: q.Source.Microphone }),
 			unpublish: (e) => t.localParticipant.unpublishTrack(e, !0),
 			start: async () => {
@@ -37262,7 +37326,7 @@ function $C() {
 				return await t.localParticipant.performRpc({
 					destinationIdentity: e,
 					method: "set_turn_mode",
-					payload: M === "auto" ? "auto" : "manual"
+					payload: j === "auto" ? "auto" : "manual"
 				}), t.localParticipant.performRpc({
 					destinationIdentity: e,
 					method: "start_turn",
@@ -37271,89 +37335,89 @@ function $C() {
 			}
 		});
 	}, [
-		ot,
+		ct,
 		de,
-		Qe,
-		M
-	]), ct = (0, _.useCallback)((e) => {
-		if (P.current) return;
-		He.restore(), Ge(null), u(), Pe(null), Ie(null), Ae(!0);
-		let t = Ve.current, n = st();
-		P.current = n, n.catch((n) => {
-			t !== Ve.current || n instanceof CS && n.stage === "cancelled" || (console.error("open turn failed", n), n instanceof CS && n.stage === "capture" ? (Ie(TS(n.reason, de)), Pe("microphone")) : Pe("connection"), e());
+		et,
+		j
+	]), ut = (0, _.useCallback)((e) => {
+		if (N.current || P.current) return;
+		We.restore(), qe(null), u(), Fe(null), Le(null), je(!0);
+		let t = He.current, n = lt();
+		N.current = n, n.catch((n) => {
+			t !== He.current || n instanceof CS && n.stage === "cancelled" || (console.error("open turn failed", n), n instanceof CS && n.stage === "capture" ? (Le(TS(n.reason, de)), Fe("microphone")) : Fe("connection"), e());
 		}).finally(() => {
-			P.current === n && (P.current = null, Ae(!1));
+			N.current === n && (N.current = null, je(!1));
 		});
 	}, [
-		st,
+		lt,
 		u,
 		de
-	]), lt = (0, _.useCallback)(async (e) => {
-		(e === "cancel_turn" || P.current) && Ve.current++, P.current = null, Ae(!1), await Promise.allSettled([Qe(e), Ze()]);
-	}, [Qe, Ze]), ut = (0, _.useCallback)(() => {
-		De(!0), ct(() => De(!1));
-	}, [ct]), dt = (0, _.useCallback)(async () => {
-		De(!1), await lt("end_turn");
-	}, [lt]), ft = (0, _.useCallback)(async () => {
-		De(!1), await lt("cancel_turn");
-	}, [lt]), pt = (0, _.useCallback)(async () => {
-		ke(!0), await lt("cancel_turn");
-	}, [lt]), mt = (0, _.useCallback)(() => {
-		ke(!1), ct(() => ke(!0));
-	}, [ct]), ht = (0, _.useCallback)(async (e) => {
+	]), dt = (0, _.useCallback)(async (e) => {
+		(e === "cancel_turn" || N.current) && He.current++, N.current = null, je(!1), await Promise.allSettled([et(e), $e()]);
+	}, [et, $e]), ft = (0, _.useCallback)(() => {
+		P.current || (Oe(!0), ut(() => Oe(!1)));
+	}, [ut]), pt = (0, _.useCallback)(async () => {
+		Oe(!1), await dt("end_turn");
+	}, [dt]), mt = (0, _.useCallback)(async () => {
+		Oe(!1), await dt("cancel_turn");
+	}, [dt]), ht = (0, _.useCallback)(async () => {
+		Ae(!0), await dt("cancel_turn");
+	}, [dt]), gt = (0, _.useCallback)(() => {
+		P.current || (Ae(!1), ut(() => Ae(!0)));
+	}, [ut]), _t = (0, _.useCallback)(async (e) => {
 		if (oe.current) return !1;
-		oe.current = !0, ae(!0), He.restore(), Ge(null), u(), Pe(null);
+		oe.current = !0, ae(!0), We.restore(), qe(null), u(), Fe(null);
 		try {
-			return await ot() ? (await Se(e), A(e), !0) : !1;
+			return await ct() ? (await Ce(e), Se(e), !0) : !1;
 		} catch (e) {
-			return console.error("send failed", e), Pe("message"), !1;
+			return console.error("send failed", e), Fe("message"), !1;
 		} finally {
 			oe.current = !1, ae(!1);
 		}
 	}, [
-		ot,
-		A,
+		ct,
 		Se,
+		Ce,
 		u
-	]), gt = async () => {
+	]), vt = async () => {
 		let e = se.trim();
-		e ? await ht(e) && ce((t) => t.trim() === e ? "" : t) : Ne === "microphone" ? M === "manual" ? ut() : mt() : await ot();
+		e && (Pe === "connection" || Pe === "message") ? await _t(e) && ce((t) => t.trim() === e ? "" : t) : Pe === "microphone" ? j === "manual" ? ft() : gt() : await ct();
 	};
 	(0, _.useEffect)(() => {
-		be || (De(!1), Ae(!1), ke(M === "auto"));
-	}, [be, M]), (0, _.useEffect)(() => {
-		Ve.current++, P.current = null, De(!1), Ae(!1), ke(M === "auto"), ye.current.isConnected && (Ze(), Qe("set_turn_mode", "manual"));
+		be || (Oe(!1), je(!1), Ae(j === "auto"));
+	}, [be, j]), (0, _.useEffect)(() => {
+		He.current++, N.current = null, Oe(!1), je(!1), Ae(j === "auto"), ye.current.isConnected && ($e(), et("set_turn_mode", "manual"));
 	}, [
-		M,
-		Ze,
-		Qe
+		j,
+		$e,
+		et
 	]);
-	let _t = a.isConnected;
+	let yt = a.isConnected;
 	(0, _.useEffect)(() => {
-		if (!be || !_t) return;
-		let e = !1;
+		if (!be || !yt || Ue.current) return;
+		let e = He.current, t = !1, n = () => !t && !Ue.current && e === He.current;
 		return (async () => {
-			let t = await Qe("get_conversation");
-			if (!e && t) try {
-				let e = JSON.parse(t);
-				if (tt(e), e?.error) return;
+			let e = await et("get_conversation");
+			if (n() && e) try {
+				let t = JSON.parse(e);
+				if (rt(t), t?.error) return;
 			} catch {}
-			e || (await Qe("set_turn_mode", M === "auto" && !Oe ? "auto" : "manual"), await Qe("set_audio_output", j ? "on" : "off"), e || Ce && we && !Xe.current && (Xe.current = !0, M === "auto" ? mt() : ut()));
+			n() && (await et("set_turn_mode", j === "auto" && !ke ? "auto" : "manual"), n() && (await et("set_audio_output", A ? "on" : "off"), n() && we && Te && !Qe.current && (Qe.current = !0, j === "auto" ? gt() : ft())));
 		})(), () => {
-			e = !0;
+			t = !0;
 		};
 	}, [
 		be,
-		_t,
-		M,
-		Oe,
-		Ce,
-		we,
+		yt,
 		j,
-		Qe,
-		tt,
-		ut,
-		mt
+		ke,
+		we,
+		Te,
+		A,
+		et,
+		rt,
+		ft,
+		gt
 	]), (0, _.useEffect)(() => {
 		let e = ye.current.room;
 		if (!be || !e) return;
@@ -37364,57 +37428,71 @@ function $C() {
 			e.off(H.TrackPublished, t), e.off(H.ParticipantConnected, t);
 		};
 	}, [be, c]);
-	let [vt, yt] = (0, _.useState)(!1);
+	let [bt, xt] = (0, _.useState)(!1);
 	(0, _.useEffect)(() => {
-		!Ce || vt || !t || be || document.hidden || (yt(!0), ot());
+		!we || bt || !t || be || document.hidden || (xt(!0), ct());
 	}, [
-		Ce,
-		vt,
+		we,
+		bt,
 		t,
 		be,
-		ot
+		ct
 	]), (0, _.useEffect)(() => {
 		let e = () => {
-			$e.current?.settle(!1), ye.current.end?.();
+			Ue.current = !0, He.current++, tt.current?.settle(!1), $e().then(() => ye.current.end?.()).catch((e) => console.error("Voice session cleanup failed", e));
 		};
 		return window.addEventListener("pagehide", e), () => {
-			window.removeEventListener("pagehide", e), $e.current?.settle(!1), ye.current.end?.();
+			window.removeEventListener("pagehide", e), e();
 		};
-	}, []);
-	let bt = Nb(k), xt = JC(be, je, o), St = be && !s && xt.orb === "listening" ? "dozing" : xt.orb, Ct = Ne === "connection" ? {
+	}, [$e]);
+	let St = Nb(k), Ct = JC(be, Me, o), wt = be && !s && Ct.orb === "listening" ? "dozing" : Ct.orb, Tt = !!se.trim(), Et = `${Tt ? "Your typed draft is still here. " : ""}Retry the conversation or check connection settings.`, Dt = Pe === "connection" ? {
 		title: "Voice session couldn’t connect",
-		message: "Your typed draft is still here. Retry the conversation or check connection settings."
-	} : Ne === "message" ? {
+		message: Et
+	} : Pe === "session" ? {
+		title: "Voice session needs attention",
+		message: `${O ? O + " " : ""}${Et}`
+	} : Pe === "close" ? {
+		title: "Call ended, but saving wasn’t confirmed",
+		message: `The microphone is off. Butler couldn’t confirm the conversation was saved and closed. ${Tt ? "Your typed draft is still here. " : ""}Reconnect before continuing.`
+	} : Pe === "message" ? {
 		title: "Your message wasn’t sent",
-		message: "Your draft is saved below. Retry the message or check connection settings."
-	} : Ne === "microphone" ? Fe ?? TS(null) : null, wt = async (t) => {
-		x(t === "idle"), $e.current?.settle(!1), $e.current = null, Ve.current++, P.current = null, Me(!1), Ge(null), De(!1), ke(!0), Pe(null), await Ze();
-		try {
-			i.room.state !== Q.Disconnected && await i.end?.();
-		} catch {
-			je || Pe("connection");
-		}
-		He.restore(), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("[aria-label=\"Start talking\"], [aria-label=\"Start listening\"]")?.focus());
-	}, Tt = (0, _.useRef)(wt);
-	Tt.current = wt;
-	let Et = (0, _.useCallback)(() => {
-		yt(!0), Tt.current("idle");
+		message: `${Tt ? "Your typed draft is still here. " : ""}Retry the message or check connection settings.`
+	} : Pe === "microphone" ? Ie ?? TS(null) : null, Ot = (t) => {
+		if (P.current) return P.current;
+		Ue.current = !0, x(t === "idle"), tt.current?.settle(!1), tt.current = null, He.current++, N.current = null, Ne(!1), je(!1), qe(null), Oe(!1), Ae(!0), Fe(null), re(null);
+		let n = (async () => {
+			await $e();
+			try {
+				let e = ye.current;
+				(e.nativeClient || e.room.state !== Q.Disconnected) && await e.end?.();
+			} catch {
+				return x(!1), Fe("close"), !1;
+			}
+			return We.restore(), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("[aria-label=\"Start call\"], [aria-label=\"Start talking\"], [aria-label=\"Start listening\"]")?.focus()), !0;
+		})();
+		return P.current = n, n.finally(() => {
+			P.current === n && (P.current = null);
+		}), n;
+	}, kt = (0, _.useRef)(Ot);
+	kt.current = Ot;
+	let At = (0, _.useCallback)(() => {
+		xt(!0), kt.current("idle");
 	}, []);
-	Wb(i.room, "ha.session_idle", Et);
-	let Dt = () => {
-		He.stop(), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("textarea")?.focus());
-	}, Ot = [...d].reverse().find((e) => e.status === "running"), kt = NS({
+	Wb(i.room, "ha.session_idle", At);
+	let jt = () => {
+		We.stop(), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("textarea")?.focus({ preventScroll: !0 }));
+	}, Mt = [...d].reverse().find((e) => e.status === "running"), Nt = NS({
 		connected: be,
-		connecting: je,
+		connecting: Me,
 		idleEnded: b,
-		reconnecting: Ke.reconnecting,
-		micActive: qe && s,
-		micStarting: N,
+		reconnecting: Je.reconnecting,
+		micActive: Ye && s,
+		micStarting: M,
 		agentState: o,
-		audioOutput: c && !Ue && Ke.canPlayback,
-		pendingTool: Ot ? Pb(Ot.name) : void 0,
-		error: We ?? Ct?.message ?? null
-	}), At = be || je || N || Ke.reconnecting || !!Ne, jt = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)(dx, {
+		audioOutput: c && !Ge && Je.canPlayback,
+		pendingTool: Mt ? Pb(Mt.name) : void 0,
+		error: Ke ?? Dt?.message ?? null
+	}), Pt = be || Me || M || Je.reconnecting || !!Pe, Ft = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)(mx, {
 		voice: !0,
 		compact: g,
 		before: g ? void 0 : /* @__PURE__ */ (0, $.jsxs)("div", {
@@ -37423,11 +37501,11 @@ function $C() {
 			"aria-label": "Home controls",
 			children: [
 				/* @__PURE__ */ (0, $.jsx)(vS, {}),
-				/* @__PURE__ */ (0, $.jsx)(nS, {
+				/* @__PURE__ */ (0, $.jsx)(aS, {
 					hidden: !le,
 					agentAreas: f,
 					toolCalls: d,
-					query: bt,
+					query: St,
 					showRecent: be
 				}),
 				/* @__PURE__ */ (0, $.jsx)(BS, {
@@ -37440,44 +37518,44 @@ function $C() {
 		}),
 		items: k,
 		reflowKey: l.length,
-		unavailable: Ne === "connection" || Ne === "message",
+		unavailable: Pe === "connection" || Pe === "session" || Pe === "close" || Pe === "message",
 		onPrompt: (t) => {
-			y(!0), ce(t), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("textarea")?.focus());
+			y(!0), ce(t), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("textarea")?.focus({ preventScroll: !0 }));
 		}
-	}), /* @__PURE__ */ (0, $.jsx)(oS, {
+	}), /* @__PURE__ */ (0, $.jsx)(lS, {
 		textOnly: !0,
 		draft: se,
 		onDraftChange: ce,
 		connected: be,
-		connecting: je,
-		mode: M,
-		turnActive: Ee,
-		autoPaused: Oe,
-		micStarting: N,
-		onSend: ht,
-		onTurnStart: ut,
-		onTurnEnd: dt,
-		onTurnCancel: ft,
-		onPause: pt,
-		onResume: mt,
+		connecting: Me,
+		mode: j,
+		turnActive: De,
+		autoPaused: ke,
+		micStarting: M,
+		onSend: _t,
+		onTurnStart: ft,
+		onTurnEnd: pt,
+		onTurnCancel: mt,
+		onPause: ht,
+		onResume: gt,
 		suggestions: l
-	})] }), Mt = async (t, n) => {
+	})] }), It = async (t, n) => {
 		ne(!0), re(null);
 		try {
-			await wt();
+			if (!await Ot()) return;
 			let r = !1;
 			for (let e = 0; e < 4 && !r; e++) e && await new Promise((e) => setTimeout(e, 350)), r = await fe.switchConversation(t, n);
 			if (!r) throw Error("This conversation is still in use. Wait a moment, then try again.");
-			if (e.voiceConversationId = t, he((e) => e + 1), ee(n), !await ot()) throw Error("The conversation could not connect. Your history is still available.");
+			if (e.voiceConversationId = t, he((e) => e + 1), ee(n), !await ct()) throw Error("The conversation could not connect. Your history is still available.");
 			h(null);
 		} finally {
 			ne(!1);
 		}
-	}, Nt = async () => {
+	}, Lt = async () => {
 		if (!te) {
 			ne(!0), re(null);
 			try {
-				await wt();
+				if (!await Ot()) return;
 				for (let t = 0;; t++) try {
 					await e.getSnapshot().hass.callApi("POST", "backend_butler/chat", { new: !0 });
 					break;
@@ -37495,16 +37573,16 @@ function $C() {
 	};
 	return /* @__PURE__ */ (0, $.jsxs)("ha-card", {
 		"data-live-ui": "1",
-		"data-dock": M,
+		"data-dock": j,
 		"data-tall": "1",
 		"data-voice-card": g ? "1" : "0",
-		"data-voice-idle": g && !At && k.length === 0 ? "1" : "0",
+		"data-voice-idle": g && !Pt && k.length === 0 ? "1" : "0",
 		children: [
-			c && /* @__PURE__ */ (0, $.jsx)(yb, { muted: Ue }),
+			c && /* @__PURE__ */ (0, $.jsx)(yb, { muted: Ge }),
 			/* @__PURE__ */ (0, $.jsx)(pS, {
 				title: ZC(r.title),
 				connected: be,
-				orbState: At ? kt.phase : St,
+				orbState: Pt ? Nt.phase : wt,
 				stateLabel: "Live conversation",
 				announceState: !1,
 				upcomingCount: pe.tasks.filter((e) => e.enabled && e.status === "scheduled").length,
@@ -37519,38 +37597,39 @@ function $C() {
 				children: /* @__PURE__ */ (0, $.jsx)(AS, {
 					transcript: v,
 					onTranscript: y,
-					feedback: kt,
-					...Ye,
+					feedback: Nt,
+					...Ze,
 					items: k,
 					connected: be,
-					connecting: je,
-					micStarting: N,
-					mode: M,
-					turnActive: Ee,
-					autoPaused: Oe,
-					audioEnabled: c && !Ue,
-					onTalk: ut,
-					onSendRecording: dt,
-					onCancelRecording: ft,
-					onPause: pt,
-					onResume: mt,
-					onAudio: it,
-					onInterrupt: Dt,
-					onEnd: () => void wt(),
-					onEnableAudio: be && c && !Ke.canPlayback ? rt : void 0,
-					transcriptContent: jt,
+					connecting: Me,
+					micStarting: M,
+					mode: j,
+					turnActive: De,
+					autoPaused: ke,
+					audioEnabled: c && !Ge,
+					onTalk: ft,
+					onSendRecording: pt,
+					onCancelRecording: mt,
+					onPause: ht,
+					onResume: gt,
+					onAudio: ot,
+					onInterrupt: jt,
+					onEnd: () => void Ot(),
+					onEnableAudio: be && c && !Je.canPlayback ? at : void 0,
+					hasRecovery: !!Dt,
+					transcriptContent: Ft,
 					approvals: /* @__PURE__ */ (0, $.jsx)(Jb, { room: i.room }),
-					notice: /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [O && m !== "history" && /* @__PURE__ */ (0, $.jsx)("p", {
+					notice: /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [O && Pe !== "session" && m !== "history" && /* @__PURE__ */ (0, $.jsx)("p", {
 						className: "lk-set-err",
 						role: "alert",
 						children: O
-					}), Ct && /* @__PURE__ */ (0, $.jsx)(RS, {
-						...Ct,
-						retryLabel: se.trim() ? "Retry message" : Ne === "microphone" ? "Retry microphone" : "Retry connection",
-						busy: je || ie || N,
-						onRetry: () => void gt(),
-						onSettings: Ne !== "microphone" && t?.user?.is_admin ? ve : void 0,
-						diagnostic: Ne === "microphone" ? Fe?.diagnostic : void 0
+					}), Dt && /* @__PURE__ */ (0, $.jsx)(RS, {
+						...Dt,
+						retryLabel: Tt && (Pe === "connection" || Pe === "message") ? "Retry message" : Pe === "microphone" ? "Retry microphone" : Pe === "close" ? "Reconnect" : "Retry voice",
+						busy: Me || ie || M,
+						onRetry: () => void vt(),
+						onSettings: Pe !== "microphone" && t?.user?.is_admin ? ve : void 0,
+						diagnostic: Pe === "microphone" ? Ie?.diagnostic : void 0
 					})] })
 				})
 			}),
@@ -37569,9 +37648,9 @@ function $C() {
 							className: "lk-set-desc",
 							children: "Choose how to talk. The microphone starts only when you ask it to."
 						}),
-						/* @__PURE__ */ (0, $.jsx)(lS, {
-							mode: M,
-							onChange: nt
+						/* @__PURE__ */ (0, $.jsx)(fS, {
+							mode: j,
+							onChange: it
 						}),
 						/* @__PURE__ */ (0, $.jsxs)("button", {
 							className: "lk-checkrow",
@@ -37582,9 +37661,9 @@ function $C() {
 						/* @__PURE__ */ (0, $.jsxs)("button", {
 							className: "lk-checkrow",
 							disabled: !be,
-							"aria-pressed": c && !Ue,
-							onClick: it,
-							children: ["Spoken replies · ", c && !Ue ? "On" : "Off"]
+							"aria-pressed": c && !Ge,
+							onClick: ot,
+							children: ["Spoken replies · ", c && !Ge ? "On" : "Off"]
 						}),
 						!be && /* @__PURE__ */ (0, $.jsx)("p", {
 							className: "lk-set-desc",
@@ -37601,7 +37680,7 @@ function $C() {
 					api: pe,
 					onOpen: _e,
 					onCreate: () => {
-						ce((e) => e.trim() ? e : "Remind me to take out the bins tomorrow at 7 PM."), h(null), y(!0), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("textarea")?.focus());
+						ce((e) => e.trim() ? e : "Remind me to take out the bins tomorrow at 7 PM."), h(null), y(!0), requestAnimationFrame(() => e.host?.shadowRoot?.querySelector("textarea")?.focus({ preventScroll: !0 }));
 					}
 				})
 			}),
@@ -37613,7 +37692,7 @@ function $C() {
 					className: "lk-history-actions",
 					children: [/* @__PURE__ */ (0, $.jsx)("button", {
 						className: "lk-btn",
-						onClick: () => void Nt(),
+						onClick: () => void Lt(),
 						disabled: te,
 						children: "New conversation"
 					}), O && /* @__PURE__ */ (0, $.jsx)("p", {
@@ -37625,7 +37704,7 @@ function $C() {
 					active: m === "history",
 					api: fe,
 					onClose: () => h(null),
-					onContinue: Mt
+					onContinue: It
 				})]
 			}),
 			ge && /* @__PURE__ */ (0, $.jsx)(pC, {
@@ -37742,9 +37821,9 @@ function pw(e) {
 	for (let [t, n] of Object.entries(p)) e.style.setProperty(t, sw(n));
 }
 // src/styles.ts
-var mw = xb + "\n  :host {\n    --lk-accent: var(--primary-color, #4c8dff);\n    --lk-on-accent: var(--text-primary-color, #fff);\n    --lk-on-danger: var(--text-primary-color, #fff);\n    --lk-accent-ink: var(--lk-accent);\n    --lk-danger-ink: var(--lk-danger);\n    --lk-focus: var(--lk-accent);\n    --lk-fg: var(--primary-text-color, #e9eaee);\n    --lk-muted: var(--secondary-text-color, #9aa1ac);\n    --lk-surface: var(--card-background-color, var(--ha-card-background, #16181d));\n    --lk-elevated: var(--secondary-background-color, rgba(140,140,150,0.10));\n    --lk-line: var(--divider-color, rgba(140,140,150,0.20));\n    --lk-danger: var(--error-color, #f0483e);\n    --lk-ok: var(--success-color, #21b573);\n    --lk-sans: \"ButlerManrope\", \"Manrope\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif;\n    --lk-mono: ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, monospace;\n    --lk-h: 540px;\n    display: block;\n    container-type: inline-size;\n  }\n  :host([data-fullpage]) { height: var(--lk-available-h, 100dvh); min-height: 0; }\n  .lk-panel { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }\n  .lk-panel[hidden] { display: none; }\n  .lk-root { height: 100%; min-height: 0; }\n  :host([data-fullpage]) ha-card { height: 100%; max-height: none; border: none; border-radius: 0; }\n  * { box-sizing: border-box; }\n  * { scrollbar-color: var(--lk-line) transparent; }\n  ::selection { background: var(--lk-accent); color: var(--lk-on-accent); }\n  input, textarea { caret-color: var(--lk-accent-ink); }\n  :is(button, summary, a, input, textarea, select):focus-visible {\n    outline: 2px solid var(--lk-focus); outline-offset: 3px;\n  }\n  .lk-input:focus-visible, .lk-in:focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 3px; }\n  time, .lk-approval-status, .lk-act-note { font-variant-numeric: tabular-nums; }\n  button { font-family: inherit; color: inherit; min-inline-size: 44px; min-block-size: 44px; }\n  summary { min-block-size: 44px; min-inline-size: 44px; }\n  .lk-context { flex: none; min-width: 0; margin-bottom: 4px; }\n  .lk-context:empty { display: none; }\n\n  ha-card {\n    position: relative;\n    background: var(--lk-surface);\n    /* Content-sized: shrinks to fit (idle = just header + tiles + composer, no dead space)\n       and grows with the conversation up to the cap, then the timeline scrolls inside. */\n    height: auto;\n    max-height: min(var(--lk-h), calc(100dvh - 148px));\n    display: flex;\n    flex-direction: column;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 12px);\n    font-family: var(--lk-sans);\n    color: var(--lk-fg);\n    -webkit-font-smoothing: antialiased;\n  }\n  /* Schedules tab / editor: a definite height (not content-sized) so the list scrolls in a\n     stable viewport and the editor sheet has room. */\n  ha-card[data-tall=\"1\"] {\n    height: min(var(--lk-h), calc(100dvh - 148px));\n  }\n\n  ha-card[data-voice-card=\"1\"] { height: var(--lk-h); max-height: none; }\n  ha-card[data-voice-card=\"1\"] .lk-convo { padding-inline: 18px; }\n  ha-card[data-voice-card=\"1\"] .lk-dock { padding: 0 18px 14px; background: transparent; }\n  ha-card[data-voice-card=\"1\"] .lk-dock > :first-child { border-top: 1px solid var(--lk-line); padding-top: 10px; }\n  ha-card[data-voice-card=\"1\"] .lk-bar { border: 0; border-radius: 0; box-shadow: none; background: transparent; }\n  ha-card[data-voice-card=\"1\"] .lk-starters { display: none; }\n  ha-card[data-voice-idle=\"1\"] { height: auto; }\n  ha-card[data-voice-idle=\"1\"] .lk-convo { flex: none; padding-block: 0; max-height: 320px; }\n\n  /* ---- header ---- */\n  .lk-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 14px 4px; flex: none; }\n  .lk-titlewrap { flex: 1 1 10rem; min-width: 0; min-height: 50px; display: flex; flex-direction: column; justify-content: center; gap: 1px; }\n  .lk-title { min-width: 0; font-size: 1.04rem; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  /* live agent phase under the title: connecting / connected / listening / thinking / speaking */\n  .lk-state { font-family: var(--lk-mono); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;\n    text-transform: uppercase; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\n    transition: color .2s; }\n  .lk-state[data-state=\"listening\"], .lk-state[data-state=\"speaking\"], .lk-state[data-state=\"thinking\"] { color: var(--lk-accent-ink); }\n\n  /* Auto | Manual segmented toggle (shown when connected, in place of the status pill) */\n  .lk-modeswitch { flex: none; display: inline-flex; gap: 0; }\n  .lk-modeswitch button { display: flex; align-items: center; border: 0; cursor: pointer; background: transparent;\n    color: var(--lk-muted); font-family: var(--lk-sans); font-size: .75rem; font-weight: 500; line-height: 1.2;\n    padding: 0; border-radius: 8px; min-height: 44px; }\n  .lk-modeswitch button span { display: block; width: 100%; padding: 6px 10px; border: 1px solid var(--lk-line);\n    background: var(--lk-surface); transition: background-color .15s, color .15s; }\n  .lk-modeswitch button:first-child span { border-radius: 8px 0 0 8px; }\n  .lk-modeswitch button:last-child span { border-radius: 0 8px 8px 0; border-inline-start: 0; }\n  .lk-modeswitch button[data-on=\"1\"] { color: var(--lk-accent-ink); font-weight: 650; }\n  .lk-modeswitch button[data-on=\"1\"] span { background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface)); }\n  .lk-modeswitch button:not([data-on=\"1\"]):hover { color: var(--lk-fg); }\n  .lk-modeswitch button:not([data-on=\"1\"]):hover span { background: var(--lk-elevated); }\n\n  .lk-iconbtn {\n    flex: none; width: 44px; height: 44px; border-radius: 10px; border: none; cursor: pointer;\n    background: transparent; color: var(--lk-muted); display: grid; place-items: center; --mdc-icon-size: 19px;\n  }\n  .lk-iconbtn:hover { background: var(--lk-elevated); color: var(--lk-fg); }\n  .lk-iconbtn[data-on=\"1\"] { color: var(--lk-accent-ink); }\n\n  /* ---- voice orb ---- */\n  .lk-orb { position: relative; width: 26px; height: 26px; flex: none; display: grid; place-items: center; }\n  .lk-orb::before { content: \"\"; position: absolute; inset: -4px; border-radius: 50%; opacity: 0;\n    background: radial-gradient(circle, color-mix(in srgb, var(--lk-accent) 48%, transparent), transparent 68%); }\n  .lk-orb-core { width: 13px; height: 13px; border-radius: 50%;\n    background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--lk-accent) 55%, #fff), var(--lk-accent));\n    box-shadow: none; }\n  .lk-orb[data-state=\"idle\"] .lk-orb-core { background: var(--lk-muted); box-shadow: none; }\n  /* dozing: connected but STT torn down to save cost — alive (slow, faint breathe) but not listening */\n  .lk-orb[data-state=\"dozing\"] .lk-orb-core { background: var(--lk-muted); box-shadow: none; opacity: .55;\n    animation: lk-breathe 3.6s ease-in-out infinite; }\n  /* Connected and quiet remains visibly alive without suggesting microphone capture. */\n  .lk-orb[data-connected=\"1\"]:is([data-state=\"idle\"], [data-state=\"dozing\"]) .lk-orb-core {\n    background: var(--lk-accent); opacity: 1; animation: none;\n  }\n  .lk-orb[data-connected=\"1\"]:is([data-state=\"idle\"], [data-state=\"dozing\"])::before { opacity: .2; }\n  .lk-orb[data-state=\"connecting\"] .lk-orb-core { animation: lk-breathe 1.1s ease-in-out infinite; }\n  .lk-orb[data-state=\"listening\"] .lk-orb-core { animation: lk-breathe 2.4s ease-in-out infinite; }\n  .lk-orb[data-state=\"listening\"]::before { opacity: .7; animation: lk-halo 2.4s ease-in-out infinite; }\n  .lk-orb[data-state=\"thinking\"] .lk-orb-core { animation: lk-breathe .8s ease-in-out infinite; }\n  .lk-orb[data-state=\"thinking\"]::before { opacity: .5; animation: lk-halo .8s ease-in-out infinite; }\n  .lk-orb[data-state=\"speaking\"] .lk-orb-core { animation: lk-speak .5s ease-in-out infinite; }\n  .lk-orb[data-state=\"speaking\"]::before { opacity: .9; }\n  @keyframes lk-breathe { 0%,100% { transform: scale(.82); } 50% { transform: scale(1.18); } }\n  @keyframes lk-speak { 0%,100% { transform: scale(.78); } 50% { transform: scale(1.3); } }\n  @keyframes lk-halo { 0%,100% { transform: scale(.9); opacity: .35; } 50% { transform: scale(1.3); opacity: .8; } }\n\n  /* ---- device tiles (horizontal rail) ---- */\n  .lk-devices { flex: none; }\n  .lk-devices-head { display: flex; align-items: center; gap: 8px; padding: 4px 0 0; }\n  .lk-devices-head h2 { margin: 0; font-size: .875rem; font-weight: 650; line-height: 1.4; color: var(--lk-fg); }\n  .lk-devices-count { font-size: .75rem; line-height: 1.4; color: var(--lk-muted); font-variant-numeric: tabular-nums; }\n  /* ---- now playing ---- */\n  .lk-music { flex: none; position: relative; margin: 2px 14px 8px; padding: 8px 8px 6px 10px;\n    border-radius: 13px; overflow: hidden; border: 1px solid var(--lk-line);\n    background: var(--lk-surface); display: flex; flex-direction: column; gap: 2px; }\n  .lk-music[data-playing=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 10%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 32%, transparent); }\n  .lk-music-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; }\n  .lk-music-icon { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid;\n    place-items: center; --mdc-icon-size: 19px; background: var(--lk-elevated); color: var(--lk-muted); }\n  .lk-music[data-playing=\"1\"] .lk-music-icon { color: var(--lk-accent-ink);\n    background: color-mix(in srgb, var(--lk-accent) 16%, transparent); }\n  .lk-music-meta { flex: 1 1 10rem; min-width: 0; display: flex; flex-direction: column; gap: 1px;\n    padding: 0 6px; border: none; background: none; text-align: left; cursor: pointer; }\n  .lk-music-title { font-size: 14px; font-weight: 650; white-space: nowrap; overflow: hidden;\n    text-overflow: ellipsis; }\n  .lk-music-sub { font-size: 12px; color: var(--lk-muted); white-space: nowrap; overflow: hidden;\n    text-overflow: ellipsis; }\n  .lk-music-play { color: var(--lk-fg); --mdc-icon-size: 23px; }\n  .lk-music-vol { gap: 8px; padding: 0 2px 2px 8px; color: var(--lk-muted); --mdc-icon-size: 16px; }\n  .lk-music-vol input { flex: 1; min-width: 0; height: 44px; margin: 0; appearance: none;\n    -webkit-appearance: none; cursor: pointer; background: transparent; touch-action: pan-y; }\n  .lk-music-vol input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(\n    to right, var(--lk-accent) var(--lk-fill), color-mix(in srgb, var(--lk-fg) 16%, transparent) var(--lk-fill)); }\n  .lk-music-vol input::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(\n    to right, var(--lk-accent) var(--lk-fill), color-mix(in srgb, var(--lk-fg) 16%, transparent) var(--lk-fill)); }\n  .lk-music-vol input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px;\n    margin-top: -8px; border-radius: 50%; background: var(--lk-fg); border: none; }\n  .lk-music-vol input::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%;\n    background: var(--lk-fg); border: none; }\n  .lk-music-num { flex: none; width: 26px; text-align: right; font: 500 11px var(--lk-mono); }\n  .lk-music-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px;\n    background: color-mix(in srgb, var(--lk-fg) 8%, transparent); }\n  .lk-music-progress span { display: block; height: 100%; background: var(--lk-accent); }\n\n  .lk-tiles { flex: none; display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 12px;\n    scroll-snap-type: x proximity; scrollbar-width: none; }\n  .lk-tiles::-webkit-scrollbar { display: none; }\n  .lk-tile-wrap { flex: 0 0 104px; min-width: 0; scroll-snap-align: start; }\n  .lk-tile-wrap[data-error=\"1\"] { flex-basis: min(260px, 100%); }\n  .lk-tile {\n    width: 100%;\n    text-align: left; cursor: pointer; display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 6px; min-height: 84px;\n    padding: 8px; border-radius: 13px; overflow: hidden;\n    border: 1px solid var(--lk-line); background: var(--lk-surface); color: var(--lk-fg);\n    transition: border-color .18s, background-color .18s, box-shadow .18s, transform .06s;\n  }\n  .lk-tile-name { grid-column: 1 / -1; }\n  .lk-tile:disabled { cursor: wait; opacity: .6; }\n  .lk-service-error { color: var(--lk-danger-ink); font-size: .875rem; overflow-wrap: anywhere; }\n  .lk-service-error p { margin: 8px 0; }\n  .lk-service-error .lk-btn { margin-block: 0 8px; }\n  .lk-tile:hover { border-color: color-mix(in srgb, var(--lk-fg) 26%, var(--lk-line)); }\n  .lk-tile:active { transform: scale(.97); }\n  .lk-tile[data-active=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 14%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 40%, transparent); }\n  .lk-tile[data-touched=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 14%, var(--lk-surface));\n    box-shadow: inset 0 0 0 2px var(--lk-accent); }\n  .lk-tile-icon { --mdc-icon-size: 16px; width: 27px; height: 27px; border-radius: 8px;\n    display: inline-flex; align-items: center; justify-content: center;\n    background: var(--lk-elevated); color: var(--lk-muted); transition: background-color .18s, color .18s; }\n  .lk-tile[data-active=\"1\"] .lk-tile-icon { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-tile-state { font-family: var(--lk-mono); font-size: 0.9rem; font-weight: 600; line-height: 1.05;\n    letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-tile-name { font-size: 0.72rem; line-height: 1.2; color: var(--lk-muted);\n    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }\n  .lk-more { align-self: center; cursor: pointer; --mdc-icon-size: 16px; display: inline-flex; align-items: center; gap: 3px;\n    background: transparent; border: none; padding: 3px 10px; border-radius: 999px; color: var(--lk-muted); font-size: 0.8rem; font-weight: 600; }\n  .lk-more:hover { color: var(--lk-fg); background: var(--lk-elevated); }\n\n  /* ---- scheduled tasks (vertical list, above the conversation) ---- */\n  .lk-sched { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 10px 14px 8px; }\n  .lk-sched-head { display: inline-flex; align-items: center; gap: 6px; --mdc-icon-size: 14px;\n    font-family: var(--lk-mono); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.11em;\n    text-transform: uppercase; color: var(--lk-muted); }\n  .lk-sched-item { display: flex; align-items: center; gap: 10px; padding: 8px 11px; border-radius: 12px;\n    border: 1px solid var(--lk-line); background: var(--lk-surface); animation: lk-rise .22s ease both; }\n  .lk-sched-item[data-fresh=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 42%, transparent); }\n  .lk-sched-icon { flex: none; --mdc-icon-size: 16px; width: 30px; height: 30px; border-radius: 9px;\n    display: inline-flex; align-items: center; justify-content: center;\n    background: var(--lk-elevated); color: var(--lk-muted); }\n  .lk-sched-item[data-fresh=\"1\"] .lk-sched-icon { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-sched-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }\n  .lk-sched-desc { font-size: 0.9rem; font-weight: 600; line-height: 1.2;\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-sched-when { font-family: var(--lk-mono); font-size: 0.72rem; color: var(--lk-muted);\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-sched-badge { flex: none; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.02em;\n    text-transform: uppercase; padding: 3px 8px; border-radius: 999px;\n    color: var(--lk-accent-ink); background: color-mix(in srgb, var(--lk-accent) 14%, transparent); }\n  .lk-sched-more { align-self: flex-start; cursor: pointer; border: none; background: transparent; color: var(--lk-muted);\n    font-family: var(--lk-sans); font-size: 0.76rem; font-weight: 600; padding: 4px 8px; border-radius: 8px; }\n  .lk-sched-more:hover { color: var(--lk-fg); background: var(--lk-elevated); }\n\n  /* ---- tabs (Chat | Voice | Schedules | Settings) ---- */\n  .lk-tabs { flex: none; display: flex; flex-wrap: wrap; gap: 4px; padding: 2px 14px 0; border-bottom: 1px solid var(--lk-line); }\n  .lk-tab { flex: 0 0 auto; border: none; background: transparent; cursor: pointer; color: var(--lk-muted);\n    font-family: var(--lk-sans); font-size: 0.82rem; font-weight: 700; padding: 8px 8px 9px;\n    border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s; }\n  .lk-tab[data-on=\"1\"] { color: var(--lk-fg); border-bottom-color: var(--lk-accent-ink); }\n  .lk-tab:not([data-on=\"1\"]):hover { color: var(--lk-fg); }\n\n  /* ---- schedules tab (search + full list) ---- */\n  .lk-schedtab { flex: 1; min-height: 0; display: flex; flex-direction: column; }\n  .lk-texthead { flex: 1; min-width: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--lk-muted); }\n  .lk-textstatus, .lk-usage { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n  .lk-textstatus { flex: none; max-width: 60%; }\n  .lk-textstatus:empty { display: none; }\n  .lk-texthead > .lk-usage { font-size: .72rem; }\n  .lk-usage-details { min-width: 0; }\n  .lk-usage-details summary { cursor: pointer; padding-block: 4px; }\n  .lk-usage-details .lk-usage { display: block; white-space: normal; overflow-wrap: anywhere; }\n  .lk-usage { font-variant-numeric: tabular-nums; }\n  .lk-search { flex: none; display: flex; align-items: center; gap: 4px; padding: 0 16px;\n    --mdc-icon-size: 18px; color: var(--lk-muted); }\n  .lk-schedtab > .lk-search { padding-block: 16px 12px; gap: 8px; }\n  .lk-search-in { flex: 1; min-width: 0; min-height: 44px; height: auto; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    border-radius: 10px; padding: 0 12px; color: var(--lk-fg); font: inherit; font-size: 0.9rem; }\n  .lk-search-in:focus { border-color: var(--lk-focus); }\n  .lk-search-in::placeholder { color: var(--lk-muted); }\n  .lk-tasklist { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;\n    gap: 12px; padding: 4px 16px 24px; scrollbar-width: thin; }\n  .lk-tasks-empty { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 8px;\n    color: var(--lk-muted); font-size: 0.85rem; text-align: center; max-width: 250px; --mdc-icon-size: 22px; padding: 26px 0; }\n  .lk-taskrow { display: flex; flex-wrap: wrap; align-items: center;\n    border-radius: 12px; border: 1px solid var(--lk-line); background: var(--lk-surface); color: var(--lk-fg);\n    animation: lk-rise .2s ease both; transition: border-color .15s, background-color .15s; }\n  .lk-taskrow:hover { border-color: color-mix(in srgb, var(--lk-fg) 22%, var(--lk-line)); }\n  .lk-taskrow[data-fresh=\"1\"] { border-color: transparent; background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 42%, transparent); }\n  .lk-taskrow[data-status=\"cancelled\"], .lk-taskrow[data-status=\"completed\"], .lk-taskrow[data-status=\"missed\"] { opacity: .62; }\n  /* clickable body (opens the editor); the action buttons live outside it so they aren't nested in a button */\n  .lk-taskrow-main { flex: 1 1 15rem; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left;\n    cursor: pointer; border: none; background: transparent; color: inherit; padding: 9px 4px 9px 11px; }\n  .lk-taskrow-main:last-child { padding-right: 12px; }\n  .lk-taskrow-acts { margin-inline-start: auto; flex: none; display: flex; align-items: center; gap: 2px; padding: 0 6px 0 2px; }\n  .lk-taskrow-acts .lk-iconbtn { width: 44px; height: 44px; --mdc-icon-size: 17px; }\n  .lk-taskrow-del:hover { color: var(--lk-danger-ink); background: color-mix(in srgb, var(--lk-danger) 14%, transparent); }\n  .lk-taskrow-del[data-armed=\"1\"], .lk-taskrow-del[data-armed=\"1\"]:hover { color: var(--lk-on-danger); background: var(--lk-danger); }\n  .lk-taskrow-icon { flex: none; --mdc-icon-size: 16px; width: 30px; height: 30px; border-radius: 9px;\n    display: inline-flex; align-items: center; justify-content: center; background: var(--lk-elevated); color: var(--lk-muted); }\n  .lk-taskrow[data-status=\"scheduled\"] .lk-taskrow-icon { color: var(--lk-accent-ink); }\n  .lk-taskrow-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }\n  .lk-taskrow-desc { font-size: 0.9rem; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-taskrow-when { font-family: var(--lk-mono); font-size: 0.7rem; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-taskrow-exec { font-size: 0.75rem; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-taskrow-tags { flex: none; display: flex; align-items: center; gap: 5px; --mdc-icon-size: 13px; }\n  .lk-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase;\n    letter-spacing: 0.03em; padding: 3px 7px; border-radius: 999px; color: var(--lk-accent-ink);\n    background: color-mix(in srgb, var(--lk-accent) 14%, transparent); }\n  .lk-tag-muted { color: var(--lk-muted); background: var(--lk-elevated); }\n\n  /* ---- settings tab (channel checkbox list) ---- */\n  .lk-settings-fields { border: 0; margin: 0; padding: 0; min-width: 0; }\n  .lk-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;\n    overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }\n  .lk-action-error { margin: 8px 14px; overflow-wrap: anywhere; }\n  .lk-person-name, .lk-person-sum, .lk-checkrow-label { overflow-wrap: anywhere; }\n  .lk-settings { flex: 1; min-height: 0; display: flex; flex-direction: column; }\n  .lk-settings-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 24px max(16px, calc((100% - 800px) / 2)); scrollbar-width: thin; }\n  .lk-set-sec { display: flex; flex-direction: column; }\n  .lk-appearance { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--lk-line); }\n  .lk-appearance-mode { border: 0; padding: 0; margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px 24px; min-width: 0; }\n  .lk-appearance-mode legend { padding: 0; margin-bottom: 8px; }\n  .lk-appearance-option { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }\n  .lk-appearance-option input { width: 20px; height: 20px; flex: none; accent-color: var(--lk-accent); }\n  .lk-appearance-editor { display: grid; grid-template-columns: minmax(64px,80px) minmax(0,1fr); gap: 12px; max-width: 440px; min-width: 0; }\n  .lk-appearance-picker input { width: 100%; height: 44px; border: 1px solid var(--lk-line); border-radius: 8px; padding: 4px; background: var(--lk-surface); cursor: pointer; }\n  .lk-appearance-hex { min-width: 0; }\n  .lk-appearance-hint, .lk-appearance-reset, .lk-appearance-editor > .lk-set-err { grid-column: 1 / -1; }\n  .lk-appearance-reset { justify-self: start; }\n  .lk-appearance-status { font-size: .875rem; line-height: 1.4; color: var(--lk-muted); min-height: 1.4em; }\n  @container (max-width: 400px) {\n    .lk-appearance-editor { grid-template-columns: minmax(0,1fr); }\n    .lk-appearance-picker input { width: 80px; }\n  }\n  .lk-set-sechead { display: flex; align-items: center; gap: 8px; }\n  .lk-set-title { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--lk-fg); }\n  .lk-set-saving { margin-left: auto; font-family: var(--lk-mono); font-size: 0.6rem; font-weight: 600;\n    letter-spacing: 0.08em; text-transform: uppercase; color: var(--lk-muted); }\n  .lk-set-desc { max-inline-size: 75ch; margin: 8px 0 16px; font-size: .875rem; color: var(--lk-muted); line-height: 1.5; }\n  .lk-checklist { display: flex; flex-direction: column; gap: 5px; }\n  .lk-checkrow { display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left;\n    padding: 7px 11px; border-radius: 10px; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    color: var(--lk-fg); transition: border-color .15s, background-color .15s; }\n  .lk-checkrow:hover { border-color: color-mix(in srgb, var(--lk-fg) 22%, var(--lk-line)); }\n  .lk-checkrow[data-on=\"1\"] { border-color: color-mix(in srgb, var(--lk-accent) 42%, transparent);\n    background: color-mix(in srgb, var(--lk-accent) 10%, var(--lk-surface)); }\n  .lk-check { flex: none; width: 19px; height: 19px; border-radius: 6px; display: grid; place-items: center;\n    border: 1.5px solid var(--lk-line); color: var(--lk-on-accent); --mdc-icon-size: 13px;\n    transition: background-color .15s, border-color .15s; }\n  .lk-checkrow[data-on=\"1\"] .lk-check { background: var(--lk-accent); border-color: var(--lk-accent-ink); }\n  .lk-checkrow[data-on=\"0\"] .lk-check ha-icon { opacity: 0; }\n  .lk-checkrow-ic { flex: none; color: var(--lk-muted); --mdc-icon-size: 17px; display: grid; place-items: center; }\n  .lk-checkrow-label { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 600; line-height: 1.2;\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-testbtn { margin-top: 12px; align-self: flex-start; display: inline-flex; align-items: center; gap: 7px;\n    cursor: pointer; font-family: var(--lk-sans); font-size: 0.8rem; font-weight: 700; padding: 8px 14px;\n    border-radius: 10px; border: 1px solid var(--lk-line); background: var(--lk-surface); color: var(--lk-fg);\n    --mdc-icon-size: 16px; transition: border-color .15s, background-color .15s, color .15s; }\n  .lk-testbtn:hover:not(:disabled) { border-color: color-mix(in srgb, var(--lk-accent) 52%, var(--lk-line)); color: var(--lk-accent-ink); }\n  .lk-testbtn:disabled { opacity: .5; cursor: default; }\n  .lk-testbtn[data-sent=\"1\"] { color: var(--lk-ok); border-color: color-mix(in srgb, var(--lk-ok) 42%, transparent); }\n  .lk-set-hint { margin: 9px 2px 0; font-size: 0.72rem; color: var(--lk-muted); line-height: 1.4; }\n  .lk-set-err { margin: 9px 2px 0; font-size: 0.72rem; color: var(--lk-danger-ink); }\n  .lk-checkrow .lk-tag { flex: none; }\n  .lk-people { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }\n  .lk-person { border-radius: 12px; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    transition: border-color .15s; }\n  .lk-person[data-open=\"1\"] { border-color: color-mix(in srgb, var(--lk-fg) 22%, var(--lk-line)); }\n  .lk-person-head { display: flex; align-items: center; padding-right: 6px; }\n  .lk-person-head .lk-iconbtn { width: 44px; height: 44px; --mdc-icon-size: 17px; }\n  .lk-person-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;\n    border: none; background: transparent; color: var(--lk-fg); padding: 8px 4px 8px 10px; font: inherit; }\n  .lk-person-av { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;\n    font-size: 0.8rem; font-weight: 700; color: var(--lk-accent-ink); background: color-mix(in srgb, var(--lk-accent) 14%, transparent); }\n  .lk-person-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }\n  .lk-person-name { font-size: 0.88rem; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-person-sum { font-size: 0.72rem; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-person-chev { flex: none; color: var(--lk-muted); --mdc-icon-size: 18px; transition: transform .15s; }\n  .lk-person[data-open=\"1\"] .lk-person-chev { transform: rotate(180deg); }\n  .lk-person-detail { display: flex; flex-direction: column; gap: 11px; padding: 4px 10px 11px; }\n  .lk-person-sel { padding: 7px 10px; font-size: 0.85rem; }\n  .lk-person-id { font-family: var(--lk-mono); font-size: 0.72rem; color: var(--lk-muted); overflow-wrap: anywhere; }\n  .lk-person-hint { margin-top: 2px; }\n  .lk-person-detail .lk-testbtn { margin-top: 10px; }\n  .lk-person-add-label { display: block; margin-block: 16px 8px; font-size: .85rem; }\n  .lk-tasks-empty h2 { margin: 0; font-size: 1.125rem; font-weight: 650; line-height: 1.3; color: var(--lk-fg); }\n  .lk-tasks-empty p { max-width: 42ch; margin: 0; text-align: center; overflow-wrap: anywhere; }\n  .lk-person-add { display: flex; align-items: center; gap: 8px; }\n  .lk-person-add .lk-search-in { height: 34px; }\n  .lk-person-addbtn { margin-top: 0; height: 34px; padding: 0 12px; }\n\n  /* ---- task editor (slide-up sheet) ---- */\n  .lk-editor { position: fixed; inset: auto 0 0; margin: 0 auto; padding: 0; border: 0;\n    width: min(680px, 100%); max-width: 100%; max-height: 100dvh; color: var(--lk-fg);\n    background: transparent; overflow: hidden; font-family: var(--lk-sans); }\n  .lk-editor[open] { display: flex; }\n  .lk-editor::backdrop { background: color-mix(in srgb, #000 46%, transparent); }\n  @keyframes lk-fade { from { opacity: 0; } to { opacity: 1; } }\n  .lk-editor-panel { width: 100%; max-height: 100dvh; display: flex; flex-direction: column; background: var(--lk-surface);\n    border-top-left-radius: var(--ha-card-border-radius, 12px); border-top-right-radius: var(--ha-card-border-radius, 12px);\n    border-top: 1px solid var(--lk-line);\n    box-shadow: 0 -14px 40px -18px #000; animation: lk-rise .2s ease both; }\n  .lk-editor-head { flex: none; display: flex; align-items: center; justify-content: space-between;\n    padding: 11px 8px 8px 16px; font-weight: 700; font-size: 0.98rem; }\n  /* overflow-x: hidden is required — with overflow-y:auto, overflow-x would otherwise compute\n     to 'auto', and iOS's datetime-local input (intrinsically wide) then scrolls it sideways. */\n  .lk-editor-fields { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 13px; }\n  .lk-editor-head h2 { margin: 0; font: inherit; }\n  .lk-editor-body { margin: 0; border: 0; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 4px 16px 8px;\n    display: flex; flex-direction: column; gap: 13px; scrollbar-width: thin; }\n  .lk-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }\n  .lk-field-label { font-family: var(--lk-sans); font-size: 0.875rem; font-weight: 600; letter-spacing: 0;\n    text-transform: none; color: var(--lk-muted); }\n  /* min-width:0 lets the input shrink to the container (flex items default to min-width:auto =\n     content width, which iOS date/time inputs report far wider than the panel). */\n  .lk-in { width: 100%; min-width: 0; max-width: 100%; border: 1px solid var(--lk-line);\n    background: var(--lk-elevated); color: var(--lk-fg);\n    border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 0.9rem; }\n  /* iOS gives datetime-local a wide native control that ignores width:100% (its right edge then\n     spills out of the panel). Dropping the native appearance makes it a normal box that fits;\n     tapping still opens the iOS date/time picker. */\n  input.lk-in[type=\"datetime-local\"] { -webkit-appearance: none; appearance: none;\n    text-align: left; min-height: 38px; }\n  .lk-in:focus { border-color: var(--lk-focus); }\n  .lk-ta { resize: vertical; min-height: 38px; line-height: 1.35; }\n  .lk-mono { font-family: var(--lk-mono); font-size: 0.82rem; }\n  .lk-hint.lk-timezone-hint { font-family: var(--lk-sans); font-size: .875rem; line-height: 1.4; overflow-wrap: anywhere; }\n  .lk-hint { font-family: var(--lk-mono); font-size: 0.64rem; color: var(--lk-muted); }\n  .lk-seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: 10px; border: 1px solid var(--lk-line);\n    background: var(--lk-elevated); align-self: flex-start; }\n  .lk-seg button { border: none; cursor: pointer; background: transparent; color: var(--lk-muted); font-family: var(--lk-sans);\n    font-size: 0.76rem; font-weight: 700; padding: 5px 12px; border-radius: 8px; transition: background-color .15s, color .15s; }\n  .lk-seg button[data-on=\"1\"] { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-iconbtn:disabled { opacity: .3; cursor: default; background: transparent; }\n  .lk-switch { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; }\n  .lk-switch input { width: 18px; height: 18px; accent-color: var(--lk-accent); }\n  .lk-editor-error { color: var(--lk-danger-ink); font-size: 0.8rem; font-weight: 600; }\n  .lk-editor-actions { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px max(14px, env(safe-area-inset-bottom)); border-top: 1px solid var(--lk-line); }\n  .lk-spacer { flex: 1; }\n  .lk-btn { max-inline-size: 100%; overflow-wrap: anywhere; border: 1px solid var(--lk-line); background: var(--lk-elevated); color: var(--lk-fg); cursor: pointer;\n    font-family: var(--lk-sans); font-size: 0.86rem; font-weight: 700; padding: 9px 15px; border-radius: 11px;\n    transition: transform .06s, opacity .15s, background-color .15s; }\n  .lk-btn:active { transform: scale(.97); }\n  .lk-btn:disabled { opacity: .5; cursor: default; }\n  .lk-btn-accent { background: var(--lk-accent); color: var(--lk-on-accent); border-color: transparent; }\n  .lk-btn-danger { background: transparent; border-color: transparent; color: var(--lk-danger-ink); }\n  .lk-btn-danger:hover { background: color-mix(in srgb, var(--lk-danger) 14%, transparent); }\n\n  /* ---- independently scrolling conversation ---- */\n  /* The transcript scrolls independently; the composer stays in the next flex row. */\n  .lk-convo { flex: 1; min-height: 0; overflow-y: auto; padding: 8px max(16px, calc((100% - 800px) / 2));\n    overscroll-behavior: contain;\n    display: flex; flex-direction: column; gap: 6px; scrollbar-width: thin; }\n  .lk-empty { margin: auto; padding-block: 32px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;\n    color: var(--lk-muted); font-size: 1rem; line-height: 1.5; max-width: 560px; --mdc-icon-size: 28px; }\n  .lk-empty h2 { color: var(--lk-fg); font-size: 1.5rem; line-height: 1.25; letter-spacing: -.02em; margin: 0; text-wrap: balance; }\n  .lk-empty p { margin: 0; }\n  .lk-starters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 8px; }\n  .lk-starters button { min-height: 44px; }\n  .lk-state { font-variant-numeric: tabular-nums; }\n  .lk-modehint { flex: none; margin: 0; padding: 4px max(16px, calc((100% - 800px) / 2)); color: var(--lk-muted); font-size: .8rem; }\n  .lk-recovery { flex: none; padding: 12px 14px; border: 1px solid var(--lk-danger-ink); border-radius: 12px; background: var(--lk-surface); }\n  .lk-recovery strong { display: block; font-size: .9rem; }\n  .lk-recovery p { font-size: .85rem; line-height: 1.4; margin: 4px 0 10px; }\n  .lk-recovery-actions { display: flex; flex-wrap: wrap; gap: 8px; }\n  .lk-recovery button { min-height: 44px; }\n\n  .lk-msg { display: flex; animation: lk-rise .22s ease both; }\n  .lk-msg[data-role=\"user\"] { justify-content: flex-end; }\n  .lk-msg-col { display: flex; flex-direction: column; align-items: flex-start; max-width: 84%; min-width: 0; }\n  .lk-msg[data-role=\"user\"] .lk-msg-col { align-items: flex-end; }\n  .lk-time { margin: 3px 7px 0; font-size: 0.66rem; line-height: 1; color: var(--lk-muted); font-variant-numeric: tabular-nums; }\n  .lk-bubble { max-width: 100%; padding: 8px 13px; border-radius: 16px; font-size: 0.92rem; line-height: 1.4;\n    white-space: pre-wrap; word-break: break-word; }\n  .lk-msg[data-role=\"user\"] .lk-bubble { background: var(--lk-accent); color: var(--lk-on-accent); border-bottom-right-radius: 5px; }\n  .lk-msg[data-role=\"agent\"] .lk-bubble { background: color-mix(in srgb, var(--lk-fg) 6%, var(--lk-surface)); color: var(--lk-fg); border-bottom-left-radius: 5px; }\n  /* what was said and what a tool got and returned can be copied, whatever the dashboard\n     around the card sets; a long press on iOS then offers Copy */\n  .lk-bubble, .lk-act-details { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }\n  /* agent replies rendered from Markdown */\n  .lk-md { white-space: normal; }\n  .lk-md :where(p, ul, ol, pre, blockquote, hr, .lk-md-table) { margin: 0; }\n  .lk-md > * + *, .lk-md blockquote > * + * { margin-top: 8px; }\n  .lk-md li > * + * { margin-top: 2px; }\n  .lk-md ul, .lk-md ol { padding-left: 1.3em; }\n  .lk-md li + li { margin-top: 2px; }\n  .lk-md li::marker { color: var(--lk-muted); }\n  .lk-md-h { font-weight: 700; letter-spacing: -0.01em; }\n  .lk-md strong { font-weight: 700; }\n  .lk-md a { color: var(--lk-accent-ink); text-decoration: underline; text-decoration-thickness: 1px;\n    text-underline-offset: 2px; overflow-wrap: anywhere; }\n  .lk-md code { font-family: var(--lk-mono); font-size: 0.84em; padding: 1px 5px; border-radius: 5px;\n    background: color-mix(in srgb, var(--lk-fg) 9%, transparent); }\n  .lk-md pre { padding: 8px 10px; border-radius: 9px; overflow-x: auto; white-space: pre; scrollbar-width: thin;\n    background: color-mix(in srgb, var(--lk-fg) 7%, transparent); }\n  .lk-md pre code { padding: 0; background: none; font-size: 0.8rem; line-height: 1.45; }\n  .lk-md blockquote { padding-left: 10px; border-left: 1px solid var(--lk-line); color: var(--lk-muted); }\n  .lk-md hr { border: none; border-top: 1px solid var(--lk-line); }\n  .lk-md-table { overflow-x: auto; scrollbar-width: thin; }\n  .lk-md table { border-collapse: collapse; font-size: 0.86em; }\n  .lk-md th, .lk-md td { padding: 4px 10px 4px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--lk-line); }\n  .lk-md th { font-weight: 700; }\n  .lk-md tr:last-child td { border-bottom: none; }\n  /* a tool call: a tappable pill that expands into its arguments and output */\n  .lk-act-row { align-self: flex-start; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;\n    max-width: 100%; min-width: 0; animation: lk-rise .22s ease both; }\n  .lk-act-row[data-open=\"1\"] { align-self: stretch; }\n  .lk-act { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; margin: 0;\n    padding: 3px 8px; border-radius: 8px; font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer;\n    --mdc-icon-size: 13px; border: 0; background: transparent; color: var(--lk-muted);\n    transition: border-color .15s ease, background .15s ease; }\n  .lk-act-badge { flex: none; font-size: .7rem; font-weight: 700; }\n  .lk-act-text { min-width: 0; overflow-wrap: anywhere; }\n  .lk-act-reason { padding-inline: 10px; font-size: .76rem; color: var(--lk-fg); overflow-wrap: anywhere; }\n  .lk-act:hover { border-color: color-mix(in srgb, var(--lk-fg) 22%, transparent); }\n  .lk-act:focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 2px; }\n  .lk-act-chev { --mdc-icon-size: 15px; flex: none; margin-left: -1px; opacity: .6; transition: transform .18s ease; }\n  .lk-act[aria-expanded=\"true\"] .lk-act-chev { transform: rotate(180deg); }\n  .lk-act-details { width: 100%; min-width: 0; padding: 9px 10px 10px; border-radius: 12px;\n    border: 1px solid var(--lk-line); background: var(--lk-surface); font-size: 0.78rem; color: var(--lk-fg); }\n  .lk-act-status { display: flex; align-items: center; gap: 7px; font-weight: 700; }\n  .lk-act-update { white-space: pre-wrap; word-break: break-word; line-height: 1.45; }\n  .lk-act-status[data-status=\"running\"] .lk-act-dot { background: var(--lk-accent); animation: lk-blink 1s ease-in-out infinite; }\n  .lk-act-status[data-status=\"done\"] .lk-act-dot { background: var(--lk-ok); }\n  .lk-act-status[data-status=\"error\"], .lk-act-status[data-status=\"cancelled\"] { color: var(--lk-danger-ink); }\n  .lk-act-status[data-status=\"error\"] .lk-act-dot, .lk-act-status[data-status=\"cancelled\"] .lk-act-dot { background: var(--lk-danger); }\n  .lk-act-name { margin-left: auto; font-family: var(--lk-mono); font-weight: 400; font-size: 0.72rem; color: var(--lk-muted);\n    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }\n  .lk-act-label { margin: 10px 0 4px; font-size: 0.68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;\n    color: var(--lk-muted); }\n  .lk-act-note { font-weight: 500; letter-spacing: 0; text-transform: none; }\n  .lk-act-code { margin: 0; padding: 7px 9px; max-height: 200px; overflow: auto; white-space: pre; scrollbar-width: thin;\n    border-radius: 8px; font-family: var(--lk-mono); font-size: 0.72rem; line-height: 1.5; color: var(--lk-fg);\n    background: color-mix(in srgb, var(--lk-fg) 6%, transparent); }\n  .lk-act-code[data-error=\"1\"] { white-space: pre-wrap; word-break: break-word; color: var(--lk-danger-ink);\n    background: color-mix(in srgb, var(--lk-danger) 9%, transparent); }\n  .lk-act-none { color: var(--lk-muted); font-style: italic; }\n  .lk-act[data-kind=\"action\"] { color: var(--lk-fg);\n    border-color: color-mix(in srgb, var(--lk-accent) 34%, transparent);\n    background: color-mix(in srgb, var(--lk-accent) 9%, var(--lk-surface)); }\n  .lk-act[data-status=\"error\"] { color: var(--lk-fg); border-color: var(--lk-danger-ink);\n    background: color-mix(in srgb, var(--lk-danger) 12%, var(--lk-surface)); }\n  .lk-act[data-status=\"cancelled\"] { border-style: dashed; color: var(--lk-fg); }\n  .lk-act[data-status=\"running\"] { color: var(--lk-fg); border-color: var(--lk-accent-ink); }\n  .lk-act-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-act-target { color: var(--lk-muted); }\n  .lk-act[data-kind=\"action\"] .lk-act-target { color: var(--lk-fg); font-weight: 700; }\n  .lk-act-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--lk-muted); }\n  .lk-act[data-status=\"running\"] .lk-act-dot { background: var(--lk-accent); animation: lk-blink 1s ease-in-out infinite; }\n  .lk-act[data-status=\"done\"] .lk-act-dot { background: var(--lk-ok); }\n  .lk-act[data-status=\"error\"] .lk-act-dot, .lk-act[data-status=\"cancelled\"] .lk-act-dot { background: var(--lk-danger); }\n  @keyframes lk-rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }\n  @keyframes lk-blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }\n\n  /* Composer stays in flow, below the independently scrolling transcript. */\n  .lk-dock { position: relative; flex: none; margin-top: auto;\n    padding: 8px max(16px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));\n    display: flex; flex-direction: column; align-items: center; gap: 8px; background: var(--lk-surface); }\n  .lk-dock > * { width: 100%; max-width: 800px; }\n\n  /* ---- one-tap quick replies the agent offers, above the composer ---- */\n  .lk-suggest { width: 100%; display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }\n  .lk-chip { flex: 0 1 auto; max-width: 100%; overflow-wrap: anywhere; border-radius: 16px; padding: 6px 14px; cursor: pointer;\n    font: inherit; font-size: 0.85rem; font-weight: 600; line-height: 1.2; color: var(--lk-fg);\n    background: var(--lk-surface); border: 1px solid color-mix(in srgb, var(--lk-accent) 42%, var(--lk-line));\n    transition: background-color .15s, border-color .15s, transform .06s; }\n  .lk-chip:hover { background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    border-color: color-mix(in srgb, var(--lk-accent) 60%, var(--lk-line)); }\n  .lk-chip:active { transform: scale(.95); }\n  .lk-chip:disabled { cursor: default; opacity: .55; }\n\n  /* ---- manual turn: the composer becomes a listening bar (Cancel · meter · Send) ---- */\n  .lk-listen { width: 100%; min-height: 52px; display: flex; align-items: center; gap: 8px;\n    padding: 7px 7px 7px 10px; border-radius: 26px;\n    background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    border: 1px solid color-mix(in srgb, var(--lk-accent) 42%, transparent);\n    box-shadow: none; }\n  .lk-listen-cancel { flex: none; width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;\n    --mdc-icon-size: 20px; display: grid; place-items: center; background: transparent; color: var(--lk-muted);\n    transition: background-color .15s, color .15s, transform .06s; }\n  .lk-listen-cancel:hover { color: var(--lk-danger-ink); background: color-mix(in srgb, var(--lk-danger) 15%, transparent); }\n  .lk-listen-cancel:active { transform: scale(.92); }\n  .lk-listen-mid { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; padding-left: 4px; }\n  .lk-listen-label { font-size: 0.85rem; font-weight: 600; color: var(--lk-fg); white-space: nowrap;\n    overflow: hidden; text-overflow: ellipsis; }\n  /* live input meter — the card's voice signature, echoing the orb */\n  .lk-eq { flex: none; display: inline-flex; align-items: center; gap: 3px; height: 20px; }\n  .lk-eq i { width: 3px; height: 18px; border-radius: 2px; background: var(--lk-accent);\n    transform: scaleY(.28); transform-origin: center; animation: lk-eq 1s ease-in-out infinite; }\n  .lk-eq i:nth-child(1) { animation-delay: -.9s; }\n  .lk-eq i:nth-child(2) { animation-delay: -.5s; }\n  .lk-eq i:nth-child(3) { animation-delay: -.2s; }\n  .lk-eq i:nth-child(4) { animation-delay: -.7s; }\n  .lk-eq i:nth-child(5) { animation-delay: -.4s; }\n  @keyframes lk-eq { 0%,100% { transform: scaleY(.28); } 50% { transform: scaleY(1); } }\n  /* Cold-start spinner shown while the mic is being acquired (App.tsx openTurn). Uses\n     currentColor: accent in the listening bar (matching the EQ it replaces), on-accent on the\n     round auto-resume button. */\n  .lk-spin { flex: none; box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%;\n    border: 2px solid color-mix(in srgb, currentColor 26%, transparent); border-top-color: currentColor;\n    animation: lk-spin .7s linear infinite; }\n  .lk-listen-mid .lk-spin { color: var(--lk-accent-ink); }\n  @keyframes lk-spin { to { transform: rotate(360deg); } }\n  .lk-listen-send { flex: none; display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 0 14px 0 16px;\n    border: none; border-radius: 20px; cursor: pointer; --mdc-icon-size: 18px;\n    font-family: var(--lk-sans); font-size: 0.9rem; font-weight: 700; letter-spacing: -0.01em;\n    background: var(--lk-accent); color: var(--lk-on-accent); transition: transform .06s, opacity .15s; }\n  .lk-listen-send:hover { opacity: .95; }\n  .lk-listen-send:active { transform: scale(.96); }\n  .lk-listen-send:disabled { opacity: .45; cursor: default; }\n  .lk-listen-send:disabled:active { transform: none; }\n\n  .lk-bar { width: 100%; min-height: 48px; display: flex; align-items: flex-end; gap: 7px; padding: 3px 3px 3px 15px;\n    border-radius: 24px; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    box-shadow: none; }\n  .lk-bar:has(.lk-input:focus-visible) { outline: 2px solid var(--lk-focus); outline-offset: 3px; }\n  .lk-bar:has(.lk-input:focus-visible) .lk-input:focus-visible { outline: none; }\n  .lk-bar:focus-within { border-color: color-mix(in srgb, var(--lk-accent) 52%, var(--lk-line)); }\n  .lk-bar[data-paused=\"1\"] { border-style: dashed; border-color: color-mix(in srgb, var(--lk-muted) 45%, var(--lk-line)); }\n  .lk-input { flex: 1; min-width: 0; border: none; background: transparent; color: var(--lk-fg);\n    font: inherit; font-size: 1rem; line-height: 1.4; padding: 9px 0; margin: 0; resize: none; display: block;\n    box-sizing: border-box; max-height: 128px; overflow-y: auto; scrollbar-width: thin; }\n  .lk-input::placeholder { color: var(--lk-muted); }\n  .lk-send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; --mdc-icon-size: 20px;\n    display: grid; place-items: center; background: var(--lk-elevated); color: var(--lk-fg); transition: background-color .15s, transform .06s; }\n  .lk-send:active { transform: scale(.93); }\n  .lk-send[data-on=\"1\"], .lk-send--accent { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-send:disabled { cursor: default; }\n  .lk-send:disabled:active { transform: none; }\n  /* A live microphone has a visible halo; paused, send and busy controls do not. */\n  .lk-send[data-on=\"1\"] {\n    box-shadow: 0 0 0 5px color-mix(in srgb, var(--lk-accent) 16%, transparent),\n      0 0 24px 10px color-mix(in srgb, var(--lk-accent) 32%, transparent);\n    animation: lk-dictation-glow 1.8s ease-in-out infinite;\n  }\n  @keyframes lk-dictation-glow {\n    0%, 100% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--lk-accent) 16%, transparent), 0 0 24px 10px color-mix(in srgb, var(--lk-accent) 32%, transparent); }\n    50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--lk-accent) 22%, transparent), 0 0 30px 13px color-mix(in srgb, var(--lk-accent) 42%, transparent); }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .lk-send[data-on=\"1\"] { animation: none; }\n  }\n  /* stop replaces send while a text turn runs; dimmed until the turn's task id is known */\n  .lk-stop:disabled { opacity: .45; }\n  .lk-stop[data-stopping=\"1\"]:disabled { opacity: 1; }\n  .lk-stop-sq { width: 12px; height: 12px; border-radius: 3px; background: currentColor; }\n  /* the second press cancels the background work too, so it reads as a warning */\n  .lk-stop[data-force=\"1\"] { background: var(--lk-danger); color: var(--lk-on-danger); }\n\n  .lk-start { cursor: pointer; width: 100%; padding: 13px; border: none; border-radius: 16px; --mdc-icon-size: 20px;\n    display: inline-flex; align-items: center; justify-content: center; gap: 9px;\n    font-family: var(--lk-sans); font-size: 0.96rem; font-weight: 700; letter-spacing: -0.01em;\n    background: var(--lk-accent); color: var(--lk-on-accent);\n    box-shadow: 0 14px 34px -18px color-mix(in srgb, var(--lk-accent) 90%, transparent); transition: transform .06s, opacity .2s; }\n  .lk-start:hover { opacity: .95; }\n  .lk-start:active { transform: scale(.985); }\n  .lk-start:disabled { opacity: .5; cursor: default; box-shadow: none; }\n\n  .lk-settings-scroll > .lk-set-sec { width: 100%; max-width: 800px; margin-inline: auto; }\n  .lk-search, .lk-tasklist { width: 100%; max-width: 832px; align-self: center; }\n  .lk-tasks-empty { flex: none; }\n  @container (max-width: 600px) {\n    .lk-tabs { padding-inline: 8px; }\n    .lk-tab { flex: 1 0 auto; padding-inline: 4px; }\n    .lk-music-meta { flex-basis: calc(100% - 44px); }\n    .lk-music-row > .lk-iconbtn { flex: 1 0 44px; }\n    .lk-taskrow-desc, .lk-taskrow-exec { white-space: normal; overflow-wrap: anywhere; }\n    .lk-set-desc { font-size: .875rem; line-height: 1.5; }\n    .lk-tab, .lk-person-name, .lk-taskrow-desc, .lk-sched-desc, .lk-music-title,\n    .lk-bubble, .lk-btn, .lk-chip, .lk-listen-label { font-size: 1rem; }\n    .lk-person-sum, .lk-taskrow-exec, .lk-taskrow-when, .lk-sched-when, .lk-music-sub { font-size: .875rem; }\n    .lk-in, .lk-search-in, .lk-person-sel { font-size: max(1rem, 16px); }\n  }\n  @media (max-width: 600px) {\n    .lk-input, .lk-in, .lk-search-in { font-size: max(1rem, 16px); }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .lk-orb-core, .lk-orb::before, .lk-act-dot, .lk-msg, .lk-act-row { animation: none !important; }\n    .lk-editor-panel, .lk-editor, .lk-taskrow, .lk-sched-item, .lk-spin { animation: none !important; }\n    .lk-eq i { animation: none !important; transform: scaleY(.6); }\n  }\n  .lk-approvals { display: grid; gap: 12px; margin-block: 12px; min-width: 0; }\n  .lk-approval { padding: 16px; border: 1px solid var(--lk-line); border-radius: 12px; background: var(--lk-elevated); min-width: 0; overflow-wrap: anywhere; }\n  .lk-approval-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; color: var(--lk-muted); font-size: 12px; }\n  .lk-approval h3 { font-size: 15px; margin: 0 0 8px; }\n  .lk-approval p { margin: 8px 0; }\n  .lk-approval details { margin-block: 12px; }\n  .lk-approval summary { cursor: pointer; padding-block: 8px; }\n  .lk-approval pre { white-space: pre; overflow: auto; max-height: 320px; padding: 12px; background: var(--lk-surface); font: 12px/1.5 var(--lk-mono); }\n  .lk-approval-actions { display: flex; flex-wrap: wrap; gap: 8px; }\n  .lk-approval-actions button, .lk-approval-error button { min-height: 44px; padding-inline: 16px; }\n  .lk-approval button:disabled { opacity: .5; cursor: default; }\n  .lk-approval :is(button, summary):focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 3px; }\n  .lk-approval-error { color: var(--lk-danger-ink); }\n  .lk-caption-state { margin: 4px 7px 0; color: var(--lk-muted); font-size: .75rem; line-height: 1.4; }\n  .lk-msg[data-interim=\"1\"] .lk-bubble { border: 1px dashed var(--lk-line); }\n  .lk-voice-preferences { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--lk-line); gap: 8px; }\n  .lk-voice-preferences .lk-modeswitch { align-self: flex-start; }\n  .lk-history-actions { padding: 12px 16px; }\n  .lk-conversation-drawer .lk-settings-scroll { padding: 20px 16px; }\n\n  .lk-voice-feedback {\n    --lk-voice-level: 0;\n    display: flex; align-items: center; gap: 12px; flex: none; min-width: 0;\n    width: 100%; max-width: 832px; align-self: center;\n    padding: 8px 16px 0; color: var(--lk-fg);\n  }\n  .lk-voice-visual { flex: 0 0 64px; width: 64px; height: 64px; color: var(--lk-accent-ink); }\n  .lk-voice-visual svg { width: 100%; height: 100%; display: block; overflow: visible; }\n  .lk-voice-ring { fill: none; stroke: currentColor; stroke-width: 1; transform-origin: 32px 32px; opacity: .18; }\n  .lk-voice-ring-inner { opacity: .32; }\n  .lk-voice-core { fill: currentColor; transform-origin: 32px 32px; transition: fill 160ms ease, opacity 160ms ease; }\n  .lk-voice-copy { flex: 1 1 10rem; min-width: 0; }\n  .lk-voice-label { margin: 0; font-size: .9375rem; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }\n  .lk-voice-detail { margin: 4px 0 0; font-size: .8125rem; line-height: 1.4; color: var(--lk-muted); overflow-wrap: anywhere; }\n  .lk-voice-connecting { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 38 132;\n    transform-origin: 32px 32px; display: none; }\n  .lk-voice-paused, .lk-voice-error { display: none; fill: none; stroke: var(--lk-surface); stroke-width: 2.5; stroke-linecap: round; }\n  .lk-voice-actions { display: flex; flex: none; align-items: center; gap: 4px; }\n  .lk-voice-actions button { min-height: 44px; min-width: 44px; cursor: pointer; }\n  .lk-voice-interrupt { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--lk-line);\n    border-radius: 10px; padding: 8px 10px; background: var(--lk-surface); color: var(--lk-fg); font: inherit; font-size: .8125rem; line-height: 1.25; }\n  .lk-voice-interrupt svg { width: 16px; height: 16px; flex: none; fill: currentColor; }\n  .lk-voice-end svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; }\n  .lk-voice-interrupt:hover { background: var(--lk-elevated); }\n  .lk-voice-interrupt:disabled { opacity: .65; cursor: wait; }\n\n  .lk-voice-feedback[data-phase=\"listening\"] .lk-voice-ring-outer { transform: scale(calc(1 - var(--lk-voice-level) * .2)); opacity: calc(.18 + var(--lk-voice-level) * .5); }\n  .lk-voice-feedback[data-phase=\"listening\"] .lk-voice-ring-inner { transform: scale(calc(1 - var(--lk-voice-level) * .15)); opacity: calc(.32 + var(--lk-voice-level) * .4); }\n  .lk-voice-feedback[data-phase=\"listening\"] .lk-voice-core { transform: scale(calc(1 + var(--lk-voice-level) * .16)); }\n  .lk-voice-feedback[data-phase=\"speaking\"] .lk-voice-ring-outer { transform: scale(calc(.8 + var(--lk-voice-level) * .2)); opacity: calc(.18 + var(--lk-voice-level) * .5); }\n  .lk-voice-feedback[data-phase=\"speaking\"] .lk-voice-ring-inner { transform: scale(calc(.85 + var(--lk-voice-level) * .15)); opacity: calc(.32 + var(--lk-voice-level) * .4); }\n  .lk-voice-feedback[data-phase=\"speaking\"] .lk-voice-core { transform: scale(calc(.92 + var(--lk-voice-level) * .16)); }\n  .lk-voice-feedback:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"]) .lk-voice-connecting { display: block; }\n  .lk-voice-feedback:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"]) .lk-voice-core { opacity: .5; transform: scale(.65); }\n  .lk-voice-feedback:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"])[data-motion=\"1\"] .lk-voice-connecting { animation: lk-voice-connect 1.4s linear infinite; }\n  .lk-voice-feedback[data-phase=\"thinking\"] .lk-voice-core { transform: scale(.65); }\n  .lk-voice-feedback[data-phase=\"thinking\"] .lk-voice-ring { opacity: .24; }\n  .lk-voice-feedback:is([data-phase=\"idle\"], [data-phase=\"paused\"]) .lk-voice-visual { color: var(--lk-muted); }\n  .lk-voice-feedback[data-phase=\"paused\"] .lk-voice-ring { opacity: .12; }\n  .lk-voice-feedback[data-phase=\"paused\"] .lk-voice-paused { display: block; }\n  .lk-voice-feedback[data-phase=\"error\"] .lk-voice-visual { color: var(--lk-danger-ink); }\n  .lk-voice-feedback[data-phase=\"error\"] .lk-voice-error { display: block; }\n  .lk-voice-feedback[data-phase=\"error\"] .lk-voice-ring { opacity: .12; }\n  @keyframes lk-voice-connect { to { transform: rotate(360deg); } }\n\n  /* House companion: the same live signals, given Butler's own identity. */\n  .lk-companion { display: grid; grid-template-columns: minmax(0, 1fr) 56px; align-items: start;\n    gap: 10px 16px; padding: 18px 18px 12px; }\n  .lk-companion-identity { min-width: 0; align-self: center; }\n  .lk-companion-name { margin: 0 0 5px; color: var(--lk-fg); font-size: .9375rem;\n    font-weight: 700; line-height: 1.3; letter-spacing: -.02em; overflow-wrap: anywhere; }\n  .lk-companion .lk-voice-label { display: flex; align-items: center; gap: 6px;\n    color: var(--lk-muted); font-size: .75rem; font-weight: 500; }\n  .lk-companion .lk-voice-label::before { content: ''; width: 6px; height: 6px; flex: none;\n    border-radius: 50%; background: currentColor; }\n  .lk-companion:not([data-phase=\"idle\"]):not([data-phase=\"error\"]):not([data-phase=\"paused\"]) .lk-voice-label::before { background: var(--lk-accent-ink); }\n  .lk-voice-feedback.lk-companion .lk-voice-visual { width: 56px; height: 56px; color: var(--lk-accent-ink); }\n  .lk-companion:not([data-phase=\"idle\"]) { padding-top: 14px; gap: 8px 16px; }\n  .lk-companion:not([data-phase=\"idle\"]) .lk-voice-visual { width: 44px; height: 44px; }\n  .lk-companion .lk-companion-mark { transform-origin: 50% 65%; }\n  .lk-companion[data-phase=\"listening\"] .lk-companion-mark { transform: rotate(calc(var(--lk-voice-level) * -4deg)) scale(calc(1 + var(--lk-voice-level) * .05)); }\n  .lk-companion[data-phase=\"speaking\"] .lk-companion-mark { transform: scale(calc(1 + var(--lk-voice-level) * .08)); }\n  .lk-companion[data-phase=\"thinking\"] .lk-companion-mark { transform: rotate(-5deg); }\n  .lk-companion:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"]) .lk-companion-mark { opacity: .6; }\n  .lk-voice-feedback.lk-companion[data-phase=\"error\"] .lk-voice-visual { color: var(--lk-danger-ink); }\n  .lk-companion .lk-voice-copy { grid-column: 1 / -1; }\n  .lk-companion-prompt { margin: 0; color: var(--lk-fg); font-size: 1.4375rem; font-weight: 650;\n    line-height: 1.25; letter-spacing: -.025em; text-wrap: balance; }\n  .lk-companion .lk-voice-detail { margin: 0; }\n  .lk-companion[data-phase=\"idle\"] .lk-voice-detail { margin-top: 7px; }\n  .lk-companion .lk-voice-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }\n  .lk-companion .lk-voice-actions .lk-modeswitch { margin-inline-end: auto; }\n  .lk-companion .lk-voice-interrupt { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }\n  .lk-companion .lk-voice-end { margin-inline-start: auto; }\n\n  @container (max-width: 600px) {\n    .lk-voice-feedback { gap: 8px; }\n    .lk-voice-visual { flex-basis: 48px; width: 48px; height: 48px; }\n  }\n  @container (max-width: 420px) {\n    .lk-voice-feedback { flex-wrap: wrap; }\n    .lk-voice-copy { flex-basis: calc(100% - 56px); }\n    .lk-voice-actions { margin-left: auto; }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .lk-voice-visual * { animation: none !important; transition: none !important; }\n    .lk-voice-feedback:is([data-phase=\"listening\"], [data-phase=\"speaking\"]) .lk-voice-ring,\n    .lk-voice-feedback:is([data-phase=\"listening\"], [data-phase=\"speaking\"]) .lk-voice-core { transform: none; }\n    .lk-companion .lk-companion-mark { transform: none !important; }\n  }\n\n  .lk-conversation-header { flex: none; display: flex; align-items: center; gap: 12px; min-width: 0;\n    padding: 12px max(16px, calc((100% - 800px) / 2)); }\n  .lk-conversation-identity { flex: 1 1 auto; display: flex; align-items: center; gap: 10px; min-width: 0; }\n  .lk-conversation-dot { flex: none; display: block; width: 10px; height: 10px; border-radius: 50%; position: relative;\n    color: var(--lk-muted); background: currentColor; transition: background-color 160ms ease, color 160ms ease; }\n  .lk-conversation-dot::before { content: \"\"; position: absolute; inset: -7px; border-radius: 50%; opacity: 0;\n    background: radial-gradient(circle, color-mix(in srgb, var(--lk-accent) 24%, transparent), transparent 70%); }\n  .lk-conversation-dot[data-connected=\"1\"] { color: var(--lk-accent); }\n  .lk-conversation-dot[data-connected=\"1\"]::before { opacity: .35; }\n  .lk-conversation-dot[data-phase=\"error\"] { color: var(--lk-danger-ink); }\n  .lk-conversation-dot[data-phase=\"error\"]::before { opacity: 0; }\n  .lk-conversation-heading { min-width: 0; display: flex; flex-direction: column; gap: 3px; }\n  .lk-conversation-title { color: var(--lk-fg); font-size: 1rem; font-weight: 650; line-height: 1.35;\n    overflow-wrap: anywhere; }\n  .lk-conversation-status { color: var(--lk-muted); font-size: .75rem; line-height: 1.4; overflow-wrap: anywhere; }\n  .lk-conversation-actions { display: flex; align-items: center; flex: none; gap: 4px; }\n  .lk-conversation-action, .lk-conversation-upcoming { min-height: 44px; min-width: 44px; display: inline-flex;\n    align-items: center; justify-content: center; gap: 6px; padding: 0 8px; border: 0; border-radius: 10px;\n    background: transparent; color: var(--lk-muted); cursor: pointer; font: inherit; font-size: .8125rem;\n    line-height: 1.4; --mdc-icon-size: 19px; }\n  .lk-conversation-action:hover, .lk-conversation-upcoming:hover { background: var(--lk-elevated); color: var(--lk-fg); }\n  .lk-conversation-count { font-size: .75rem; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: center; }\n  .lk-conversation-upcoming-label { white-space: nowrap; }\n  @container (max-width: 600px) {\n    .lk-conversation-header { gap: 8px; }\n    .lk-conversation-upcoming-label { display: none; }\n    .lk-conversation-actions { gap: 0; }\n    .lk-conversation-upcoming { padding-inline: 6px; gap: 4px; }\n  }\n  @media (prefers-reduced-motion: reduce) { .lk-conversation-dot { transition: none; } }\n\n  .lk-conversation-drawer {\n    position: fixed; inset-block: 0; inset-inline-start: auto; inset-inline-end: 0;\n    width: min(460px, calc(100vw - 24px)); max-width: none;\n    height: 100dvh; max-height: 100dvh; margin: 0; padding: 0;\n    border: 0; border-inline-start: 1px solid var(--lk-line); border-radius: 0;\n    background: var(--lk-surface); color: var(--lk-fg); font-family: var(--lk-sans);\n    overflow: hidden;\n  }\n  .lk-conversation-drawer:not([open]) { display: none; }\n  .lk-conversation-drawer::backdrop { background: rgb(0 0 0 / .4); }\n  .lk-conversation-drawer-shell { height: 100%; min-height: 0; display: flex; flex-direction: column; }\n  .lk-conversation-drawer-head {\n    flex: none; display: flex; align-items: center; gap: 12px;\n    padding: max(12px, env(safe-area-inset-top)) 16px 12px;\n    border-bottom: 1px solid var(--lk-line);\n  }\n  .lk-conversation-drawer-head h2 { flex: 1; min-width: 0; margin: 0; font-size: 1.125rem; line-height: 1.35; font-weight: 650; overflow-wrap: anywhere; }\n  .lk-conversation-drawer-head button { flex: none; min-width: 44px; min-height: 44px; }\n  .lk-conversation-drawer-head svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; }\n  .lk-conversation-drawer-body {\n    flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column;\n    overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;\n    padding-bottom: env(safe-area-inset-bottom); scrollbar-width: thin;\n  }\n  .lk-conversation-drawer-body > * { min-width: 0; }\n  @media (max-width: 600px) {\n    .lk-conversation-drawer { width: calc(100vw - 12px); }\n  }\n\n  ha-card[data-live-ui=\"1\"] {\n    --lk-fg: #f1f0ee; --lk-muted: #adb0b8; --lk-surface: #0d0f13;\n    --lk-elevated: #181b21; --lk-line: #30333b;\n    --lk-accent: #fc6b02; --lk-on-accent: #15100b; --lk-accent-ink: #ff9d5a; --lk-focus: #ffa365;\n    --lk-danger: #ff827a; --lk-danger-ink: #ff827a; --lk-on-danger: #18100f;\n    background: radial-gradient(ellipse at 12% 6%, #34201438, transparent 55%), radial-gradient(ellipse at 94% 82%, #1e304030, transparent 60%), var(--lk-surface);\n    color: var(--lk-fg); height: var(--lk-h); min-height: 440px; max-height: none; padding: 0;\n    overflow: hidden; font-family: var(--lk-sans);\n  }\n  :host([data-fullpage]) ha-card[data-live-ui=\"1\"] { height: 100%; min-height: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-header { padding: 12px 16px; min-height: 76px; gap: 8px; justify-content: flex-end; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-identity { flex: 1; justify-content: center; padding-left: 0; position: absolute; left: 92px; right: 92px; min-width: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-dot { display: none; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-heading { text-align: center; min-width: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-title { font-size: 14px; font-weight: 650; display: flex; align-items: center; justify-content: center; gap: 6px; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-status { font-size: 11px; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-upcoming-label { display: none; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-actions { gap: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-action, ha-card[data-live-ui=\"1\"] .lk-conversation-upcoming { width: 44px; padding: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-upcoming { position: absolute; left: 12px; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-count { font-size: 10px; }\n  .lk-call-header-mark { width: 18px; height: 18px; flex: none; }\n  .lk-conversation-actions button svg { width: 19px; height: 19px; }\n  .lk-send svg { width: 22px; height: 22px; }\n  .lk-call { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; padding: 8px 24px 16px; }\n  .lk-call-body { display: flex; flex: 1; min-height: 100px; min-width: 0; }\n  .lk-live-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; }\n  .lk-live-stage[hidden], .lk-call-transcript[hidden] { display: none; }\n  .lk-call-captions { width: 100%; max-width: 620px; text-align: left; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scroll-behavior: auto; flex: 0 1 auto; min-height: 164px; max-height: 40%; padding: 16px 4px 8px; overflow-wrap: anywhere; }\n  .lk-call-captions:focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 2px; }\n  .lk-call-user { margin: 0 0 12px; color: var(--lk-muted); font-size: 16px; line-height: 1.5; }\n  .lk-call-reply { margin: 0; font-size: 25px; font-weight: 650; letter-spacing: -.025em; line-height: 1.24; text-wrap: pretty; }\n  .lk-call-presence { flex: 1; min-height: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px 0 48px; gap: 16px; }\n  .lk-brand-glow { position: relative; width: 190px; height: 190px; max-height: 100%; }\n  .lk-brand-glow canvas { display: block; width: 100%; height: 100%; }\n  .lk-brand-glow svg { position: absolute; inset: 10%; width: 80%; height: 80%; filter: drop-shadow(0 0 14px #e9dfca22); }\n  .lk-brand-glow[data-renderer=\"webgl\"] svg { visibility: hidden; }\n  .lk-brand-glow[data-renderer=\"fallback\"] canvas { visibility: hidden; }\n  .lk-call-status { flex: none; text-align: center; padding: 8px 0 16px; }\n  .lk-call-status p:first-child { font-size: 15px; font-weight: 550; margin: 0 0 6px; }\n  .lk-call-status p:nth-child(2) { color: var(--lk-muted); font-size: 12px; line-height: 1.5; margin: 0; }\n  .lk-call-controls { display: flex; flex: none; justify-content: center; gap: 12px; padding-top: 12px; }\n  .lk-call-control { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: 11px/1.4 var(--lk-sans); width: 58px; cursor: pointer; }\n  .lk-call-circle { display: grid; place-items: center; background: #ffffff07; border-radius: 50%; width: 54px; height: 54px; transition: background .15s; }\n  .lk-call-circle svg { width: 22px; height: 22px; }\n  .lk-call-control[data-primary=\"1\"] .lk-call-circle { background: #fc6b0214; color: #ffbd83; }\n  .lk-call-control[data-danger=\"1\"] .lk-call-circle { background: #ed515e; color: #fff; }\n  .lk-call-control[aria-pressed=\"true\"] .lk-call-circle { background: #fc6b0226; color: #ffbd83; }\n  .lk-call-control:disabled { cursor: default; color: #999ca5; }\n  .lk-call-control:disabled .lk-call-circle { opacity: .45; }\n  .lk-call-control:not(:disabled):hover .lk-call-circle { background: #ffffff13; }\n  .lk-call-control[data-primary=\"1\"]:not(:disabled):hover .lk-call-circle { background: #fc6b0226; }\n  .lk-call-control:focus-visible { border-radius: 8px; }\n  .lk-call-utility { display: flex; flex: none; justify-content: center; align-items: center; gap: 12px; color: var(--lk-muted); font-size: 11px; min-height: 44px; text-align: center; }\n  .lk-call-utility button { font: inherit; border: none; background: none; color: #ffc090; cursor: pointer; }\n  .lk-call-transcript { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; }\n  .lk-call-transcript .lk-convo { padding: 12px 0; }\n  .lk-call-notices { flex: none; max-height: 36%; overflow: auto; }\n  .lk-call-notices:empty { display: none; }\n  .lk-call-notices .lk-recovery { margin: 8px 0; padding: 12px; font-size: 13px; }\n  .lk-call-notices .lk-recovery h2 { font-size: 15px; }\n  .lk-call-notices .lk-recovery p { font-size: 13px; }\n  .lk-call-notices .lk-approvals { margin: 0; }\n  .lk-call-transcript .lk-dock { padding: 8px 0; }\n  ha-card[data-live-ui=\"1\"] .lk-call-transcript .lk-input { font-size: 16px; }\n  /* A decision or recovery takes reading space on a phone; keep a compact live presence\n     instead of squeezing the caption and logo into overlapping flex items. */\n  @container (max-width: 899px) {\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-body { flex: none; min-height: 0; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-captions { display: none; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-presence { flex-direction: row; min-height: 80px; padding: 0; gap: 12px; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-brand-glow { width: 72px; height: 72px; flex: none; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-status { flex: 1; text-align: left; padding-block: 4px; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-notices { flex: 1; min-height: 0; max-height: none; }\n  }\n  @container (min-width: 900px) {\n    .lk-call { padding-inline: 48px; }\n    .lk-call[data-transcript=\"1\"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); grid-template-rows: minmax(0, 1fr) auto auto auto auto; column-gap: 32px; }\n    .lk-call[data-transcript=\"1\"] .lk-call-body { display: contents; }\n    .lk-call[data-transcript=\"1\"] .lk-live-stage { display: flex; grid-column: 1; grid-row: 1; }\n    .lk-call[data-transcript=\"1\"] .lk-call-presence { padding-bottom: 8px; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-status { grid-column: 1; grid-row: 2; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-notices { grid-column: 1; grid-row: 3; max-height: 180px; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-controls { grid-column: 1; grid-row: 4; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-utility { grid-column: 1; grid-row: 5; }\n    .lk-call[data-transcript=\"1\"] .lk-call-transcript { grid-column: 2; grid-row: 1 / -1; padding: 16px; border-radius: 16px; background: #171b21; border: 1px solid var(--lk-line); }\n    .lk-call-reply { font-size: 29px; }\n    .lk-call-captions { padding-top: 32px; }\n    .lk-brand-glow { width: 210px; height: 210px; }\n    .lk-call-control { width: 64px; }\n    .lk-call-circle { width: 58px; height: 58px; }\n  }\n  @container (max-width: 359px) {\n    .lk-call { padding-inline: 12px; padding-bottom: 4px; }\n    .lk-call-controls { gap: 8px; }\n    .lk-call-control { width: 50px; }\n    .lk-call-circle { width: 46px; height: 46px; }\n    .lk-call-reply { font-size: 21px; }\n    .lk-brand-glow { width: 142px; height: 142px; }\n    .lk-call-status { padding-bottom: 4px; }\n    .lk-call-captions { min-height: 126px; }\n    .lk-call-utility { gap: 4px; font-size: 10px; }\n  }\n  @media (max-height: 700px) {\n    .lk-call-presence { min-height: 80px; padding-bottom: 8px; gap: 4px; }\n    .lk-call-captions { min-height: 110px; }\n    .lk-brand-glow { width: 130px; height: 130px; }\n    .lk-call-reply { font-size: 21px; }\n    .lk-call-captions { padding-top: 4px; }\n    .lk-call-status { padding-block: 4px; }\n  }\n  @media (prefers-reduced-motion: reduce) { .lk-call-circle { transition: none; } }\n", hw = {
-	path: [...dS, fS].join(" "),
-	viewBox: uS
+var mw = xb + "\n  :host {\n    --lk-accent: var(--primary-color, #4c8dff);\n    --lk-on-accent: var(--text-primary-color, #fff);\n    --lk-on-danger: var(--text-primary-color, #fff);\n    --lk-accent-ink: var(--lk-accent);\n    --lk-danger-ink: var(--lk-danger);\n    --lk-focus: var(--lk-accent);\n    --lk-fg: var(--primary-text-color, #e9eaee);\n    --lk-muted: var(--secondary-text-color, #9aa1ac);\n    --lk-surface: var(--card-background-color, var(--ha-card-background, #16181d));\n    --lk-elevated: var(--secondary-background-color, rgba(140,140,150,0.10));\n    --lk-line: var(--divider-color, rgba(140,140,150,0.20));\n    --lk-danger: var(--error-color, #f0483e);\n    --lk-ok: var(--success-color, #21b573);\n    --lk-sans: \"ButlerManrope\", \"Manrope\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif;\n    --lk-mono: ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, monospace;\n    --lk-h: 540px;\n    display: block;\n    container-type: inline-size;\n  }\n  :host([data-fullpage]) { height: var(--lk-available-h, 100dvh); min-height: 0; }\n  .lk-panel { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }\n  .lk-panel[hidden] { display: none; }\n  .lk-root { height: 100%; min-height: 0; }\n  :host([data-fullpage]) ha-card { height: 100%; max-height: none; border: none; border-radius: 0; }\n  * { box-sizing: border-box; }\n  * { scrollbar-color: var(--lk-line) transparent; }\n  ::selection { background: var(--lk-accent); color: var(--lk-on-accent); }\n  input, textarea { caret-color: var(--lk-accent-ink); }\n  :is(button, summary, a, input, textarea, select):focus-visible {\n    outline: 2px solid var(--lk-focus); outline-offset: 3px;\n  }\n  .lk-input:focus-visible, .lk-in:focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 3px; }\n  time, .lk-approval-status, .lk-act-note { font-variant-numeric: tabular-nums; }\n  button { font-family: inherit; color: inherit; min-inline-size: 44px; min-block-size: 44px; }\n  summary { min-block-size: 44px; min-inline-size: 44px; }\n  .lk-context { flex: none; min-width: 0; margin-bottom: 4px; }\n  .lk-context:empty { display: none; }\n\n  ha-card {\n    position: relative;\n    background: var(--lk-surface);\n    /* Content-sized: shrinks to fit (idle = just header + tiles + composer, no dead space)\n       and grows with the conversation up to the cap, then the timeline scrolls inside. */\n    height: auto;\n    max-height: min(var(--lk-h), calc(100dvh - 148px));\n    display: flex;\n    flex-direction: column;\n    overflow: hidden;\n    border-radius: var(--ha-card-border-radius, 12px);\n    font-family: var(--lk-sans);\n    color: var(--lk-fg);\n    -webkit-font-smoothing: antialiased;\n  }\n  /* Schedules tab / editor: a definite height (not content-sized) so the list scrolls in a\n     stable viewport and the editor sheet has room. */\n  ha-card[data-tall=\"1\"] {\n    height: min(var(--lk-h), calc(100dvh - 148px));\n  }\n\n  ha-card[data-voice-card=\"1\"] { height: var(--lk-h); max-height: none; }\n  ha-card[data-voice-card=\"1\"] .lk-convo { padding-inline: 18px; }\n  ha-card[data-voice-card=\"1\"] .lk-dock { padding: 0 18px 14px; background: transparent; }\n  ha-card[data-voice-card=\"1\"] .lk-dock > :first-child { border-top: 1px solid var(--lk-line); padding-top: 10px; }\n  ha-card[data-voice-card=\"1\"] .lk-bar { border: 0; border-radius: 0; box-shadow: none; background: transparent; }\n  ha-card[data-voice-card=\"1\"] .lk-starters { display: none; }\n  ha-card[data-voice-idle=\"1\"] { height: auto; }\n  ha-card[data-voice-idle=\"1\"] .lk-convo { flex: none; padding-block: 0; max-height: 320px; }\n\n  /* ---- header ---- */\n  .lk-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 14px 4px; flex: none; }\n  .lk-titlewrap { flex: 1 1 10rem; min-width: 0; min-height: 50px; display: flex; flex-direction: column; justify-content: center; gap: 1px; }\n  .lk-title { min-width: 0; font-size: 1.04rem; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  /* live agent phase under the title: connecting / connected / listening / thinking / speaking */\n  .lk-state { font-family: var(--lk-mono); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;\n    text-transform: uppercase; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\n    transition: color .2s; }\n  .lk-state[data-state=\"listening\"], .lk-state[data-state=\"speaking\"], .lk-state[data-state=\"thinking\"] { color: var(--lk-accent-ink); }\n\n  /* Auto | Manual segmented toggle (shown when connected, in place of the status pill) */\n  .lk-modeswitch { flex: none; display: inline-flex; gap: 0; }\n  .lk-modeswitch button { display: flex; align-items: center; border: 0; cursor: pointer; background: transparent;\n    color: var(--lk-muted); font-family: var(--lk-sans); font-size: .75rem; font-weight: 500; line-height: 1.2;\n    padding: 0; border-radius: 8px; min-height: 44px; }\n  .lk-modeswitch button span { display: block; width: 100%; padding: 6px 10px; border: 1px solid var(--lk-line);\n    background: var(--lk-surface); transition: background-color .15s, color .15s; }\n  .lk-modeswitch button:first-child span { border-radius: 8px 0 0 8px; }\n  .lk-modeswitch button:last-child span { border-radius: 0 8px 8px 0; border-inline-start: 0; }\n  .lk-modeswitch button[data-on=\"1\"] { color: var(--lk-accent-ink); font-weight: 650; }\n  .lk-modeswitch button[data-on=\"1\"] span { background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface)); }\n  .lk-modeswitch button:not([data-on=\"1\"]):hover { color: var(--lk-fg); }\n  .lk-modeswitch button:not([data-on=\"1\"]):hover span { background: var(--lk-elevated); }\n\n  .lk-iconbtn {\n    flex: none; width: 44px; height: 44px; border-radius: 10px; border: none; cursor: pointer;\n    background: transparent; color: var(--lk-muted); display: grid; place-items: center; --mdc-icon-size: 19px;\n  }\n  .lk-iconbtn:hover { background: var(--lk-elevated); color: var(--lk-fg); }\n  .lk-iconbtn[data-on=\"1\"] { color: var(--lk-accent-ink); }\n\n  /* ---- voice orb ---- */\n  .lk-orb { position: relative; width: 26px; height: 26px; flex: none; display: grid; place-items: center; }\n  .lk-orb::before { content: \"\"; position: absolute; inset: -4px; border-radius: 50%; opacity: 0;\n    background: radial-gradient(circle, color-mix(in srgb, var(--lk-accent) 48%, transparent), transparent 68%); }\n  .lk-orb-core { width: 13px; height: 13px; border-radius: 50%;\n    background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--lk-accent) 55%, #fff), var(--lk-accent));\n    box-shadow: none; }\n  .lk-orb[data-state=\"idle\"] .lk-orb-core { background: var(--lk-muted); box-shadow: none; }\n  /* dozing: connected but STT torn down to save cost — alive (slow, faint breathe) but not listening */\n  .lk-orb[data-state=\"dozing\"] .lk-orb-core { background: var(--lk-muted); box-shadow: none; opacity: .55;\n    animation: lk-breathe 3.6s ease-in-out infinite; }\n  /* Connected and quiet remains visibly alive without suggesting microphone capture. */\n  .lk-orb[data-connected=\"1\"]:is([data-state=\"idle\"], [data-state=\"dozing\"]) .lk-orb-core {\n    background: var(--lk-accent); opacity: 1; animation: none;\n  }\n  .lk-orb[data-connected=\"1\"]:is([data-state=\"idle\"], [data-state=\"dozing\"])::before { opacity: .2; }\n  .lk-orb[data-state=\"connecting\"] .lk-orb-core { animation: lk-breathe 1.1s ease-in-out infinite; }\n  .lk-orb[data-state=\"listening\"] .lk-orb-core { animation: lk-breathe 2.4s ease-in-out infinite; }\n  .lk-orb[data-state=\"listening\"]::before { opacity: .7; animation: lk-halo 2.4s ease-in-out infinite; }\n  .lk-orb[data-state=\"thinking\"] .lk-orb-core { animation: lk-breathe .8s ease-in-out infinite; }\n  .lk-orb[data-state=\"thinking\"]::before { opacity: .5; animation: lk-halo .8s ease-in-out infinite; }\n  .lk-orb[data-state=\"speaking\"] .lk-orb-core { animation: lk-speak .5s ease-in-out infinite; }\n  .lk-orb[data-state=\"speaking\"]::before { opacity: .9; }\n  @keyframes lk-breathe { 0%,100% { transform: scale(.82); } 50% { transform: scale(1.18); } }\n  @keyframes lk-speak { 0%,100% { transform: scale(.78); } 50% { transform: scale(1.3); } }\n  @keyframes lk-halo { 0%,100% { transform: scale(.9); opacity: .35; } 50% { transform: scale(1.3); opacity: .8; } }\n\n  /* ---- device tiles (horizontal rail) ---- */\n  .lk-devices { flex: none; }\n  .lk-devices-head { display: flex; align-items: center; gap: 8px; padding: 4px 0 0; }\n  .lk-devices-head h2 { margin: 0; font-size: .875rem; font-weight: 650; line-height: 1.4; color: var(--lk-fg); }\n  .lk-devices-count { font-size: .75rem; line-height: 1.4; color: var(--lk-muted); font-variant-numeric: tabular-nums; }\n  /* ---- now playing ---- */\n  .lk-music { flex: none; position: relative; margin: 2px 14px 8px; padding: 8px 8px 6px 10px;\n    border-radius: 13px; overflow: hidden; border: 1px solid var(--lk-line);\n    background: var(--lk-surface); display: flex; flex-direction: column; gap: 2px; }\n  .lk-music[data-playing=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 10%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 32%, transparent); }\n  .lk-music-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; }\n  .lk-music-icon { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid;\n    place-items: center; --mdc-icon-size: 19px; background: var(--lk-elevated); color: var(--lk-muted); }\n  .lk-music[data-playing=\"1\"] .lk-music-icon { color: var(--lk-accent-ink);\n    background: color-mix(in srgb, var(--lk-accent) 16%, transparent); }\n  .lk-music-meta { flex: 1 1 10rem; min-width: 0; display: flex; flex-direction: column; gap: 1px;\n    padding: 0 6px; border: none; background: none; text-align: left; cursor: pointer; }\n  .lk-music-title { font-size: 14px; font-weight: 650; white-space: nowrap; overflow: hidden;\n    text-overflow: ellipsis; }\n  .lk-music-sub { font-size: 12px; color: var(--lk-muted); white-space: nowrap; overflow: hidden;\n    text-overflow: ellipsis; }\n  .lk-music-play { color: var(--lk-fg); --mdc-icon-size: 23px; }\n  .lk-music-vol { gap: 8px; padding: 0 2px 2px 8px; color: var(--lk-muted); --mdc-icon-size: 16px; }\n  .lk-music-vol input { flex: 1; min-width: 0; height: 44px; margin: 0; appearance: none;\n    -webkit-appearance: none; cursor: pointer; background: transparent; touch-action: pan-y; }\n  .lk-music-vol input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(\n    to right, var(--lk-accent) var(--lk-fill), color-mix(in srgb, var(--lk-fg) 16%, transparent) var(--lk-fill)); }\n  .lk-music-vol input::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(\n    to right, var(--lk-accent) var(--lk-fill), color-mix(in srgb, var(--lk-fg) 16%, transparent) var(--lk-fill)); }\n  .lk-music-vol input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px;\n    margin-top: -8px; border-radius: 50%; background: var(--lk-fg); border: none; }\n  .lk-music-vol input::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%;\n    background: var(--lk-fg); border: none; }\n  .lk-music-num { flex: none; width: 26px; text-align: right; font: 500 11px var(--lk-mono); }\n  .lk-music-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px;\n    background: color-mix(in srgb, var(--lk-fg) 8%, transparent); }\n  .lk-music-progress span { display: block; height: 100%; background: var(--lk-accent); }\n\n  .lk-tiles { flex: none; display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 12px;\n    scroll-snap-type: x proximity; scrollbar-width: none; }\n  .lk-tiles::-webkit-scrollbar { display: none; }\n  .lk-tile-wrap { flex: 0 0 104px; min-width: 0; scroll-snap-align: start; }\n  .lk-tile-wrap[data-error=\"1\"] { flex-basis: min(260px, 100%); }\n  .lk-tile {\n    width: 100%;\n    text-align: left; cursor: pointer; display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 6px; min-height: 84px;\n    padding: 8px; border-radius: 13px; overflow: hidden;\n    border: 1px solid var(--lk-line); background: var(--lk-surface); color: var(--lk-fg);\n    transition: border-color .18s, background-color .18s, box-shadow .18s, transform .06s;\n  }\n  .lk-tile-name { grid-column: 1 / -1; }\n  .lk-tile:disabled { cursor: wait; opacity: .6; }\n  .lk-service-error { color: var(--lk-danger-ink); font-size: .875rem; overflow-wrap: anywhere; }\n  .lk-service-error p { margin: 8px 0; }\n  .lk-service-error .lk-btn { margin-block: 0 8px; }\n  .lk-tile:hover { border-color: color-mix(in srgb, var(--lk-fg) 26%, var(--lk-line)); }\n  .lk-tile:active { transform: scale(.97); }\n  .lk-tile[data-active=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 14%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 40%, transparent); }\n  .lk-tile[data-touched=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 14%, var(--lk-surface));\n    box-shadow: inset 0 0 0 2px var(--lk-accent); }\n  .lk-tile-icon { --mdc-icon-size: 16px; width: 27px; height: 27px; border-radius: 8px;\n    display: inline-flex; align-items: center; justify-content: center;\n    background: var(--lk-elevated); color: var(--lk-muted); transition: background-color .18s, color .18s; }\n  .lk-tile[data-active=\"1\"] .lk-tile-icon { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-tile-state { font-family: var(--lk-mono); font-size: 0.9rem; font-weight: 600; line-height: 1.05;\n    letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-tile-name { font-size: 0.72rem; line-height: 1.2; color: var(--lk-muted);\n    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }\n  .lk-more { align-self: center; cursor: pointer; --mdc-icon-size: 16px; display: inline-flex; align-items: center; gap: 3px;\n    background: transparent; border: none; padding: 3px 10px; border-radius: 999px; color: var(--lk-muted); font-size: 0.8rem; font-weight: 600; }\n  .lk-more:hover { color: var(--lk-fg); background: var(--lk-elevated); }\n\n  /* ---- scheduled tasks (vertical list, above the conversation) ---- */\n  .lk-sched { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 10px 14px 8px; }\n  .lk-sched-head { display: inline-flex; align-items: center; gap: 6px; --mdc-icon-size: 14px;\n    font-family: var(--lk-mono); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.11em;\n    text-transform: uppercase; color: var(--lk-muted); }\n  .lk-sched-item { display: flex; align-items: center; gap: 10px; padding: 8px 11px; border-radius: 12px;\n    border: 1px solid var(--lk-line); background: var(--lk-surface); animation: lk-rise .22s ease both; }\n  .lk-sched-item[data-fresh=\"1\"] { border-color: transparent;\n    background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 42%, transparent); }\n  .lk-sched-icon { flex: none; --mdc-icon-size: 16px; width: 30px; height: 30px; border-radius: 9px;\n    display: inline-flex; align-items: center; justify-content: center;\n    background: var(--lk-elevated); color: var(--lk-muted); }\n  .lk-sched-item[data-fresh=\"1\"] .lk-sched-icon { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-sched-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }\n  .lk-sched-desc { font-size: 0.9rem; font-weight: 600; line-height: 1.2;\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-sched-when { font-family: var(--lk-mono); font-size: 0.72rem; color: var(--lk-muted);\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-sched-badge { flex: none; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.02em;\n    text-transform: uppercase; padding: 3px 8px; border-radius: 999px;\n    color: var(--lk-accent-ink); background: color-mix(in srgb, var(--lk-accent) 14%, transparent); }\n  .lk-sched-more { align-self: flex-start; cursor: pointer; border: none; background: transparent; color: var(--lk-muted);\n    font-family: var(--lk-sans); font-size: 0.76rem; font-weight: 600; padding: 4px 8px; border-radius: 8px; }\n  .lk-sched-more:hover { color: var(--lk-fg); background: var(--lk-elevated); }\n\n  /* ---- tabs (Chat | Voice | Schedules | Settings) ---- */\n  .lk-tabs { flex: none; display: flex; flex-wrap: wrap; gap: 4px; padding: 2px 14px 0; border-bottom: 1px solid var(--lk-line); }\n  .lk-tab { flex: 0 0 auto; border: none; background: transparent; cursor: pointer; color: var(--lk-muted);\n    font-family: var(--lk-sans); font-size: 0.82rem; font-weight: 700; padding: 8px 8px 9px;\n    border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s; }\n  .lk-tab[data-on=\"1\"] { color: var(--lk-fg); border-bottom-color: var(--lk-accent-ink); }\n  .lk-tab:not([data-on=\"1\"]):hover { color: var(--lk-fg); }\n\n  /* ---- schedules tab (search + full list) ---- */\n  .lk-schedtab { flex: 1; min-height: 0; display: flex; flex-direction: column; }\n  .lk-texthead { flex: 1; min-width: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--lk-muted); }\n  .lk-textstatus, .lk-usage { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n  .lk-textstatus { flex: none; max-width: 60%; }\n  .lk-textstatus:empty { display: none; }\n  .lk-texthead > .lk-usage { font-size: .72rem; }\n  .lk-usage-details { min-width: 0; }\n  .lk-usage-details summary { cursor: pointer; padding-block: 4px; }\n  .lk-usage-details .lk-usage { display: block; white-space: normal; overflow-wrap: anywhere; }\n  .lk-usage { font-variant-numeric: tabular-nums; }\n  .lk-search { flex: none; display: flex; align-items: center; gap: 4px; padding: 0 16px;\n    --mdc-icon-size: 18px; color: var(--lk-muted); }\n  .lk-schedtab > .lk-search { padding-block: 16px 12px; gap: 8px; }\n  .lk-search-in { flex: 1; min-width: 0; min-height: 44px; height: auto; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    border-radius: 10px; padding: 0 12px; color: var(--lk-fg); font: inherit; font-size: 0.9rem; }\n  .lk-search-in:focus { border-color: var(--lk-focus); }\n  .lk-search-in::placeholder { color: var(--lk-muted); }\n  .lk-tasklist { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;\n    gap: 12px; padding: 4px 16px 24px; scrollbar-width: thin; }\n  .lk-tasks-empty { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 8px;\n    color: var(--lk-muted); font-size: 0.85rem; text-align: center; max-width: 250px; --mdc-icon-size: 22px; padding: 26px 0; }\n  .lk-taskrow { display: flex; flex-wrap: wrap; align-items: center;\n    border-radius: 12px; border: 1px solid var(--lk-line); background: var(--lk-surface); color: var(--lk-fg);\n    animation: lk-rise .2s ease both; transition: border-color .15s, background-color .15s; }\n  .lk-taskrow:hover { border-color: color-mix(in srgb, var(--lk-fg) 22%, var(--lk-line)); }\n  .lk-taskrow[data-fresh=\"1\"] { border-color: transparent; background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lk-accent) 42%, transparent); }\n  .lk-taskrow[data-status=\"cancelled\"], .lk-taskrow[data-status=\"completed\"], .lk-taskrow[data-status=\"missed\"] { opacity: .62; }\n  /* clickable body (opens the editor); the action buttons live outside it so they aren't nested in a button */\n  .lk-taskrow-main { flex: 1 1 15rem; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left;\n    cursor: pointer; border: none; background: transparent; color: inherit; padding: 9px 4px 9px 11px; }\n  .lk-taskrow-main:last-child { padding-right: 12px; }\n  .lk-taskrow-acts { margin-inline-start: auto; flex: none; display: flex; align-items: center; gap: 2px; padding: 0 6px 0 2px; }\n  .lk-taskrow-acts .lk-iconbtn { width: 44px; height: 44px; --mdc-icon-size: 17px; }\n  .lk-taskrow-del:hover { color: var(--lk-danger-ink); background: color-mix(in srgb, var(--lk-danger) 14%, transparent); }\n  .lk-taskrow-del[data-armed=\"1\"], .lk-taskrow-del[data-armed=\"1\"]:hover { color: var(--lk-on-danger); background: var(--lk-danger); }\n  .lk-taskrow-icon { flex: none; --mdc-icon-size: 16px; width: 30px; height: 30px; border-radius: 9px;\n    display: inline-flex; align-items: center; justify-content: center; background: var(--lk-elevated); color: var(--lk-muted); }\n  .lk-taskrow[data-status=\"scheduled\"] .lk-taskrow-icon { color: var(--lk-accent-ink); }\n  .lk-taskrow-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }\n  .lk-taskrow-desc { font-size: 0.9rem; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-taskrow-when { font-family: var(--lk-mono); font-size: 0.7rem; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-taskrow-exec { font-size: 0.75rem; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-taskrow-tags { flex: none; display: flex; align-items: center; gap: 5px; --mdc-icon-size: 13px; }\n  .lk-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase;\n    letter-spacing: 0.03em; padding: 3px 7px; border-radius: 999px; color: var(--lk-accent-ink);\n    background: color-mix(in srgb, var(--lk-accent) 14%, transparent); }\n  .lk-tag-muted { color: var(--lk-muted); background: var(--lk-elevated); }\n\n  /* ---- settings tab (channel checkbox list) ---- */\n  .lk-settings-fields { border: 0; margin: 0; padding: 0; min-width: 0; }\n  .lk-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;\n    overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }\n  .lk-action-error { margin: 8px 14px; overflow-wrap: anywhere; }\n  .lk-person-name, .lk-person-sum, .lk-checkrow-label { overflow-wrap: anywhere; }\n  .lk-settings { flex: 1; min-height: 0; display: flex; flex-direction: column; }\n  .lk-settings-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 24px max(16px, calc((100% - 800px) / 2)); scrollbar-width: thin; }\n  .lk-set-sec { display: flex; flex-direction: column; }\n  .lk-appearance { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--lk-line); }\n  .lk-appearance-mode { border: 0; padding: 0; margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px 24px; min-width: 0; }\n  .lk-appearance-mode legend { padding: 0; margin-bottom: 8px; }\n  .lk-appearance-option { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }\n  .lk-appearance-option input { width: 20px; height: 20px; flex: none; accent-color: var(--lk-accent); }\n  .lk-appearance-editor { display: grid; grid-template-columns: minmax(64px,80px) minmax(0,1fr); gap: 12px; max-width: 440px; min-width: 0; }\n  .lk-appearance-picker input { width: 100%; height: 44px; border: 1px solid var(--lk-line); border-radius: 8px; padding: 4px; background: var(--lk-surface); cursor: pointer; }\n  .lk-appearance-hex { min-width: 0; }\n  .lk-appearance-hint, .lk-appearance-reset, .lk-appearance-editor > .lk-set-err { grid-column: 1 / -1; }\n  .lk-appearance-reset { justify-self: start; }\n  .lk-appearance-status { font-size: .875rem; line-height: 1.4; color: var(--lk-muted); min-height: 1.4em; }\n  @container (max-width: 400px) {\n    .lk-appearance-editor { grid-template-columns: minmax(0,1fr); }\n    .lk-appearance-picker input { width: 80px; }\n  }\n  .lk-set-sechead { display: flex; align-items: center; gap: 8px; }\n  .lk-set-title { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--lk-fg); }\n  .lk-set-saving { margin-left: auto; font-family: var(--lk-mono); font-size: 0.6rem; font-weight: 600;\n    letter-spacing: 0.08em; text-transform: uppercase; color: var(--lk-muted); }\n  .lk-set-desc { max-inline-size: 75ch; margin: 8px 0 16px; font-size: .875rem; color: var(--lk-muted); line-height: 1.5; }\n  .lk-checklist { display: flex; flex-direction: column; gap: 5px; }\n  .lk-checkrow { display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left;\n    padding: 7px 11px; border-radius: 10px; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    color: var(--lk-fg); transition: border-color .15s, background-color .15s; }\n  .lk-checkrow:hover { border-color: color-mix(in srgb, var(--lk-fg) 22%, var(--lk-line)); }\n  .lk-checkrow[data-on=\"1\"] { border-color: color-mix(in srgb, var(--lk-accent) 42%, transparent);\n    background: color-mix(in srgb, var(--lk-accent) 10%, var(--lk-surface)); }\n  .lk-check { flex: none; width: 19px; height: 19px; border-radius: 6px; display: grid; place-items: center;\n    border: 1.5px solid var(--lk-line); color: var(--lk-on-accent); --mdc-icon-size: 13px;\n    transition: background-color .15s, border-color .15s; }\n  .lk-checkrow[data-on=\"1\"] .lk-check { background: var(--lk-accent); border-color: var(--lk-accent-ink); }\n  .lk-checkrow[data-on=\"0\"] .lk-check ha-icon { opacity: 0; }\n  .lk-checkrow-ic { flex: none; color: var(--lk-muted); --mdc-icon-size: 17px; display: grid; place-items: center; }\n  .lk-checkrow-label { flex: 1; min-width: 0; font-size: 0.85rem; font-weight: 600; line-height: 1.2;\n    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-testbtn { margin-top: 12px; align-self: flex-start; display: inline-flex; align-items: center; gap: 7px;\n    cursor: pointer; font-family: var(--lk-sans); font-size: 0.8rem; font-weight: 700; padding: 8px 14px;\n    border-radius: 10px; border: 1px solid var(--lk-line); background: var(--lk-surface); color: var(--lk-fg);\n    --mdc-icon-size: 16px; transition: border-color .15s, background-color .15s, color .15s; }\n  .lk-testbtn:hover:not(:disabled) { border-color: color-mix(in srgb, var(--lk-accent) 52%, var(--lk-line)); color: var(--lk-accent-ink); }\n  .lk-testbtn:disabled { opacity: .5; cursor: default; }\n  .lk-testbtn[data-sent=\"1\"] { color: var(--lk-ok); border-color: color-mix(in srgb, var(--lk-ok) 42%, transparent); }\n  .lk-set-hint { margin: 9px 2px 0; font-size: 0.72rem; color: var(--lk-muted); line-height: 1.4; }\n  .lk-set-err { margin: 9px 2px 0; font-size: 0.72rem; color: var(--lk-danger-ink); }\n  .lk-checkrow .lk-tag { flex: none; }\n  .lk-people { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }\n  .lk-person { border-radius: 12px; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    transition: border-color .15s; }\n  .lk-person[data-open=\"1\"] { border-color: color-mix(in srgb, var(--lk-fg) 22%, var(--lk-line)); }\n  .lk-person-head { display: flex; align-items: center; padding-right: 6px; }\n  .lk-person-head .lk-iconbtn { width: 44px; height: 44px; --mdc-icon-size: 17px; }\n  .lk-person-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;\n    border: none; background: transparent; color: var(--lk-fg); padding: 8px 4px 8px 10px; font: inherit; }\n  .lk-person-av { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;\n    font-size: 0.8rem; font-weight: 700; color: var(--lk-accent-ink); background: color-mix(in srgb, var(--lk-accent) 14%, transparent); }\n  .lk-person-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }\n  .lk-person-name { font-size: 0.88rem; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-person-sum { font-size: 0.72rem; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-person-chev { flex: none; color: var(--lk-muted); --mdc-icon-size: 18px; transition: transform .15s; }\n  .lk-person[data-open=\"1\"] .lk-person-chev { transform: rotate(180deg); }\n  .lk-person-detail { display: flex; flex-direction: column; gap: 11px; padding: 4px 10px 11px; }\n  .lk-person-sel { padding: 7px 10px; font-size: 0.85rem; }\n  .lk-person-id { font-family: var(--lk-mono); font-size: 0.72rem; color: var(--lk-muted); overflow-wrap: anywhere; }\n  .lk-person-hint { margin-top: 2px; }\n  .lk-person-detail .lk-testbtn { margin-top: 10px; }\n  .lk-person-add-label { display: block; margin-block: 16px 8px; font-size: .85rem; }\n  .lk-tasks-empty h2 { margin: 0; font-size: 1.125rem; font-weight: 650; line-height: 1.3; color: var(--lk-fg); }\n  .lk-tasks-empty p { max-width: 42ch; margin: 0; text-align: center; overflow-wrap: anywhere; }\n  .lk-person-add { display: flex; align-items: center; gap: 8px; }\n  .lk-person-add .lk-search-in { height: 34px; }\n  .lk-person-addbtn { margin-top: 0; height: 34px; padding: 0 12px; }\n\n  /* ---- task editor (slide-up sheet) ---- */\n  .lk-editor { position: fixed; inset: auto 0 0; margin: 0 auto; padding: 0; border: 0;\n    width: min(680px, 100%); max-width: 100%; max-height: 100dvh; color: var(--lk-fg);\n    background: transparent; overflow: hidden; font-family: var(--lk-sans); }\n  .lk-editor[open] { display: flex; }\n  .lk-editor::backdrop { background: color-mix(in srgb, #000 46%, transparent); }\n  @keyframes lk-fade { from { opacity: 0; } to { opacity: 1; } }\n  .lk-editor-panel { width: 100%; max-height: 100dvh; display: flex; flex-direction: column; background: var(--lk-surface);\n    border-top-left-radius: var(--ha-card-border-radius, 12px); border-top-right-radius: var(--ha-card-border-radius, 12px);\n    border-top: 1px solid var(--lk-line);\n    box-shadow: 0 -14px 40px -18px #000; animation: lk-rise .2s ease both; }\n  .lk-editor-head { flex: none; display: flex; align-items: center; justify-content: space-between;\n    padding: 11px 8px 8px 16px; font-weight: 700; font-size: 0.98rem; }\n  /* overflow-x: hidden is required — with overflow-y:auto, overflow-x would otherwise compute\n     to 'auto', and iOS's datetime-local input (intrinsically wide) then scrolls it sideways. */\n  .lk-editor-fields { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 13px; }\n  .lk-editor-head h2 { margin: 0; font: inherit; }\n  .lk-editor-body { margin: 0; border: 0; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 4px 16px 8px;\n    display: flex; flex-direction: column; gap: 13px; scrollbar-width: thin; }\n  .lk-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }\n  .lk-field-label { font-family: var(--lk-sans); font-size: 0.875rem; font-weight: 600; letter-spacing: 0;\n    text-transform: none; color: var(--lk-muted); }\n  /* min-width:0 lets the input shrink to the container (flex items default to min-width:auto =\n     content width, which iOS date/time inputs report far wider than the panel). */\n  .lk-in { width: 100%; min-width: 0; max-width: 100%; border: 1px solid var(--lk-line);\n    background: var(--lk-elevated); color: var(--lk-fg);\n    border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 0.9rem; }\n  /* iOS gives datetime-local a wide native control that ignores width:100% (its right edge then\n     spills out of the panel). Dropping the native appearance makes it a normal box that fits;\n     tapping still opens the iOS date/time picker. */\n  input.lk-in[type=\"datetime-local\"] { -webkit-appearance: none; appearance: none;\n    text-align: left; min-height: 38px; }\n  .lk-in:focus { border-color: var(--lk-focus); }\n  .lk-ta { resize: vertical; min-height: 38px; line-height: 1.35; }\n  .lk-mono { font-family: var(--lk-mono); font-size: 0.82rem; }\n  .lk-hint.lk-timezone-hint { font-family: var(--lk-sans); font-size: .875rem; line-height: 1.4; overflow-wrap: anywhere; }\n  .lk-hint { font-family: var(--lk-mono); font-size: 0.64rem; color: var(--lk-muted); }\n  .lk-seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: 10px; border: 1px solid var(--lk-line);\n    background: var(--lk-elevated); align-self: flex-start; }\n  .lk-seg button { border: none; cursor: pointer; background: transparent; color: var(--lk-muted); font-family: var(--lk-sans);\n    font-size: 0.76rem; font-weight: 700; padding: 5px 12px; border-radius: 8px; transition: background-color .15s, color .15s; }\n  .lk-seg button[data-on=\"1\"] { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-iconbtn:disabled { opacity: .3; cursor: default; background: transparent; }\n  .lk-switch { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; }\n  .lk-switch input { width: 18px; height: 18px; accent-color: var(--lk-accent); }\n  .lk-editor-error { color: var(--lk-danger-ink); font-size: 0.8rem; font-weight: 600; }\n  .lk-editor-actions { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px max(14px, env(safe-area-inset-bottom)); border-top: 1px solid var(--lk-line); }\n  .lk-spacer { flex: 1; }\n  .lk-btn { max-inline-size: 100%; overflow-wrap: anywhere; border: 1px solid var(--lk-line); background: var(--lk-elevated); color: var(--lk-fg); cursor: pointer;\n    font-family: var(--lk-sans); font-size: 0.86rem; font-weight: 700; padding: 9px 15px; border-radius: 11px;\n    transition: transform .06s, opacity .15s, background-color .15s; }\n  .lk-btn:active { transform: scale(.97); }\n  .lk-btn:disabled { opacity: .5; cursor: default; }\n  .lk-btn-accent { background: var(--lk-accent); color: var(--lk-on-accent); border-color: transparent; }\n  .lk-btn-danger { background: transparent; border-color: transparent; color: var(--lk-danger-ink); }\n  .lk-btn-danger:hover { background: color-mix(in srgb, var(--lk-danger) 14%, transparent); }\n\n  /* ---- independently scrolling conversation ---- */\n  /* The transcript scrolls independently; the composer stays in the next flex row. */\n  .lk-convo { flex: 1; min-height: 0; overflow-y: auto; padding: 8px max(16px, calc((100% - 800px) / 2));\n    overscroll-behavior: contain;\n    display: flex; flex-direction: column; gap: 6px; scrollbar-width: thin; }\n  .lk-empty { margin: auto; padding-block: 32px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;\n    color: var(--lk-muted); font-size: 1rem; line-height: 1.5; max-width: 560px; --mdc-icon-size: 28px; }\n  .lk-empty h2 { color: var(--lk-fg); font-size: 1.5rem; line-height: 1.25; letter-spacing: -.02em; margin: 0; text-wrap: balance; }\n  .lk-empty p { margin: 0; }\n  .lk-starters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 8px; }\n  .lk-starters button { min-height: 44px; }\n  .lk-state { font-variant-numeric: tabular-nums; }\n  .lk-modehint { flex: none; margin: 0; padding: 4px max(16px, calc((100% - 800px) / 2)); color: var(--lk-muted); font-size: .8rem; }\n  .lk-recovery { flex: none; padding: 12px 14px; border: 1px solid var(--lk-danger-ink); border-radius: 12px; background: var(--lk-surface); }\n  .lk-recovery h2 { font-size: 1rem; line-height: 1.4; margin: 0; }\n  .lk-recovery p { font-size: .85rem; line-height: 1.4; margin: 4px 0 10px; }\n  .lk-recovery-actions { display: flex; flex-wrap: wrap; gap: 8px; }\n  .lk-recovery button { min-height: 44px; }\n\n  .lk-msg { display: flex; animation: lk-rise .22s ease both; }\n  .lk-msg[data-role=\"user\"] { justify-content: flex-end; }\n  .lk-msg-col { display: flex; flex-direction: column; align-items: flex-start; max-width: 84%; min-width: 0; }\n  .lk-msg[data-role=\"user\"] .lk-msg-col { align-items: flex-end; }\n  .lk-time { margin: 3px 7px 0; font-size: 0.66rem; line-height: 1; color: var(--lk-muted); font-variant-numeric: tabular-nums; }\n  .lk-bubble { max-width: 100%; padding: 8px 13px; border-radius: 16px; font-size: 0.92rem; line-height: 1.4;\n    white-space: pre-wrap; word-break: break-word; }\n  .lk-msg[data-role=\"user\"] .lk-bubble { background: var(--lk-accent); color: var(--lk-on-accent); border-bottom-right-radius: 5px; }\n  .lk-msg[data-role=\"agent\"] .lk-bubble { background: color-mix(in srgb, var(--lk-fg) 6%, var(--lk-surface)); color: var(--lk-fg); border-bottom-left-radius: 5px; }\n  /* what was said and what a tool got and returned can be copied, whatever the dashboard\n     around the card sets; a long press on iOS then offers Copy */\n  .lk-bubble, .lk-act-details { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }\n  /* agent replies rendered from Markdown */\n  .lk-md { white-space: normal; }\n  .lk-md :where(p, ul, ol, pre, blockquote, hr, .lk-md-table) { margin: 0; }\n  .lk-md > * + *, .lk-md blockquote > * + * { margin-top: 8px; }\n  .lk-md li > * + * { margin-top: 2px; }\n  .lk-md ul, .lk-md ol { padding-left: 1.3em; }\n  .lk-md li + li { margin-top: 2px; }\n  .lk-md li::marker { color: var(--lk-muted); }\n  .lk-md-h { font-weight: 700; letter-spacing: -0.01em; }\n  .lk-md strong { font-weight: 700; }\n  .lk-md a { color: var(--lk-accent-ink); text-decoration: underline; text-decoration-thickness: 1px;\n    text-underline-offset: 2px; overflow-wrap: anywhere; }\n  .lk-md code { font-family: var(--lk-mono); font-size: 0.84em; padding: 1px 5px; border-radius: 5px;\n    background: color-mix(in srgb, var(--lk-fg) 9%, transparent); }\n  .lk-md pre { padding: 8px 10px; border-radius: 9px; overflow-x: auto; white-space: pre; scrollbar-width: thin;\n    background: color-mix(in srgb, var(--lk-fg) 7%, transparent); }\n  .lk-md pre code { padding: 0; background: none; font-size: 0.8rem; line-height: 1.45; }\n  .lk-md blockquote { padding-left: 10px; border-left: 1px solid var(--lk-line); color: var(--lk-muted); }\n  .lk-md hr { border: none; border-top: 1px solid var(--lk-line); }\n  .lk-md-table { overflow-x: auto; scrollbar-width: thin; }\n  .lk-md table { border-collapse: collapse; font-size: 0.86em; }\n  .lk-md th, .lk-md td { padding: 4px 10px 4px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--lk-line); }\n  .lk-md th { font-weight: 700; }\n  .lk-md tr:last-child td { border-bottom: none; }\n  /* a tool call: a tappable pill that expands into its arguments and output */\n  .lk-act-row { align-self: flex-start; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;\n    max-width: 100%; min-width: 0; animation: lk-rise .22s ease both; }\n  .lk-act-row[data-open=\"1\"] { align-self: stretch; }\n  .lk-act { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; margin: 0;\n    padding: 3px 8px; border-radius: 8px; font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer;\n    --mdc-icon-size: 13px; border: 0; background: transparent; color: var(--lk-muted);\n    transition: border-color .15s ease, background .15s ease; }\n  .lk-act-badge { flex: none; font-size: .7rem; font-weight: 700; }\n  .lk-act-text { min-width: 0; overflow-wrap: anywhere; }\n  .lk-act-reason { padding-inline: 10px; font-size: .76rem; color: var(--lk-fg); overflow-wrap: anywhere; }\n  .lk-act:hover { border-color: color-mix(in srgb, var(--lk-fg) 22%, transparent); }\n  .lk-act:focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 2px; }\n  .lk-act-chev { --mdc-icon-size: 15px; flex: none; margin-left: -1px; opacity: .6; transition: transform .18s ease; }\n  .lk-act[aria-expanded=\"true\"] .lk-act-chev { transform: rotate(180deg); }\n  .lk-act-details { width: 100%; min-width: 0; padding: 9px 10px 10px; border-radius: 12px;\n    border: 1px solid var(--lk-line); background: var(--lk-surface); font-size: 0.78rem; color: var(--lk-fg); }\n  .lk-act-status { display: flex; align-items: center; gap: 7px; font-weight: 700; }\n  .lk-act-update { white-space: pre-wrap; word-break: break-word; line-height: 1.45; }\n  .lk-act-status[data-status=\"running\"] .lk-act-dot { background: var(--lk-accent); animation: lk-blink 1s ease-in-out infinite; }\n  .lk-act-status[data-status=\"done\"] .lk-act-dot { background: var(--lk-ok); }\n  .lk-act-status[data-status=\"error\"], .lk-act-status[data-status=\"cancelled\"] { color: var(--lk-danger-ink); }\n  .lk-act-status[data-status=\"error\"] .lk-act-dot, .lk-act-status[data-status=\"cancelled\"] .lk-act-dot { background: var(--lk-danger); }\n  .lk-act-name { margin-left: auto; font-family: var(--lk-mono); font-weight: 400; font-size: 0.72rem; color: var(--lk-muted);\n    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }\n  .lk-act-label { margin: 10px 0 4px; font-size: 0.68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;\n    color: var(--lk-muted); }\n  .lk-act-note { font-weight: 500; letter-spacing: 0; text-transform: none; }\n  .lk-act-code { margin: 0; padding: 7px 9px; max-height: 200px; overflow: auto; white-space: pre; scrollbar-width: thin;\n    border-radius: 8px; font-family: var(--lk-mono); font-size: 0.72rem; line-height: 1.5; color: var(--lk-fg);\n    background: color-mix(in srgb, var(--lk-fg) 6%, transparent); }\n  .lk-act-code[data-error=\"1\"] { white-space: pre-wrap; word-break: break-word; color: var(--lk-danger-ink);\n    background: color-mix(in srgb, var(--lk-danger) 9%, transparent); }\n  .lk-act-none { color: var(--lk-muted); font-style: italic; }\n  .lk-act[data-kind=\"action\"] { color: var(--lk-fg);\n    border-color: color-mix(in srgb, var(--lk-accent) 34%, transparent);\n    background: color-mix(in srgb, var(--lk-accent) 9%, var(--lk-surface)); }\n  .lk-act[data-status=\"error\"] { color: var(--lk-fg); border-color: var(--lk-danger-ink);\n    background: color-mix(in srgb, var(--lk-danger) 12%, var(--lk-surface)); }\n  .lk-act[data-status=\"cancelled\"] { border-style: dashed; color: var(--lk-fg); }\n  .lk-act[data-status=\"running\"] { color: var(--lk-fg); border-color: var(--lk-accent-ink); }\n  .lk-act-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n  .lk-act-target { color: var(--lk-muted); }\n  .lk-act[data-kind=\"action\"] .lk-act-target { color: var(--lk-fg); font-weight: 700; }\n  .lk-act-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--lk-muted); }\n  .lk-act[data-status=\"running\"] .lk-act-dot { background: var(--lk-accent); animation: lk-blink 1s ease-in-out infinite; }\n  .lk-act[data-status=\"done\"] .lk-act-dot { background: var(--lk-ok); }\n  .lk-act[data-status=\"error\"] .lk-act-dot, .lk-act[data-status=\"cancelled\"] .lk-act-dot { background: var(--lk-danger); }\n  @keyframes lk-rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }\n  @keyframes lk-blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }\n\n  /* Composer stays in flow, below the independently scrolling transcript. */\n  .lk-dock { position: relative; flex: none; margin-top: auto;\n    padding: 8px max(16px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));\n    display: flex; flex-direction: column; align-items: center; gap: 8px; background: var(--lk-surface); }\n  .lk-dock > * { width: 100%; max-width: 800px; }\n\n  /* ---- one-tap quick replies the agent offers, above the composer ---- */\n  .lk-suggest { width: 100%; display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }\n  .lk-chip { flex: 0 1 auto; max-width: 100%; overflow-wrap: anywhere; border-radius: 16px; padding: 6px 14px; cursor: pointer;\n    font: inherit; font-size: 0.85rem; font-weight: 600; line-height: 1.2; color: var(--lk-fg);\n    background: var(--lk-surface); border: 1px solid color-mix(in srgb, var(--lk-accent) 42%, var(--lk-line));\n    transition: background-color .15s, border-color .15s, transform .06s; }\n  .lk-chip:hover { background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    border-color: color-mix(in srgb, var(--lk-accent) 60%, var(--lk-line)); }\n  .lk-chip:active { transform: scale(.95); }\n  .lk-chip:disabled { cursor: default; opacity: .55; }\n\n  /* ---- manual turn: the composer becomes a listening bar (Cancel · meter · Send) ---- */\n  .lk-listen { width: 100%; min-height: 52px; display: flex; align-items: center; gap: 8px;\n    padding: 7px 7px 7px 10px; border-radius: 26px;\n    background: color-mix(in srgb, var(--lk-accent) 12%, var(--lk-surface));\n    border: 1px solid color-mix(in srgb, var(--lk-accent) 42%, transparent);\n    box-shadow: none; }\n  .lk-listen-cancel { flex: none; width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;\n    --mdc-icon-size: 20px; display: grid; place-items: center; background: transparent; color: var(--lk-muted);\n    transition: background-color .15s, color .15s, transform .06s; }\n  .lk-listen-cancel:hover { color: var(--lk-danger-ink); background: color-mix(in srgb, var(--lk-danger) 15%, transparent); }\n  .lk-listen-cancel:active { transform: scale(.92); }\n  .lk-listen-mid { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; padding-left: 4px; }\n  .lk-listen-label { font-size: 0.85rem; font-weight: 600; color: var(--lk-fg); white-space: nowrap;\n    overflow: hidden; text-overflow: ellipsis; }\n  /* live input meter — the card's voice signature, echoing the orb */\n  .lk-eq { flex: none; display: inline-flex; align-items: center; gap: 3px; height: 20px; }\n  .lk-eq i { width: 3px; height: 18px; border-radius: 2px; background: var(--lk-accent);\n    transform: scaleY(.28); transform-origin: center; animation: lk-eq 1s ease-in-out infinite; }\n  .lk-eq i:nth-child(1) { animation-delay: -.9s; }\n  .lk-eq i:nth-child(2) { animation-delay: -.5s; }\n  .lk-eq i:nth-child(3) { animation-delay: -.2s; }\n  .lk-eq i:nth-child(4) { animation-delay: -.7s; }\n  .lk-eq i:nth-child(5) { animation-delay: -.4s; }\n  @keyframes lk-eq { 0%,100% { transform: scaleY(.28); } 50% { transform: scaleY(1); } }\n  /* Cold-start spinner shown while the mic is being acquired (App.tsx openTurn). Uses\n     currentColor: accent in the listening bar (matching the EQ it replaces), on-accent on the\n     round auto-resume button. */\n  .lk-spin { flex: none; box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%;\n    border: 2px solid color-mix(in srgb, currentColor 26%, transparent); border-top-color: currentColor;\n    animation: lk-spin .7s linear infinite; }\n  .lk-listen-mid .lk-spin { color: var(--lk-accent-ink); }\n  @keyframes lk-spin { to { transform: rotate(360deg); } }\n  .lk-listen-send { flex: none; display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 0 14px 0 16px;\n    border: none; border-radius: 20px; cursor: pointer; --mdc-icon-size: 18px;\n    font-family: var(--lk-sans); font-size: 0.9rem; font-weight: 700; letter-spacing: -0.01em;\n    background: var(--lk-accent); color: var(--lk-on-accent); transition: transform .06s, opacity .15s; }\n  .lk-listen-send:hover { opacity: .95; }\n  .lk-listen-send:active { transform: scale(.96); }\n  .lk-listen-send:disabled { opacity: .45; cursor: default; }\n  .lk-listen-send:disabled:active { transform: none; }\n\n  .lk-bar { width: 100%; min-height: 48px; display: flex; align-items: flex-end; gap: 7px; padding: 3px 3px 3px 15px;\n    border-radius: 24px; border: 1px solid var(--lk-line); background: var(--lk-surface);\n    box-shadow: none; }\n  .lk-bar:has(.lk-input:focus-visible) { outline: 2px solid var(--lk-focus); outline-offset: 3px; }\n  .lk-bar:has(.lk-input:focus-visible) .lk-input:focus-visible { outline: none; }\n  .lk-bar:focus-within { border-color: color-mix(in srgb, var(--lk-accent) 52%, var(--lk-line)); }\n  .lk-bar[data-paused=\"1\"] { border-style: dashed; border-color: color-mix(in srgb, var(--lk-muted) 45%, var(--lk-line)); }\n  .lk-input { flex: 1; min-width: 0; border: none; background: transparent; color: var(--lk-fg);\n    font: inherit; font-size: 1rem; line-height: 1.4; padding: 9px 0; margin: 0; resize: none; display: block;\n    box-sizing: border-box; max-height: 128px; overflow-y: auto; scrollbar-width: thin; }\n  .lk-input::placeholder { color: var(--lk-muted); }\n  .lk-send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; --mdc-icon-size: 20px;\n    display: grid; place-items: center; background: var(--lk-elevated); color: var(--lk-fg); transition: background-color .15s, transform .06s; }\n  .lk-send:active { transform: scale(.93); }\n  .lk-send[data-on=\"1\"], .lk-send--accent { background: var(--lk-accent); color: var(--lk-on-accent); }\n  .lk-send--message:not(:disabled) { background: color-mix(in srgb, var(--lk-fg) 15%, var(--lk-surface)); color: var(--lk-fg); }\n  .lk-send:disabled { cursor: default; background: var(--lk-elevated); color: var(--lk-muted); }\n  .lk-send:disabled:active { transform: none; }\n  /* A live microphone has a visible halo; paused, send and busy controls do not. */\n  .lk-send[data-on=\"1\"] {\n    box-shadow: 0 0 0 5px color-mix(in srgb, var(--lk-accent) 16%, transparent),\n      0 0 24px 10px color-mix(in srgb, var(--lk-accent) 32%, transparent);\n    animation: lk-dictation-glow 1.8s ease-in-out infinite;\n  }\n  @keyframes lk-dictation-glow {\n    0%, 100% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--lk-accent) 16%, transparent), 0 0 24px 10px color-mix(in srgb, var(--lk-accent) 32%, transparent); }\n    50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--lk-accent) 22%, transparent), 0 0 30px 13px color-mix(in srgb, var(--lk-accent) 42%, transparent); }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .lk-send[data-on=\"1\"] { animation: none; }\n  }\n  /* stop replaces send while a text turn runs; dimmed until the turn's task id is known */\n  .lk-stop:disabled { opacity: .45; }\n  .lk-stop[data-stopping=\"1\"]:disabled { opacity: 1; }\n  .lk-stop-sq { width: 12px; height: 12px; border-radius: 3px; background: currentColor; }\n  /* the second press cancels the background work too, so it reads as a warning */\n  .lk-stop[data-force=\"1\"] { background: var(--lk-danger); color: var(--lk-on-danger); }\n\n  .lk-start { cursor: pointer; width: 100%; padding: 13px; border: none; border-radius: 16px; --mdc-icon-size: 20px;\n    display: inline-flex; align-items: center; justify-content: center; gap: 9px;\n    font-family: var(--lk-sans); font-size: 0.96rem; font-weight: 700; letter-spacing: -0.01em;\n    background: var(--lk-accent); color: var(--lk-on-accent);\n    box-shadow: 0 14px 34px -18px color-mix(in srgb, var(--lk-accent) 90%, transparent); transition: transform .06s, opacity .2s; }\n  .lk-start:hover { opacity: .95; }\n  .lk-start:active { transform: scale(.985); }\n  .lk-start:disabled { opacity: .5; cursor: default; box-shadow: none; }\n\n  .lk-settings-scroll > .lk-set-sec { width: 100%; max-width: 800px; margin-inline: auto; }\n  .lk-search, .lk-tasklist { width: 100%; max-width: 832px; align-self: center; }\n  .lk-tasks-empty { flex: none; }\n  @container (max-width: 600px) {\n    .lk-tabs { padding-inline: 8px; }\n    .lk-tab { flex: 1 0 auto; padding-inline: 4px; }\n    .lk-music-meta { flex-basis: calc(100% - 44px); }\n    .lk-music-row > .lk-iconbtn { flex: 1 0 44px; }\n    .lk-taskrow-desc, .lk-taskrow-exec { white-space: normal; overflow-wrap: anywhere; }\n    .lk-set-desc { font-size: .875rem; line-height: 1.5; }\n    .lk-tab, .lk-person-name, .lk-taskrow-desc, .lk-sched-desc, .lk-music-title,\n    .lk-bubble, .lk-btn, .lk-chip, .lk-listen-label { font-size: 1rem; }\n    .lk-person-sum, .lk-taskrow-exec, .lk-taskrow-when, .lk-sched-when, .lk-music-sub { font-size: .875rem; }\n    .lk-in, .lk-search-in, .lk-person-sel { font-size: max(1rem, 16px); }\n  }\n  @media (max-width: 600px) {\n    .lk-input, .lk-in, .lk-search-in { font-size: max(1rem, 16px); }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .lk-orb-core, .lk-orb::before, .lk-act-dot, .lk-msg, .lk-act-row { animation: none !important; }\n    .lk-editor-panel, .lk-editor, .lk-taskrow, .lk-sched-item, .lk-spin { animation: none !important; }\n    .lk-eq i { animation: none !important; transform: scaleY(.6); }\n  }\n  .lk-approvals { display: grid; gap: 12px; margin-block: 12px; min-width: 0; }\n  .lk-approval { padding: 16px; border: 1px solid var(--lk-line); border-radius: 12px; background: var(--lk-elevated); min-width: 0; overflow-wrap: anywhere; }\n  .lk-approval-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; color: var(--lk-muted); font-size: 12px; }\n  .lk-approval h3 { font-size: 15px; margin: 0 0 8px; }\n  .lk-approval p { margin: 8px 0; }\n  .lk-approval details { margin-block: 12px; }\n  .lk-approval summary { cursor: pointer; padding-block: 8px; }\n  .lk-approval pre { white-space: pre; overflow: auto; max-height: 320px; padding: 12px; background: var(--lk-surface); font: 12px/1.5 var(--lk-mono); }\n  .lk-approval-actions { display: flex; flex-wrap: wrap; gap: 8px; }\n  .lk-approval-actions button, .lk-approval-error button { min-height: 44px; padding-inline: 16px; }\n  .lk-approval button:disabled { opacity: .5; cursor: default; }\n  .lk-approval :is(button, summary):focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 3px; }\n  .lk-approval-error { color: var(--lk-danger-ink); }\n  .lk-caption-state { margin: 4px 7px 0; color: var(--lk-muted); font-size: .75rem; line-height: 1.4; }\n  .lk-msg[data-interim=\"1\"] .lk-bubble { border: 1px dashed var(--lk-line); }\n  .lk-voice-preferences { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--lk-line); gap: 8px; }\n  .lk-voice-preferences .lk-modeswitch { align-self: flex-start; }\n  .lk-history-actions { padding: 12px 16px; }\n  .lk-conversation-drawer .lk-settings-scroll { padding: 20px 16px; }\n\n  .lk-voice-feedback {\n    --lk-voice-level: 0;\n    display: flex; align-items: center; gap: 12px; flex: none; min-width: 0;\n    width: 100%; max-width: 832px; align-self: center;\n    padding: 8px 16px 0; color: var(--lk-fg);\n  }\n  .lk-voice-visual { flex: 0 0 64px; width: 64px; height: 64px; color: var(--lk-accent-ink); }\n  .lk-voice-visual svg { width: 100%; height: 100%; display: block; overflow: visible; }\n  .lk-voice-ring { fill: none; stroke: currentColor; stroke-width: 1; transform-origin: 32px 32px; opacity: .18; }\n  .lk-voice-ring-inner { opacity: .32; }\n  .lk-voice-core { fill: currentColor; transform-origin: 32px 32px; transition: fill 160ms ease, opacity 160ms ease; }\n  .lk-voice-copy { flex: 1 1 10rem; min-width: 0; }\n  .lk-voice-label { margin: 0; font-size: .9375rem; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }\n  .lk-voice-detail { margin: 4px 0 0; font-size: .8125rem; line-height: 1.4; color: var(--lk-muted); overflow-wrap: anywhere; }\n  .lk-voice-connecting { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 38 132;\n    transform-origin: 32px 32px; display: none; }\n  .lk-voice-paused, .lk-voice-error { display: none; fill: none; stroke: var(--lk-surface); stroke-width: 2.5; stroke-linecap: round; }\n  .lk-voice-actions { display: flex; flex: none; align-items: center; gap: 4px; }\n  .lk-voice-actions button { min-height: 44px; min-width: 44px; cursor: pointer; }\n  .lk-voice-interrupt { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--lk-line);\n    border-radius: 10px; padding: 8px 10px; background: var(--lk-surface); color: var(--lk-fg); font: inherit; font-size: .8125rem; line-height: 1.25; }\n  .lk-voice-interrupt svg { width: 16px; height: 16px; flex: none; fill: currentColor; }\n  .lk-voice-end svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; }\n  .lk-voice-interrupt:hover { background: var(--lk-elevated); }\n  .lk-voice-interrupt:disabled { opacity: .65; cursor: wait; }\n\n  .lk-voice-feedback[data-phase=\"listening\"] .lk-voice-ring-outer { transform: scale(calc(1 - var(--lk-voice-level) * .2)); opacity: calc(.18 + var(--lk-voice-level) * .5); }\n  .lk-voice-feedback[data-phase=\"listening\"] .lk-voice-ring-inner { transform: scale(calc(1 - var(--lk-voice-level) * .15)); opacity: calc(.32 + var(--lk-voice-level) * .4); }\n  .lk-voice-feedback[data-phase=\"listening\"] .lk-voice-core { transform: scale(calc(1 + var(--lk-voice-level) * .16)); }\n  .lk-voice-feedback[data-phase=\"speaking\"] .lk-voice-ring-outer { transform: scale(calc(.8 + var(--lk-voice-level) * .2)); opacity: calc(.18 + var(--lk-voice-level) * .5); }\n  .lk-voice-feedback[data-phase=\"speaking\"] .lk-voice-ring-inner { transform: scale(calc(.85 + var(--lk-voice-level) * .15)); opacity: calc(.32 + var(--lk-voice-level) * .4); }\n  .lk-voice-feedback[data-phase=\"speaking\"] .lk-voice-core { transform: scale(calc(.92 + var(--lk-voice-level) * .16)); }\n  .lk-voice-feedback:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"]) .lk-voice-connecting { display: block; }\n  .lk-voice-feedback:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"]) .lk-voice-core { opacity: .5; transform: scale(.65); }\n  .lk-voice-feedback:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"])[data-motion=\"1\"] .lk-voice-connecting { animation: lk-voice-connect 1.4s linear infinite; }\n  .lk-voice-feedback[data-phase=\"thinking\"] .lk-voice-core { transform: scale(.65); }\n  .lk-voice-feedback[data-phase=\"thinking\"] .lk-voice-ring { opacity: .24; }\n  .lk-voice-feedback:is([data-phase=\"idle\"], [data-phase=\"paused\"]) .lk-voice-visual { color: var(--lk-muted); }\n  .lk-voice-feedback[data-phase=\"paused\"] .lk-voice-ring { opacity: .12; }\n  .lk-voice-feedback[data-phase=\"paused\"] .lk-voice-paused { display: block; }\n  .lk-voice-feedback[data-phase=\"error\"] .lk-voice-visual { color: var(--lk-danger-ink); }\n  .lk-voice-feedback[data-phase=\"error\"] .lk-voice-error { display: block; }\n  .lk-voice-feedback[data-phase=\"error\"] .lk-voice-ring { opacity: .12; }\n  @keyframes lk-voice-connect { to { transform: rotate(360deg); } }\n\n  /* House companion: the same live signals, given Butler's own identity. */\n  .lk-companion { display: grid; grid-template-columns: minmax(0, 1fr) 56px; align-items: start;\n    gap: 10px 16px; padding: 18px 18px 12px; }\n  .lk-companion-identity { min-width: 0; align-self: center; }\n  .lk-companion-name { margin: 0 0 5px; color: var(--lk-fg); font-size: .9375rem;\n    font-weight: 700; line-height: 1.3; letter-spacing: -.02em; overflow-wrap: anywhere; }\n  .lk-companion .lk-voice-label { display: flex; align-items: center; gap: 6px;\n    color: var(--lk-muted); font-size: .75rem; font-weight: 500; }\n  .lk-companion .lk-voice-label::before { content: ''; width: 6px; height: 6px; flex: none;\n    border-radius: 50%; background: currentColor; }\n  .lk-companion:not([data-phase=\"idle\"]):not([data-phase=\"error\"]):not([data-phase=\"paused\"]) .lk-voice-label::before { background: var(--lk-accent-ink); }\n  .lk-voice-feedback.lk-companion .lk-voice-visual { width: 56px; height: 56px; color: var(--lk-accent-ink); }\n  .lk-companion:not([data-phase=\"idle\"]) { padding-top: 14px; gap: 8px 16px; }\n  .lk-companion:not([data-phase=\"idle\"]) .lk-voice-visual { width: 44px; height: 44px; }\n  .lk-companion .lk-companion-mark { transform-origin: 50% 65%; }\n  .lk-companion[data-phase=\"listening\"] .lk-companion-mark { transform: rotate(calc(var(--lk-voice-level) * -4deg)) scale(calc(1 + var(--lk-voice-level) * .05)); }\n  .lk-companion[data-phase=\"speaking\"] .lk-companion-mark { transform: scale(calc(1 + var(--lk-voice-level) * .08)); }\n  .lk-companion[data-phase=\"thinking\"] .lk-companion-mark { transform: rotate(-5deg); }\n  .lk-companion:is([data-phase=\"connecting\"], [data-phase=\"reconnecting\"]) .lk-companion-mark { opacity: .6; }\n  .lk-voice-feedback.lk-companion[data-phase=\"error\"] .lk-voice-visual { color: var(--lk-danger-ink); }\n  .lk-companion .lk-voice-copy { grid-column: 1 / -1; }\n  .lk-companion-prompt { margin: 0; color: var(--lk-fg); font-size: 1.4375rem; font-weight: 650;\n    line-height: 1.25; letter-spacing: -.025em; text-wrap: balance; }\n  .lk-companion .lk-voice-detail { margin: 0; }\n  .lk-companion[data-phase=\"idle\"] .lk-voice-detail { margin-top: 7px; }\n  .lk-companion .lk-voice-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }\n  .lk-companion .lk-voice-actions .lk-modeswitch { margin-inline-end: auto; }\n  .lk-companion .lk-voice-interrupt { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }\n  .lk-companion .lk-voice-end { margin-inline-start: auto; }\n\n  @container (max-width: 600px) {\n    .lk-voice-feedback { gap: 8px; }\n    .lk-voice-visual { flex-basis: 48px; width: 48px; height: 48px; }\n  }\n  @container (max-width: 420px) {\n    .lk-voice-feedback { flex-wrap: wrap; }\n    .lk-voice-copy { flex-basis: calc(100% - 56px); }\n    .lk-voice-actions { margin-left: auto; }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .lk-voice-visual * { animation: none !important; transition: none !important; }\n    .lk-voice-feedback:is([data-phase=\"listening\"], [data-phase=\"speaking\"]) .lk-voice-ring,\n    .lk-voice-feedback:is([data-phase=\"listening\"], [data-phase=\"speaking\"]) .lk-voice-core { transform: none; }\n    .lk-companion .lk-companion-mark { transform: none !important; }\n  }\n\n  .lk-conversation-header { flex: none; display: flex; align-items: center; gap: 12px; min-width: 0;\n    padding: 12px max(16px, calc((100% - 800px) / 2)); }\n  .lk-conversation-identity { flex: 1 1 auto; display: flex; align-items: center; gap: 10px; min-width: 0; }\n  .lk-conversation-dot { flex: none; display: block; width: 10px; height: 10px; border-radius: 50%; position: relative;\n    color: var(--lk-muted); background: currentColor; transition: background-color 160ms ease, color 160ms ease; }\n  .lk-conversation-dot::before { content: \"\"; position: absolute; inset: -7px; border-radius: 50%; opacity: 0;\n    background: radial-gradient(circle, color-mix(in srgb, var(--lk-accent) 24%, transparent), transparent 70%); }\n  .lk-conversation-dot[data-connected=\"1\"] { color: var(--lk-accent); }\n  .lk-conversation-dot[data-connected=\"1\"]::before { opacity: .35; }\n  .lk-conversation-dot[data-phase=\"error\"] { color: var(--lk-danger-ink); }\n  .lk-conversation-dot[data-phase=\"error\"]::before { opacity: 0; }\n  .lk-conversation-heading { min-width: 0; display: flex; flex-direction: column; gap: 3px; }\n  .lk-conversation-title { color: var(--lk-fg); font-size: 1rem; font-weight: 650; line-height: 1.35;\n    overflow-wrap: anywhere; }\n  .lk-conversation-status { color: var(--lk-muted); font-size: .75rem; line-height: 1.4; overflow-wrap: anywhere; }\n  .lk-conversation-actions { display: flex; align-items: center; flex: none; gap: 4px; }\n  .lk-conversation-action, .lk-conversation-upcoming { min-height: 44px; min-width: 44px; display: inline-flex;\n    align-items: center; justify-content: center; gap: 6px; padding: 0 8px; border: 0; border-radius: 10px;\n    background: transparent; color: var(--lk-muted); cursor: pointer; font: inherit; font-size: .8125rem;\n    line-height: 1.4; --mdc-icon-size: 19px; }\n  .lk-conversation-action:hover, .lk-conversation-upcoming:hover { background: var(--lk-elevated); color: var(--lk-fg); }\n  .lk-conversation-count { font-size: .75rem; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: center; }\n  .lk-conversation-upcoming-label { white-space: nowrap; }\n  @container (max-width: 600px) {\n    .lk-conversation-header { gap: 8px; }\n    .lk-conversation-upcoming-label { display: none; }\n    .lk-conversation-actions { gap: 0; }\n    .lk-conversation-upcoming { padding-inline: 6px; gap: 4px; }\n  }\n  @media (prefers-reduced-motion: reduce) { .lk-conversation-dot { transition: none; } }\n\n  .lk-conversation-drawer {\n    position: fixed; inset-block: 0; inset-inline-start: auto; inset-inline-end: 0;\n    width: min(460px, calc(100vw - 24px)); max-width: none;\n    height: 100dvh; max-height: 100dvh; margin: 0; padding: 0;\n    border: 0; border-inline-start: 1px solid var(--lk-line); border-radius: 0;\n    background: var(--lk-surface); color: var(--lk-fg); font-family: var(--lk-sans);\n    overflow: hidden;\n  }\n  .lk-conversation-drawer:not([open]) { display: none; }\n  .lk-conversation-drawer::backdrop { background: rgb(0 0 0 / .4); }\n  .lk-conversation-drawer-shell { height: 100%; min-height: 0; display: flex; flex-direction: column; }\n  .lk-conversation-drawer-head {\n    flex: none; display: flex; align-items: center; gap: 12px;\n    padding: max(12px, env(safe-area-inset-top)) 16px 12px;\n    border-bottom: 1px solid var(--lk-line);\n  }\n  .lk-conversation-drawer-head h2 { flex: 1; min-width: 0; margin: 0; font-size: 1.125rem; line-height: 1.35; font-weight: 650; overflow-wrap: anywhere; }\n  .lk-conversation-drawer-head button { flex: none; min-width: 44px; min-height: 44px; }\n  .lk-conversation-drawer-head svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; }\n  .lk-conversation-drawer-body {\n    flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column;\n    overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;\n    padding-bottom: env(safe-area-inset-bottom); scrollbar-width: thin;\n  }\n  .lk-conversation-drawer-body > * { min-width: 0; }\n  @media (max-width: 600px) {\n    .lk-conversation-drawer { width: calc(100vw - 12px); }\n  }\n\n  ha-card[data-live-ui=\"1\"] {\n    --lk-fg: #f1f0ee; --lk-muted: #adb0b8; --lk-surface: #0d0f13;\n    --lk-elevated: #181b21; --lk-line: #30333b;\n    --lk-accent: #fc6b02; --lk-on-accent: #15100b; --lk-accent-ink: #ff9d5a; --lk-focus: #ffa365;\n    --lk-danger: #ff827a; --lk-danger-ink: #ff827a; --lk-on-danger: #18100f;\n    background: radial-gradient(ellipse at 12% 6%, #34201438, transparent 55%), radial-gradient(ellipse at 94% 82%, #1e304030, transparent 60%), var(--lk-surface);\n    color: var(--lk-fg); height: var(--lk-h); min-height: 440px; max-height: none; padding: 0;\n    overflow: hidden; font-family: var(--lk-sans);\n  }\n  :host([data-fullpage]) ha-card[data-live-ui=\"1\"] { height: 100%; min-height: 0; }\n  :host([data-keyboard]) { position: relative; }\n  :host([data-keyboard]) .lk-root { position: absolute; inset-inline: 0; top: var(--lk-keyboard-top); height: var(--lk-keyboard-h); }\n  :host([data-keyboard]) .lk-call-status, :host([data-keyboard]) .lk-call-utility { display: none; }\n  :host([data-keyboard]) .lk-call-body { min-height: 0; }\n  :host([data-keyboard]) .lk-conversation-header { min-height: 56px; padding-block: 6px; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-header { padding: 12px 16px; min-height: 76px; gap: 8px; justify-content: flex-end; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-identity { flex: 1; justify-content: center; padding-left: 0; position: absolute; left: 92px; right: 92px; min-width: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-dot { display: none; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-heading { text-align: center; min-width: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-title { font-size: 14px; font-weight: 650; display: flex; align-items: center; justify-content: center; gap: 6px; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-status { font-size: 11px; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-upcoming-label { display: none; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-actions { gap: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-action, ha-card[data-live-ui=\"1\"] .lk-conversation-upcoming { width: 44px; padding: 0; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-upcoming { position: absolute; left: 12px; }\n  ha-card[data-live-ui=\"1\"] .lk-conversation-count { font-size: 10px; }\n  .lk-call-header-mark { width: 18px; height: 18px; flex: none; }\n  .lk-conversation-actions button svg { width: 19px; height: 19px; }\n  .lk-send svg { width: 22px; height: 22px; }\n  .lk-call { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; padding: 8px 24px 16px; }\n  .lk-call-body { display: flex; flex: 1; min-height: 100px; min-width: 0; }\n  .lk-live-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; }\n  .lk-live-stage[hidden], .lk-call-transcript[hidden] { display: none; }\n  .lk-call-captions { width: 100%; max-width: 620px; text-align: left; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scroll-behavior: auto; flex: 0 1 auto; min-height: 164px; max-height: 40%; padding: 16px 4px 8px; overflow-wrap: anywhere; }\n  .lk-call-captions:focus-visible { outline: 2px solid var(--lk-focus); outline-offset: 2px; }\n  .lk-call-user { margin: 0 0 12px; color: var(--lk-muted); font-size: 16px; line-height: 1.5; }\n  .lk-call-reply { margin: 0; font-size: 25px; font-weight: 650; letter-spacing: -.025em; line-height: 1.24; text-wrap: pretty; }\n  .lk-call-presence { flex: 1; min-height: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px 0 48px; gap: 16px; }\n  .lk-brand-glow { position: relative; width: 190px; height: 190px; max-height: 100%; }\n  .lk-brand-glow canvas { display: block; width: 100%; height: 100%; }\n  .lk-brand-glow svg { position: absolute; inset: 10%; width: 80%; height: 80%; filter: drop-shadow(0 0 14px #e9dfca22); }\n  .lk-brand-glow[data-renderer=\"webgl\"] svg { visibility: hidden; }\n  .lk-brand-glow[data-renderer=\"fallback\"] canvas { visibility: hidden; }\n  .lk-call-status { flex: none; text-align: center; padding: 8px 0 16px; }\n  .lk-call-status p:first-child { font-size: 15px; font-weight: 550; margin: 0 0 6px; }\n  .lk-call-status p:nth-child(2) { color: var(--lk-muted); font-size: 12px; line-height: 1.5; margin: 0; }\n  .lk-call-controls { display: flex; flex: none; justify-content: center; gap: 12px; padding-top: 12px; }\n  .lk-call-control { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: 11px/1.4 var(--lk-sans); width: 58px; cursor: pointer; }\n  .lk-call-control > span:last-child { white-space: nowrap; }\n  .lk-call-circle { display: grid; place-items: center; background: #ffffff07; border-radius: 50%; width: 54px; height: 54px; transition: background .15s; }\n  .lk-call-circle svg { width: 22px; height: 22px; }\n  .lk-call-control[data-primary=\"1\"] .lk-call-circle { background: #fc6b0214; color: #ffbd83; }\n  .lk-call-control[data-danger=\"1\"] .lk-call-circle { background: #ed515e; color: #fff; }\n  .lk-call-control[aria-pressed=\"true\"] .lk-call-circle { background: #fc6b0226; color: #ffbd83; }\n  .lk-call-control:disabled { cursor: default; color: #999ca5; }\n  .lk-call-control:disabled .lk-call-circle { opacity: .45; }\n  .lk-call-control:not(:disabled):hover .lk-call-circle { background: #ffffff13; }\n  .lk-call-control[data-primary=\"1\"]:not(:disabled):hover .lk-call-circle { background: #fc6b0226; }\n  .lk-call-control:focus-visible { border-radius: 8px; }\n  .lk-call-utility { display: flex; flex: none; justify-content: center; align-items: center; gap: 12px; color: var(--lk-muted); font-size: 11px; min-height: 44px; text-align: center; }\n  .lk-call-utility button { font: inherit; border: none; background: none; color: #ffc090; cursor: pointer; min-height: 44px; }\n  .lk-call-transcript { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; }\n  .lk-call-transcript .lk-convo { padding: 12px 0; }\n  .lk-call-transcript .lk-empty--call { flex: 1; width: 100%; margin: 0 auto; padding-block: 0 4px; gap: 8px; }\n  .lk-empty--call .lk-starters { margin-top: 0; flex-shrink: 0; }\n  .lk-empty-brand { position: relative; flex: 1 1 0; min-height: 0; width: 100%; }\n  .lk-empty-brand svg { position: absolute; inset: 0; margin: auto; width: 152px; height: 152px; max-width: 100%; max-height: 100%; filter: drop-shadow(0 0 14px #e9dfca22); }\n  .lk-call-transcript :is(.lk-empty p, .lk-starters button), .lk-call-status p, .lk-call-utility span,\n  .lk-call-notices .lk-recovery :is(h2, p) { text-wrap: balance; }\n  .lk-call-notices { flex: none; max-height: 36%; overflow: auto; }\n  .lk-call-notices:has(.lk-recovery) { max-height: 44%; }\n  .lk-call-notices:empty { display: none; }\n  .lk-call-notices .lk-recovery { margin: 8px 0; padding: 12px; font-size: 13px; }\n  .lk-call-notices .lk-recovery h2 { font-size: 16px; }\n  .lk-call-notices .lk-recovery p { font-size: 14px; line-height: 1.45; margin: 4px 0 12px; }\n  .lk-call-notices .lk-recovery-actions { align-items: center; }\n  .lk-call-notices .lk-recovery-actions .lk-btn:not(.lk-btn-accent) { border-color: transparent; background: transparent; color: var(--lk-accent-ink); padding-inline: 8px; }\n  .lk-call-notices .lk-approvals { margin: 0; }\n  .lk-call-transcript .lk-dock { padding: 8px 0; }\n  ha-card[data-live-ui=\"1\"] .lk-call-transcript .lk-input { font-size: 16px; }\n  /* A decision or recovery takes reading space on a phone; keep a compact live presence\n     instead of squeezing the caption and logo into overlapping flex items. */\n  @container (max-width: 899px) {\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-body { flex: none; min-height: 0; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-captions { display: none; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-presence { flex-direction: row; min-height: 80px; padding: 0; gap: 12px; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-brand-glow { width: 72px; height: 72px; flex: none; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-status { flex: 1; text-align: left; padding-block: 4px; }\n    .lk-call[data-transcript=\"0\"]:has(.lk-call-notices :is(.lk-approval, .lk-recovery)) .lk-call-notices { flex: 1; min-height: 0; max-height: none; }\n  }\n  @container (min-width: 900px) {\n    .lk-call { padding-inline: 48px; }\n    .lk-call[data-transcript=\"1\"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); grid-template-rows: minmax(0, 1fr) auto auto auto auto; column-gap: 32px; }\n    .lk-call[data-transcript=\"1\"] .lk-call-body { display: contents; }\n    .lk-call[data-transcript=\"1\"] .lk-live-stage { display: flex; grid-column: 1; grid-row: 1; }\n    .lk-call[data-transcript=\"1\"] .lk-call-presence { padding-bottom: 8px; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-status { grid-column: 1; grid-row: 2; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-notices { grid-column: 1; grid-row: 3; max-height: 180px; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-controls { grid-column: 1; grid-row: 4; }\n    .lk-call[data-transcript=\"1\"] > .lk-call-utility { grid-column: 1; grid-row: 5; }\n    .lk-call[data-transcript=\"1\"] .lk-call-transcript { grid-column: 2; grid-row: 1 / -1; padding: 16px; border-radius: 16px; background: #171b21; border: 1px solid var(--lk-line); }\n    .lk-empty-brand svg { display: none; }\n    .lk-call-reply { font-size: 29px; }\n    .lk-call-captions { padding-top: 32px; }\n    .lk-brand-glow { width: 210px; height: 210px; }\n    .lk-call-control { width: 64px; }\n    .lk-call-circle { width: 58px; height: 58px; }\n  }\n  @container (max-width: 359px) {\n    .lk-call { padding-inline: 12px; padding-bottom: 4px; }\n    .lk-call-controls { gap: 8px; }\n    .lk-call-control { width: 50px; }\n    .lk-call-circle { width: 46px; height: 46px; }\n    .lk-call-reply { font-size: 21px; }\n    .lk-brand-glow { width: 142px; height: 142px; }\n    .lk-call-status { padding-bottom: 4px; }\n    .lk-call-captions { min-height: 126px; }\n    .lk-call-utility { gap: 4px; font-size: 10px; }\n  }\n  @media (max-height: 700px) {\n    .lk-call-presence { min-height: 80px; padding-bottom: 8px; gap: 4px; }\n    .lk-call-captions { min-height: 110px; }\n    .lk-brand-glow { width: 130px; height: 130px; }\n    .lk-call-reply { font-size: 21px; }\n    .lk-call-captions { padding-top: 4px; }\n    .lk-call-status { padding-block: 4px; }\n  }\n  @media (prefers-reduced-motion: reduce) { .lk-call-circle { transition: none; } }\n", hw = {
+	path: [...fx, px].join(" "),
+	viewBox: dx
 }, gw = hw;
 if (typeof window < "u") {
 	let e = window, t = async (e) => e === "logo-mono" ? gw : hw;
@@ -37778,16 +37857,27 @@ function bw() {
 }
 var xw = class extends HTMLElement {
 	constructor(...e) {
-		super(...e), this.fullpage = !0, this.frame = 0, this.measureViewport = () => {
+		super(...e), this.fullpage = !0, this.scrollTargets = [], this.frame = 0, this.layoutHeight = 0, this.clearKeyboardViewport = () => {
+			this.removeAttribute("data-keyboard"), this.style.removeProperty("--lk-keyboard-top"), this.style.removeProperty("--lk-keyboard-h");
+		}, this.measureViewport = () => {
 			cancelAnimationFrame(this.frame), this.frame = requestAnimationFrame(() => {
 				if (!this.isConnected || !this.fullpage) return;
-				let e = window.visualViewport, t = Math.max(0, this.getBoundingClientRect().top - (e?.offsetTop ?? 0)), n = Math.max(1, Math.floor((e?.height ?? window.innerHeight) - t));
-				this.style.setProperty("--lk-available-h", `${n}px`);
+				let e = window.visualViewport, t = e?.height ?? window.innerHeight, n = e?.offsetTop ?? 0, r = this.shadowRoot?.activeElement?.matches("textarea.lk-input"), i = this.getBoundingClientRect(), a = Math.max(0, i.top - n), o = Math.max(1, Math.floor(t - a));
+				if (r && e && Math.abs(e.scale - 1) < .01 && window.innerHeight - t > 100) {
+					let e = n, r = n + t;
+					for (let t of this.scrollTargets) {
+						if (getComputedStyle(t).overflowY === "visible") continue;
+						let n = t.getBoundingClientRect();
+						e = Math.max(e, n.top + t.clientTop), r = Math.min(r, n.top + t.clientTop + t.clientHeight);
+					}
+					let a = Math.max(i.top, e);
+					this.setAttribute("data-keyboard", ""), this.style.setProperty("--lk-available-h", `${this.layoutHeight || o}px`), this.style.setProperty("--lk-keyboard-top", `${Math.max(0, a - i.top)}px`), this.style.setProperty("--lk-keyboard-h", `${Math.max(1, Math.floor(r - a))}px`);
+				} else this.clearKeyboardViewport(), this.layoutHeight = o, this.style.setProperty("--lk-available-h", `${o}px`);
 			});
 		};
 	}
 	setConfig(e) {
-		bw().store.setConfig(e), this.fullpage = e.layout === "fullpage" || e.layout !== "card" && e.layout !== "voice" && !e.height, this.toggleAttribute("data-fullpage", this.fullpage), e.layout === "voice" && !e.height ? this.style.setProperty("--lk-h", "380px") : e?.height || this.style.removeProperty("--lk-h"), e?.height && this.style.setProperty("--lk-h", `${e.height}px`), this._attach(), this.measureViewport();
+		bw().store.setConfig(e), this.fullpage = e.layout === "fullpage" || e.layout !== "card" && e.layout !== "voice" && !e.height, this.toggleAttribute("data-fullpage", this.fullpage), this.fullpage || this.clearKeyboardViewport(), e.layout === "voice" && !e.height ? this.style.setProperty("--lk-h", "380px") : e?.height || this.style.removeProperty("--lk-h"), e?.height && this.style.setProperty("--lk-h", `${e.height}px`), this._attach(), this.measureViewport();
 	}
 	getGridOptions() {
 		return {
@@ -37805,15 +37895,19 @@ var xw = class extends HTMLElement {
 		this._attach(), this.appearanceUnsubscribe?.(), this.appearanceUnsubscribe = QS(() => {
 			$S(this), pw(this);
 		}), this.themeObserver?.disconnect(), this.themeObserver = new MutationObserver(() => pw(this));
+		for (let e of this.scrollTargets) e.removeEventListener("scroll", this.measureViewport);
+		this.scrollTargets = [];
 		let e = this;
 		for (; e;) this.themeObserver.observe(e, {
 			attributes: !0,
 			attributeFilter: ["style", "class"]
-		}), e = e.parentElement ?? e.getRootNode().host ?? null;
-		this.viewportObserver = new ResizeObserver(this.measureViewport), this.viewportObserver.observe(document.documentElement), this.parentElement && this.viewportObserver.observe(this.parentElement), window.addEventListener("resize", this.measureViewport), window.visualViewport?.addEventListener("resize", this.measureViewport), window.visualViewport?.addEventListener("scroll", this.measureViewport), this.measureViewport();
+		}), e !== this && (e.addEventListener("scroll", this.measureViewport, { passive: !0 }), this.scrollTargets.push(e)), e = e.parentElement ?? e.getRootNode().host ?? null;
+		this.viewportObserver = new ResizeObserver(this.measureViewport), this.viewportObserver.observe(document.documentElement), this.parentElement && this.viewportObserver.observe(this.parentElement), window.addEventListener("resize", this.measureViewport), window.addEventListener("scroll", this.measureViewport, { passive: !0 }), this.shadowRoot?.addEventListener("focusin", this.measureViewport), this.shadowRoot?.addEventListener("focusout", this.measureViewport), window.visualViewport?.addEventListener("resize", this.measureViewport), window.visualViewport?.addEventListener("scroll", this.measureViewport), this.measureViewport();
 	}
 	disconnectedCallback() {
-		this.appearanceUnsubscribe?.(), this.appearanceUnsubscribe = void 0, this.viewportObserver?.disconnect(), this.themeObserver?.disconnect(), cancelAnimationFrame(this.frame), window.removeEventListener("resize", this.measureViewport), window.visualViewport?.removeEventListener("resize", this.measureViewport), window.visualViewport?.removeEventListener("scroll", this.measureViewport);
+		this.appearanceUnsubscribe?.(), this.appearanceUnsubscribe = void 0, this.viewportObserver?.disconnect(), this.themeObserver?.disconnect(), cancelAnimationFrame(this.frame), window.removeEventListener("resize", this.measureViewport), window.removeEventListener("scroll", this.measureViewport);
+		for (let e of this.scrollTargets) e.removeEventListener("scroll", this.measureViewport);
+		this.scrollTargets = [], this.shadowRoot?.removeEventListener("focusin", this.measureViewport), this.shadowRoot?.removeEventListener("focusout", this.measureViewport), window.visualViewport?.removeEventListener("resize", this.measureViewport), window.visualViewport?.removeEventListener("scroll", this.measureViewport), this.clearKeyboardViewport();
 	}
 	_attach() {
 		let e = this.shadowRoot ?? this.attachShadow({ mode: "open" });
