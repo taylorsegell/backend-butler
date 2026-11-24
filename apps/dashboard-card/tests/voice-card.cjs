@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { EventEmitter, once } = require('node:events');
 const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
@@ -8,6 +9,11 @@ const engine = process.env.ENGINE || 'chromium';
 const bundle = path.resolve(__dirname, '../../../custom_components/backend_butler/frontend/backend-butler-card.js');
 const artifacts = process.env.ARTIFACTS_DIR;
 const tokenRequests = [];
+const tokenEvents = new EventEmitter();
+const nextToken = async () => {
+  const [reply] = await once(tokenEvents, 'token', { signal: AbortSignal.timeout(10000) });
+  return reply;
+};
 
 const html = `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
@@ -19,6 +25,7 @@ const html = `<!doctype html><meta name="viewport" content="width=device-width,i
 <main><div class="neighbor">Next dashboard card</div></main>
 <script type="module">
   window.captureRequests = 0;
+  window.tokenResponses = 0;
   const devices = navigator.mediaDevices;
   const getUserMedia = () => {
     window.captureRequests++;
@@ -48,6 +55,7 @@ const html = `<!doctype html><meta name="viewport" content="width=device-width,i
         return {serverUrl: location.origin.replace('http', 'ws'), participantToken: ''};
       }
       const response = await fetch('/api/' + apiPath, {method, body: body ? JSON.stringify(body) : undefined});
+      if (apiPath.endsWith('/token')) window.tokenResponses++;
       if (!response.ok) throw {status_code: response.status};
       return response.json();
     }
@@ -71,8 +79,10 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => chunks.push(chunk));
     req.on('end', () => {
       tokenRequests.push(JSON.parse(Buffer.concat(chunks).toString()));
-      res.statusCode = 503;
-      setTimeout(() => res.end('{}'), 250);
+      tokenEvents.emit('token', () => {
+        res.statusCode = 503;
+        res.end('{}');
+      });
     });
     return;
   }
@@ -126,8 +136,9 @@ const server = http.createServer((req, res) => {
 
     await page.keyboard.press('Tab');
     assert.equal(await start.evaluate(button => button.getRootNode().activeElement === button), true);
-    await page.keyboard.press('Enter');
+    const [rejectFirstToken] = await Promise.all([nextToken(), page.keyboard.press('Enter')]);
     await cancel.waitFor();
+    rejectFirstToken();
     await retry.waitFor().catch(async error => {
       console.error('Status after failed connection:', await card.getByRole('status').innerText());
       throw error;
@@ -137,10 +148,13 @@ const server = http.createServer((req, res) => {
     assert.equal(tokenRequests[0].input_mode, 'auto', 'widget uses the authenticated continuous call path');
     assert.equal(page.url(), url + '/?alias');
 
-    await retry.click();
+    const [rejectRetryToken] = await Promise.all([nextToken(), retry.click()]);
     await cancel.click();
+    await card.getByText('Ready to talk', { exact: true }).waitFor();
     await start.waitFor();
-    await page.waitForTimeout(350);
+    assert.equal(await start.isEnabled(), true, 'cancel completes before the stalled token request');
+    rejectRetryToken();
+    await page.waitForFunction(() => window.tokenResponses === 2);
     await start.waitFor();
     assert.equal(await retry.count(), 0, 'cancelled connection does not surface late error');
 
@@ -156,6 +170,9 @@ const server = http.createServer((req, res) => {
     console.log(engine + ' PASS: registered widget, legacy height, both voice configurations, sizes, authenticated failure, retry, cancel, dedicated workspace');
   } finally {
     if (browser) await browser.close();
-    await new Promise(resolve => server.close(resolve));
+    await new Promise(resolve => {
+      server.close(resolve);
+      server.closeAllConnections();
+    });
   }
 })().catch(error => { console.error(error); process.exitCode = 1; });
