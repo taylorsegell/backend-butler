@@ -10,7 +10,7 @@ import type { TurnMode } from '../lib/turn-mode';
 export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, getOutputLevel, items,
   connected, connecting, micStarting, mode, turnActive, autoPaused, audioEnabled,
   onTalk, onSendRecording, onCancelRecording, onPause, onResume, onAudio, onInterrupt, onEnd,
-  onEnableAudio, notice, approvals, transcriptContent,
+  onEnableAudio, notice, hasRecovery = false, approvals, transcriptContent,
 }: {
   transcript: boolean; onTranscript: (value: boolean) => void;
   feedback: VoiceFeedbackState; getInputLevel: () => number; getOutputLevel: () => number;
@@ -19,7 +19,7 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
   onTalk: () => void; onSendRecording: () => void; onCancelRecording: () => void;
   onPause: () => void; onResume: () => void; onAudio: () => void; onInterrupt: () => void;
   onEnd: () => void; onEnableAudio?: () => void;
-  notice?: ReactNode; approvals: ReactNode; transcriptContent: ReactNode;
+  notice?: ReactNode; hasRecovery?: boolean; approvals: ReactNode; transcriptContent: ReactNode;
 }) {
   const stageId = useId();
   const transcriptId = useId();
@@ -80,6 +80,10 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
   const micAction = recording ? onSendRecording : listening ? onPause : mode === 'auto' ? onResume : onTalk;
   const cancelling = recording || micStarting;
   const cancellingCallStart = micStarting && mode === 'auto';
+  const status = !hasRecovery && (feedback.label || onEnableAudio)
+    ? <CallStatus feedback={feedback} onEnableAudio={onEnableAudio} /> : null;
+  const recordingHint = connected && !busy && recording;
+  const listeningHint = connected && listening;
   return <div className="lk-call" ref={root} data-transcript={transcript ? '1' : '0'} data-phase={feedback.phase}>
     <div className="lk-call-body">
       {/* Both views remain mounted: toggling presentation cannot reset capture, canvas or scroll. */}
@@ -97,14 +101,14 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
               {BUTLER_JACKET_PATHS.map((d, i) => <path key={i} d={d} fill="#f2f2f3" />)}<path d={BUTLER_TIE_PATH} fill="#FC6B02" />
             </svg>
           </div>
-          {!transcript && <CallStatus feedback={feedback} onEnableAudio={onEnableAudio} />}
+          {!transcript && status}
         </div>
       </section>
       <section className="lk-call-transcript" id={transcriptId} hidden={!transcript} aria-label="Transcript">
         {transcriptContent}
       </section>
     </div>
-    {transcript && <CallStatus feedback={feedback} onEnableAudio={onEnableAudio} />}
+    {transcript && status}
     <div className="lk-call-notices">{approvals}{notice}</div>
     <nav className="lk-call-controls" aria-label="Voice controls">
       <CallButton label={micLabel} caption={micStarting ? 'Starting…' : recording ? 'Send' : listening ? 'Pause' : mode === 'auto' ? connected ? 'Resume' : 'Call' : 'Talk'}
@@ -112,18 +116,18 @@ export function LiveCall({ transcript, onTranscript, feedback, getInputLevel, ge
         primary disabled={busy} onClick={micAction} />
       <CallButton label={audioEnabled ? 'Silence spoken replies' : 'Enable spoken replies'} caption={audioEnabled ? 'Silence' : 'Sound'}
         icon={audioEnabled ? 'sound' : 'muted'} pressed={!audioEnabled} disabled={!connected || busy} onClick={onAudio} />
-      <CallButton label={cancellingCallStart ? 'Cancel call start' : cancelling ? 'Cancel recording' : 'Stop reply audio'} caption={cancelling ? 'Cancel' : 'Interrupt'}
+      <CallButton label={cancellingCallStart ? 'Cancel call start' : cancelling ? 'Cancel recording' : 'Stop reply audio'} caption={cancelling ? 'Cancel' : 'Stop reply'}
         icon={cancelling ? 'close' : 'interrupt'}
         disabled={!cancelling && feedback.phase !== 'speaking'} onClick={cancelling ? (mode === 'auto' ? onPause : onCancelRecording) : onInterrupt} />
-      <CallButton className="lk-call-view" label={transcript ? 'Live' : 'Transcript'} caption={transcript ? 'Live' : 'Transcript'}
+      <CallButton className="lk-call-view" label={transcript ? 'Live view' : 'Transcript'} caption={transcript ? 'Live view' : 'Transcript'}
         icon={transcript ? 'live' : 'transcript'} pressed={transcript}
         controls={transcript ? stageId : transcriptId} onClick={() => switchView(!transcript)} />
       <CallButton label="End voice session" caption="End" icon="end" danger disabled={!connected && !connecting && !micStarting} onClick={onEnd} />
     </nav>
-    <div className="lk-call-utility">
-      <span>{mode === 'manual' ? 'Send when you’re done speaking' : autoPaused ? 'Speak naturally after starting the call' : 'Listening between replies'}</span>
-      {!transcript && <button onClick={() => { switchView(true); requestAnimationFrame(() => root.current?.querySelector<HTMLTextAreaElement>('textarea')?.focus()); }}>Type instead</button>}
-    </div>
+    {(!transcript || recordingHint || listeningHint) && <div className="lk-call-utility">
+      {(recordingHint || listeningHint) && <span>{recordingHint ? 'Send when you’re done speaking' : 'Listening between replies'}</span>}
+      {!transcript && <button onClick={() => { switchView(true); requestAnimationFrame(() => root.current?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true })); }}>Type instead</button>}
+    </div>}
   </div>;
 }
 

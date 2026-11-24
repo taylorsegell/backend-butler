@@ -76,16 +76,52 @@ class BackendButlerCard extends HTMLElement {
   private fullpage = true;
   private viewportObserver?: ResizeObserver;
   private themeObserver?: MutationObserver;
+  private scrollTargets: Element[] = [];
   private frame = 0;
   private appearanceUnsubscribe?: () => void;
+  private layoutHeight = 0;
+
+  private clearKeyboardViewport = () => {
+    this.removeAttribute('data-keyboard');
+    this.style.removeProperty('--lk-keyboard-top');
+    this.style.removeProperty('--lk-keyboard-h');
+  };
 
   private measureViewport = () => {
     cancelAnimationFrame(this.frame);
     this.frame = requestAnimationFrame(() => {
       if (!this.isConnected || !this.fullpage) return;
       const viewport = window.visualViewport;
-      const top = Math.max(0, this.getBoundingClientRect().top - (viewport?.offsetTop ?? 0));
-      const height = Math.max(1, Math.floor((viewport?.height ?? window.innerHeight) - top));
+      const viewportHeight = viewport?.height ?? window.innerHeight;
+      const viewportTop = viewport?.offsetTop ?? 0;
+      const editing = this.shadowRoot?.activeElement?.matches('textarea.lk-input');
+      const bounds = this.getBoundingClientRect();
+      const top = Math.max(0, bounds.top - viewportTop);
+      const height = Math.max(1, Math.floor(viewportHeight - top));
+      const keyboard = editing && viewport && Math.abs(viewport.scale - 1) < .01
+        && window.innerHeight - viewportHeight > 100;
+      if (keyboard) {
+        // iOS can pan the visual viewport or scroll HA while focusing a field.
+        // Shrinking a host already above that viewport moves its composer out
+        // of view. Preserve the host's flow height and anchor only its contents
+        // to the visible area, measured from the unshifted host to avoid drift.
+        let visibleTop = viewportTop;
+        let visibleBottom = viewportTop + viewportHeight;
+        for (const ancestor of this.scrollTargets) {
+          if (getComputedStyle(ancestor).overflowY === 'visible') continue;
+          const clip = ancestor.getBoundingClientRect();
+          visibleTop = Math.max(visibleTop, clip.top + ancestor.clientTop);
+          visibleBottom = Math.min(visibleBottom, clip.top + ancestor.clientTop + ancestor.clientHeight);
+        }
+        const contentTop = Math.max(bounds.top, visibleTop);
+        this.setAttribute('data-keyboard', '');
+        this.style.setProperty('--lk-available-h', `${this.layoutHeight || height}px`);
+        this.style.setProperty('--lk-keyboard-top', `${Math.max(0, contentTop - bounds.top)}px`);
+        this.style.setProperty('--lk-keyboard-h', `${Math.max(1, Math.floor(visibleBottom - contentTop))}px`);
+        return;
+      }
+      this.clearKeyboardViewport();
+      this.layoutHeight = height;
       this.style.setProperty('--lk-available-h', `${height}px`);
     });
   };
@@ -94,6 +130,7 @@ class BackendButlerCard extends HTMLElement {
     ensureTree().store.setConfig(config);
     this.fullpage = config.layout === 'fullpage' || (config.layout !== 'card' && config.layout !== 'voice' && !config.height);
     this.toggleAttribute('data-fullpage', this.fullpage);
+    if (!this.fullpage) this.clearKeyboardViewport();
     if (config.layout === 'voice' && !config.height) this.style.setProperty('--lk-h', '380px');
     else if (!config?.height) this.style.removeProperty('--lk-h');
     if (config?.height) this.style.setProperty('--lk-h', `${config.height}px`);
@@ -123,16 +160,27 @@ class BackendButlerCard extends HTMLElement {
     });
     this.themeObserver?.disconnect();
     this.themeObserver = new MutationObserver(() => syncThemeContrast(this));
+    for (const target of this.scrollTargets) target.removeEventListener('scroll', this.measureViewport);
+    this.scrollTargets = [];
     // Theme variables can change on any ancestor, including across HA shadow roots.
     let ancestor: Element | null = this;
     while (ancestor) {
       this.themeObserver.observe(ancestor, { attributes: true, attributeFilter: ['style', 'class'] });
+      // HA scroll containers can be inside ancestor shadow roots; their scroll
+      // events are not composed and never reach a window capture listener.
+      if (ancestor !== this) {
+        ancestor.addEventListener('scroll', this.measureViewport, { passive: true });
+        this.scrollTargets.push(ancestor);
+      }
       ancestor = ancestor.parentElement ?? (ancestor.getRootNode() as ShadowRoot).host ?? null;
     }
     this.viewportObserver = new ResizeObserver(this.measureViewport);
     this.viewportObserver.observe(document.documentElement);
     if (this.parentElement) this.viewportObserver.observe(this.parentElement);
     window.addEventListener('resize', this.measureViewport);
+    window.addEventListener('scroll', this.measureViewport, { passive: true });
+    this.shadowRoot?.addEventListener('focusin', this.measureViewport);
+    this.shadowRoot?.addEventListener('focusout', this.measureViewport);
     window.visualViewport?.addEventListener('resize', this.measureViewport);
     window.visualViewport?.addEventListener('scroll', this.measureViewport);
     this.measureViewport();
@@ -145,8 +193,14 @@ class BackendButlerCard extends HTMLElement {
     this.themeObserver?.disconnect();
     cancelAnimationFrame(this.frame);
     window.removeEventListener('resize', this.measureViewport);
+    window.removeEventListener('scroll', this.measureViewport);
+    for (const target of this.scrollTargets) target.removeEventListener('scroll', this.measureViewport);
+    this.scrollTargets = [];
+    this.shadowRoot?.removeEventListener('focusin', this.measureViewport);
+    this.shadowRoot?.removeEventListener('focusout', this.measureViewport);
     window.visualViewport?.removeEventListener('resize', this.measureViewport);
     window.visualViewport?.removeEventListener('scroll', this.measureViewport);
+    this.clearKeyboardViewport();
   }
 
   // No teardown on disconnect: a view switch detaches the element, but the shared tree lives on
