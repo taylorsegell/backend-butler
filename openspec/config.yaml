@@ -1,0 +1,42 @@
+schema: spec-driven
+
+context: |
+  Backend Butler is an existing Home Assistant application stack. Preserve working
+  behavior, conversation ownership/history, and compatibility across the card,
+  integration, voice worker, scheduler, and optional configuration app when relevant.
+  Scope work from the actual request and current repository/CI, not a generic rewrite.
+  Use synthetic examples in public artifacts; never include household transcripts,
+  credentials, inventories, private endpoints, or deployment state.
+  Implemented, automated-tested, isolated-HA-tested, phone-verified, PR-open,
+  merged, released, and deployed are separate claims requiring revision-specific evidence.
+  WebKit or keyboard-viewport emulation does not establish physical Companion acceptance.
+  Preserve task/session authorization and any reserved approval. A feature request
+  alone does not authorize household actions, external messages, release or deployment.
+
+rules:
+  proposal:
+    - State the user outcome, scope/exclusions, affected capabilities, and material unknowns.
+    - Keep routine changes concise; ask only about ambiguity that changes correctness, scope, or permission.
+  specs:
+    - Write observable acceptance scenarios, including relevant failures and cancellation paths.
+    - Select device, keyboard, focus, recovery, ownership, or persistence scenarios only where the feature touches them.
+    - Distinguish required verification from checks that remain unavailable or manual.
+  design:
+    - Explain meaningful compatibility boundaries and tradeoffs without duplicating discoverable codebase facts.
+    - Keep the approach proportional and preserve unrelated behavior.
+  tasks:
+    - Assign bounded implementation work and independent verification/review to separate agents when available.
+    - Include relevant actual integration-boundary tests and reproducible failing regressions for reported bugs.
+    - Use existing project commands; include the card rebuild for frontend source changes.
+    - Record a separate verification result for every acceptance scenario; do not mark untested work complete.
+
+operations:
+  apply:
+    guidance:
+      - Continue work already authorized without artificial approval stops; preserve explicit preview or action approvals.
+      - Compare implementation with the proposal/specs/tasks and execute relevant tests before claiming completion.
+      - Keep implementation/review ownership separate and report unavailable verification honestly.
+  archive:
+    guidance:
+      - Archive only when scoped implementation and required verification are complete; preserve remaining device gaps.
+      - Record the achieved delivery state and revision; archiving does not imply merge, release, or deployment.

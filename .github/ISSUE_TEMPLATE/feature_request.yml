@@ -1,0 +1,53 @@
+name: Feature request
+description: Tell us what you would like Butler to help you do.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the result you want in your own words. A sentence or two is enough; you do not need to propose code or an implementation.
+
+        Issues are public. Use made-up examples and redact screenshots or logs. Do not include tokens, credentials, home addresses, device inventories or household transcripts. Report security vulnerabilities through our [security policy](https://github.com/taylorsegell/backend-butler/blob/main/SECURITY.md).
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What would you like Butler to do?
+      description: Describe your goal and what a good result would look like.
+      placeholder: I would like to resume my last conversation without searching through the history list.
+    validations:
+      required: true
+  - type: textarea
+    id: current_pain
+    attributes:
+      label: What gets in the way today? (optional)
+      description: Current behavior or a workaround, if there is one.
+  - type: dropdown
+    id: affected_piece
+    attributes:
+      label: Which part of Butler is involved? (optional)
+      description: It is fine to choose Not sure. We will identify the technical scope.
+      options:
+        - Not sure
+        - Home Assistant integration
+        - Dashboard card
+        - Voice worker
+        - Scheduler and reminders
+        - Optional configuration app
+        - Documentation or setup
+        - More than one part
+      default: 0
+  - type: textarea
+    id: example
+    attributes:
+      label: An example of the expected behavior (optional)
+      description: If helpful, finish “When I …, I expect …”. We will turn this into acceptance checks.
+      placeholder: When I reopen Butler, I can return to the last conversation and see its earlier messages.
+  - type: input
+    id: device_context
+    attributes:
+      label: Where would you use this? (optional)
+      placeholder: For example, Companion on iPhone, a browser dashboard, voice or typed chat.
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Anything that must stay the same? (optional)
+      description: Existing workflows, privacy needs or accessibility requirements. Leave this blank if you are unsure.
