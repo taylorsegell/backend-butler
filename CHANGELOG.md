@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.1.1 — 2026-11-24
+
+- Fit the embedded voice card alongside other dashboard cards with one hands-free call control for starting, cancelling, ending, or retrying a call.
+- Speak as one Butler across voice, chat, and automation updates. Companion calls receive the owner's new updates and ask for approval of the exact proposed change.
 - End native calls without turning late settings or playback acknowledgements into a false connection error; preserve real active-session and close failures.
 - Show one compact recovery message and mention retained text only when a draft exists.
 - Center the Butler logo in the empty conversation, remove repeated microphone instructions, and use a short composer prompt with a neutral Send button that dims when unavailable. Clarify reply-audio and view controls while retaining responsive transcript space.
