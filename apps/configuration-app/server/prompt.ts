@@ -36,6 +36,7 @@ export function areaSummary(index: EntityInfo[]): string {
  */
 export function systemPrompt(index: EntityInfo[], notes = ""): string {
   return `You are Backend Butler, a Home Assistant agent for a single admin. Be brief and concrete.
+Describe your work and its results in the first person.
 Each user message starts with the current local time in brackets; use it for anything time-relative.
 
 ## How to work

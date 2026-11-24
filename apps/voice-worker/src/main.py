@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+from pathlib import Path
 
 import httpx
 from fastapi import Request
@@ -18,6 +19,7 @@ from livekit.agents import (
 )
 from livekit.agents.metrics import LLMModelUsage
 
+import approvals
 import auth
 import mcp_clients
 import text_chat.routes
@@ -68,12 +70,16 @@ if settings.text_api_token:
         return JSONResponse({"servers": mcp_clients.restricted()})
 
 
+approval_state = None
 if settings.native_audio_enabled:
     import native_audio
 
-    native_audio.mount(server)
+    approval_state = approvals.ApprovalStore(
+        Path(settings.text_data_dir) / "approvals.json"
+    )
+    native_audio.mount(server, approval_events=approval_state.events)
 
-text_chat.routes.mount(server)
+text_chat.routes.mount(server, approval_state=approval_state)
 
 
 def _forward_tool_events(ctx: JobContext, session: AgentSession) -> None:
@@ -349,8 +355,7 @@ async def entrypoint(ctx: JobContext) -> None:
                 json.dumps(
                     {
                         "message": (
-                            "Conversation could not be saved. "
-                            "Reconnect to continue."
+                            "Conversation could not be saved. Reconnect to continue."
                         )
                     }
                     if failed

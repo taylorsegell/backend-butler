@@ -7,6 +7,15 @@ import { householdNotes, systemPrompt, withTime } from "../../server/prompt";
 
 const tmp = () => mkdtempSync(join(tmpdir(), "bb-"));
 
+describe("assistant identity", () => {
+  it("speaks as Butler and confirms only observed results", () => {
+    const prompt = systemPrompt([]);
+    expect(prompt).toMatch(/^You are Backend Butler/);
+    expect(prompt).toContain("first person");
+    expect(prompt).toContain("Never claim success you have not seen");
+  });
+});
+
 describe("household notes", () => {
   it("are read from household.md and appended to the system prompt", () => {
     const dir = tmp();

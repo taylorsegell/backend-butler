@@ -43,8 +43,14 @@ describe("MCP endpoint", () => {
   it("lists exactly the three tools", async () => {
     const client = await connect();
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(["butler_status", "decide_approval", "hand_to_butler"]);
     await client.close();
+    expect(tools.map((t) => t.name).sort()).toEqual(["butler_status", "decide_approval", "hand_to_butler"]);
+    const descriptions = Object.fromEntries(tools.map((tool) => [tool.name, tool.description]));
+    expect(descriptions.hand_to_butler).toMatch(/^Start work on a Home Assistant automation/);
+    expect(descriptions.hand_to_butler).toContain("Pass chat_id");
+    expect(descriptions.decide_approval).toContain("that exact change");
+    expect(descriptions.butler_status).toMatch(/^Get the status of a configuration request/);
+    expect(Object.values(descriptions).join(" ")).not.toMatch(/Hand a request to Backend Butler|What Butler is doing/);
   });
 
   it("hand_to_butler passes the caller and returns the result as text JSON", async () => {

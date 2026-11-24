@@ -10,6 +10,7 @@ import json
 import logging
 import re
 import secrets
+from functools import partial
 
 import httpx
 from fastapi import HTTPException, WebSocket, WebSocketDisconnect
@@ -18,7 +19,7 @@ from livekit.agents import AgentSession, TurnHandlingOptions, inference, io, uti
 from livekit.agents.metrics import LLMModelUsage
 
 from agent import HomeAssistantAgent
-from config import settings
+from config import UPDATE_PREFIX, settings
 from history import render
 from native_speech import SpeechEvidence
 from session_idle import SessionIdle
@@ -104,13 +105,15 @@ class ReplyOutput(io.AudioOutput):
 
 
 class NativeSession:
-    def __init__(self, emit, person, selected):
+    def __init__(self, emit, person, selected, *, approval_events=None):
         self.emit = emit
         self.person = person
         self.selected = selected
         self.persisted = None
         self.saver = None
         self.heartbeat = None
+        self.approval_events = approval_events
+        self.butler_updates = None
         self.dirty = asyncio.Event()
         self.failed = False
         self.closing = False
@@ -209,6 +212,25 @@ class NativeSession:
         self.refresh()
         self.saver = asyncio.create_task(self.save_loop())
         self.heartbeat = asyncio.create_task(self.heartbeat_loop())
+        if self.person and self.approval_events:
+            cursor = self.approval_events(self.person, None)["cursor"]
+            self.butler_updates = asyncio.create_task(
+                self.forward_butler_updates(cursor)
+            )
+
+    async def forward_butler_updates(self, cursor):
+        while not self.closing and not self.failed:
+            data = self.approval_events(self.person, cursor)
+            cursor = data["cursor"]
+            for event in data["events"]:
+                try:
+                    self.session.generate_reply(
+                        user_input=f"{UPDATE_PREFIX} butler: {event['text']}",
+                        tool_choice="none",
+                    )
+                except RuntimeError:
+                    logger.warning("Could not relay a native Butler update")
+            await asyncio.sleep(1)
 
     async def save_loop(self):
         try:
@@ -353,7 +375,9 @@ class NativeSession:
         self.closing = True
         self.output.clear_buffer()
         self.idle_input()
-        tasks = [task for task in [self.saver, self.heartbeat] if task]
+        tasks = [
+            task for task in (self.saver, self.heartbeat, self.butler_updates) if task
+        ]
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -370,13 +394,13 @@ class NativeSession:
                 )
 
 
-def mount(server, factory=None):
+def mount(server, factory=None, *, approval_events=None):
     if not settings.native_audio_enabled:
         return
     token = settings.text_api_token
     if not token:
         raise RuntimeError("Native audio requires the configured service token")
-    factory = factory or NativeSession
+    factory = factory or partial(NativeSession, approval_events=approval_events)
     active = set()
     idle_seconds = settings.voice_idle_timeout
 

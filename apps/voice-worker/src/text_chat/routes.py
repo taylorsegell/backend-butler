@@ -52,7 +52,9 @@ async def _json(request: Request) -> dict[str, Any]:
     return data
 
 
-def mount(server: AgentServer) -> None:
+def mount(
+    server: AgentServer, *, approval_state: approvals.ApprovalStore | None = None
+) -> None:
     """Serve the agent over A2A at /home-assistant, and the text bridge at /chat."""
     token = settings.text_api_token
     if not token:
@@ -225,9 +227,10 @@ def mount(server: AgentServer) -> None:
             {"warming": chat_of(_person(request, data.get("user"))).warm()}
         )
 
-    approval_state = approvals.ApprovalStore(
-        Path(settings.text_data_dir) / "approvals.json"
-    )
+    if approval_state is None:
+        approval_state = approvals.ApprovalStore(
+            Path(settings.text_data_dir) / "approvals.json"
+        )
 
     def approval_person(request: Request, named: object = None) -> str:
         person = _person(request, named)
@@ -293,10 +296,10 @@ def mount(server: AgentServer) -> None:
         text = str(data.get("text") or "").strip()
         if not text:
             return PlainTextResponse("no text given", status_code=400)
-        person = chat_of(_person(request, request.query_params.get("user")))
+        named_user = request.query_params.get("user")
         source = str(data.get("source") or "a webhook")
         if source == "butler":
-            person_id = approval_person(request, request.query_params.get("user"))
+            person_id = approval_person(request, named_user)
             try:
                 approval_state.event(person_id, data)
             except ValueError:
@@ -304,10 +307,16 @@ def mount(server: AgentServer) -> None:
                     {"detail": "invalid approval event"}, status_code=400
                 )
             approval_state.note(person_id, text)
+            if conversations.voice_busy(person_id):
+                return JSONResponse({"accepted": True}, status_code=202)
+        else:
+            person_id = _person(request, named_user)
         logger.info("update from %s: %s", source, text[:120])
         # answered in the background, so the sender is not held for a whole turn
         turn = asyncio.create_task(
-            person.send(f"{UPDATE_PREFIX} {source}: {text}", interrupt=False)
+            chat_of(person_id).send(
+                f"{UPDATE_PREFIX} {source}: {text}", interrupt=False
+            )
         )
         updates.add(turn)
         turn.add_done_callback(updates.discard)
