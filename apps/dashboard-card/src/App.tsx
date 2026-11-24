@@ -573,7 +573,8 @@ function CardShell({ tokenSource }: { tokenSource?: HassTokenSource }) {
       try {
         if (!(await connectSession())) return false;
         await send(text);
-        addTyped(text);
+        // Native conversation snapshots already contain each typed message with its saved ID.
+        if (!nativeCapture) addTyped(text);
         return true;
       } catch (e) {
         console.error('send failed', e);
@@ -584,7 +585,7 @@ function CardShell({ tokenSource }: { tokenSource?: HassTokenSource }) {
         setSendingVoice(false);
       }
     },
-    [connectSession, addTyped, send, clearSuggestions],
+    [connectSession, addTyped, send, clearSuggestions, nativeCapture],
   );
 
   const retryVoice = async () => {

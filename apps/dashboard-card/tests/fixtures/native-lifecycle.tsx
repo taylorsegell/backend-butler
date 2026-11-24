@@ -3,11 +3,15 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Root } from '../../src/App';
 import { HassStore } from '../../src/hass/store';
+import type { ConvMessage } from '../../src/lib/conversation';
 import { CARD_STYLES } from '../../src/styles';
 const fixture = window as any;
 const options = new URLSearchParams(location.search);
 const widget = options.get('layout') === 'voice';
 const sessionId = '1'.repeat(32);
+const conversationId = 'synthetic-conversation';
+const conversation: ConvMessage[] = [{ kind: 'message', id: 'reply', role: 'agent', text: 'A completed synthetic reply.', ts: 1 }];
+let typedTurns = 0;
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 let closed = false;
 Object.assign(fixture, { audioResumesInTap: [], requests: [], pending: [], captures: 0, stops: 0, opens: 0, endStarted: false, hold: '', disconnectFails: false });
@@ -30,7 +34,15 @@ store.setHass({
     if (message.type.endsWith('/prepare') && fixture.holdPrepare) await new Promise(resolve => { fixture.releasePrepare = resolve; });
     if (message.type.endsWith('/prepare')) return { session_id: sessionId, entity_id: 'camera.backend_butler_native_audio_' + sessionId };
     if (message.command === 'connect' && fixture.holdConnect) await new Promise(resolve => { fixture.releaseConnect = resolve; });
-    if (message.command === 'connect') { fixture.nativeEvent?.({ type: 'state', state: 'listening' }); return { session_id: sessionId, conversation_id: 'synthetic-conversation', items: [{ kind: 'message', id: 'reply', role: 'agent', text: 'A completed synthetic reply.', ts: 1 }] }; }
+    if (message.command === 'connect') { fixture.nativeEvent?.({ type: 'state', state: 'listening' }); return { session_id: sessionId, conversation_id: conversationId, items: [...conversation] }; }
+    if (message.command === 'text') {
+      const turn = ++typedTurns;
+      conversation.push(
+        { kind: 'message', id: `user-${turn}`, role: 'user', text: message.payload, ts: 2 * turn },
+        { kind: 'message', id: `reply-${turn}`, role: 'agent', text: `Synthetic reply to typed follow-up ${turn}.`, ts: 2 * turn + 1 },
+      );
+      return {};
+    }
     if (message.command === 'disconnect') { closed = true; if (fixture.holdDisconnect) await new Promise(resolve => { fixture.releaseDisconnect = resolve; }); else await delay(40); fixture.disconnectCompleted = true; if (fixture.disconnectFails) throw Error('Synthetic durable close failed'); return {}; }
     if (fixture.hold && message.command === fixture.hold) return new Promise((resolve, reject) => fixture.pending.push({ command: message.command, resolve, reject }));
     if (fixture.endStarted && message.command === 'set_turn_mode') { await delay(180); if (closed) throw Error('Synthetic session already closed'); }
@@ -47,4 +59,5 @@ store.setHass({
   },
 } as any);
 fixture.releasePending = (reject = true) => { for (const operation of fixture.pending.splice(0)) reject ? operation.reject(Error('Synthetic late control rejection')) : operation.resolve({}); };
+fixture.publishConversation = () => fixture.nativeEvent({ type: 'conversation', conversation_id: conversationId, items: [...conversation] });
 const root = createRoot(shadow.querySelector('.lk-root')!); fixture.unmount = () => root.unmount(); root.render(<Root store={store} />);

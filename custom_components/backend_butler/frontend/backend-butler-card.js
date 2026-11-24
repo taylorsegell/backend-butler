@@ -37441,7 +37441,7 @@ function tw({ tokenSource: e }) {
 		if (se.current) return !1;
 		se.current = !0, oe(!0), Ye.restore(), Qe(null), d(), Re(null);
 		try {
-			return await pt() ? (await Se(e), xe(e), !0) : !1;
+			return await pt() ? (await Se(e), fe || xe(e), !0) : !1;
 		} catch (e) {
 			return console.error("send failed", e), Re("message"), !1;
 		} finally {
@@ -37451,7 +37451,8 @@ function tw({ tokenSource: e }) {
 		pt,
 		xe,
 		Se,
-		d
+		d,
+		fe
 	]), Ct = async () => {
 		let e = ce.trim();
 		e && (Le === "connection" || Le === "message") ? await St(e) && le((t) => t.trim() === e ? "" : t) : Le === "microphone" ? N === "manual" ? _t() : xt() : await pt();

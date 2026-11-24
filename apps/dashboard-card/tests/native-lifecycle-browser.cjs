@@ -37,6 +37,29 @@ const esbuild = require('esbuild');
     await page.locator('.lk-call-transcript .lk-bubble').getByText('A completed synthetic reply.', { exact: true }).waitFor();
   };
   try {
+    await open();
+    const followUp = 'A synthetic typed follow-up.';
+    const transcript = page.locator('.lk-call-transcript');
+    const userBubbles = transcript.locator('.lk-msg[data-role="user"]').getByText(followUp, { exact: true });
+    const composer = page.getByRole('textbox', { name: 'Message Backend Butler' });
+    const sendFollowUp = async turn => {
+      await composer.fill(followUp);
+      await composer.press('Enter');
+      await page.waitForFunction(() => document.querySelector('body > div').shadowRoot.querySelector('textarea').value === '');
+      assert.deepEqual(await page.evaluate(() => window.requests.filter(request => request.command === 'text').map(request => request.payload)), Array(turn).fill(followUp));
+      await page.evaluate(() => window.publishConversation());
+      await transcript.getByText(`Synthetic reply to typed follow-up ${turn}.`, { exact: true }).waitFor();
+      assert.equal(await userBubbles.count(), turn, 'each accepted send should produce one authoritative bubble');
+    };
+    await sendFollowUp(1);
+    await page.evaluate(() => {
+      window.publishConversation();
+      return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    assert.equal(await userBubbles.count(), 1, 'replaying the same snapshot should retain one bubble');
+    await sendFollowUp(2);
+    console.log('PASS: native typed follow-ups use durable message IDs and preserve separate identical sends');
+
     await open(); await page.evaluate(() => { window.holdDisconnect = true; }); await end();
     await page.getByRole('button', { name: 'Start call', exact: true }).click();
     assert.equal(await page.evaluate(() => window.requests.filter(request => request.type.endsWith('/prepare')).length), 1, 'Call during End never prepares a new receiver');
