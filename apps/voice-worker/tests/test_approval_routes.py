@@ -114,3 +114,17 @@ class ApprovalRouteTests(unittest.IsolatedAsyncioTestCase):
             "/chat/approval-events?user=alice&after=0", headers={"x-test-person": "bob"}
         )
         self.assertEqual(bob.json()["events"], [])
+
+    async def test_voice_lease_owns_butler_update_delivery(self):
+        with patch.object(routes.conversations, "voice_busy", return_value=True):
+            response = await self.client.post(
+                "/chat/events",
+                headers={"x-test-person": "alice"},
+                json={"source": "butler", "text": "Still working"},
+            )
+        self.assertEqual(response.status_code, 202)
+        routes.TextChat.send.assert_not_called()
+        response = await self.client.get(
+            "/chat/approval-events?after=0", headers={"x-test-person": "alice"}
+        )
+        self.assertEqual(response.json()["events"][0]["text"], "Still working")

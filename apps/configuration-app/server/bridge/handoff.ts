@@ -13,7 +13,7 @@ export type ToolResult = Record<string, unknown>;
 const MAX_REQUEST = 4000;
 const MAX_FINAL = 4000;
 const MAX_LAST_TEXT = 1000;
-const STILL_WORKING = "Butler is still working on that chat; ask butler_status.";
+const STILL_WORKING = "I’m still working on that request. Use butler_status for the latest status.";
 const NOT_FOUND = "chat not found";
 
 /** Source of truth while a turn runs: a new chat is not in the store until its first turn is saved. */
@@ -43,7 +43,7 @@ export function startHandoff(deps: ChatDeps, caller: Caller, request: string, ch
   if (!user || !callback) {
     return {
       error:
-        "Butler can only take hand-offs from a worker that sends a callback (set CALLBACK_BASE_URL and TEXT_API_TOKEN on the worker).",
+        "Configuration updates require a caller and callback. Set CALLBACK_BASE_URL and TEXT_API_TOKEN on the worker.",
     };
   }
   const text = typeof request === "string" ? request.trim() : "";
@@ -58,7 +58,7 @@ export function startHandoff(deps: ChatDeps, caller: Caller, request: string, ch
   } else {
     chat = deps.store.draft(user);
   }
-  if (running.size >= MAX_RUNNING) return { error: "Butler is busy with other requests; try again shortly." };
+  if (running.size >= MAX_RUNNING) return { error: "I’m busy with other configuration requests. Try again shortly." };
   if (!claimChat(chat.id)) return { error: STILL_WORKING };
 
   running.set(chat.id, { status: "running", owner: user });
@@ -89,7 +89,7 @@ async function runBackground(
       const live = running.get(chatId);
       if (live) live.status = "waiting_approval";
       send({
-        text: `Approval needed: ${a.title}. ${a.summary}. Say yes or no. (approval ${a.id})`,
+        text: `Approval needed: ${a.title}. ${a.summary}. Should I apply this change? (approval ${a.id})`,
         approval: {
           id: a.id,
           toolUseId: a.toolUseId,
@@ -107,7 +107,7 @@ async function runBackground(
       const live = running.get(chatId);
       if (live) live.status = "running";
       send({
-        text: r.allow ? `Approved: ${title}.` : `Not approved: ${title}.`,
+        text: r.allow ? `I received approval for ${title}.` : `I won’t apply ${title}.`,
         approval_result: { id: r.id, allow: r.allow, chat_id: chatId },
       });
     }
@@ -118,14 +118,14 @@ async function runBackground(
       gate: { timeoutMs: HANDOFF_APPROVAL_MS, chatId, owner },
     });
     if (result.ok) {
-      send({ text: textOf(result.parts).slice(0, MAX_FINAL) || "Butler finished.", done: { ok: true } });
+      send({ text: textOf(result.parts).slice(0, MAX_FINAL) || "I don’t have a confirmed result for this request.", done: { ok: true } });
     } else {
       const err = [...result.parts].reverse().find((p) => p.kind === "error");
-      const msg = err && err.kind === "error" ? err.text : "the turn did not finish";
-      send({ text: `Butler hit an error: ${msg}`.slice(0, MAX_FINAL), done: { ok: false } });
+      const msg = err && err.kind === "error" ? err.text : "No error details were available.";
+      send({ text: `I couldn’t finish the request. ${msg}`.slice(0, MAX_FINAL), done: { ok: false } });
     }
   } catch (err) {
-    send({ text: `Butler hit an error: ${err instanceof Error ? err.message : String(err)}`.slice(0, MAX_FINAL), done: { ok: false } });
+    send({ text: `I couldn’t finish the request. ${err instanceof Error ? err.message : String(err)}`.slice(0, MAX_FINAL), done: { ok: false } });
   } finally {
     releaseChat(chatId);
     running.delete(chatId);

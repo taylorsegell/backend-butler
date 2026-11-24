@@ -29,7 +29,7 @@ export function mcpRoutes(deps: ChatDeps): BridgeRoutes {
         "hand_to_butler",
         {
           description:
-            "Hand a request to Backend Butler, which creates and edits Home Assistant automations, scripts and configuration. Use it for those, not for switching devices. It answers at once with a chat_id; Butler reports its progress and result later as an update. Pass chat_id to continue the same piece of work.",
+            "Start work on a Home Assistant automation, script, or configuration request. Use device controls for switching devices. The chat_id identifies the request, and later updates report progress and results. Pass chat_id to continue the same work.",
           inputSchema: { request: z.string().min(1).max(4000), chat_id: z.string().optional() },
         },
         async ({ request, chat_id }) => asContent(startHandoff(deps, caller, request, chat_id)),
@@ -38,7 +38,7 @@ export function mcpRoutes(deps: ChatDeps): BridgeRoutes {
         "decide_approval",
         {
           description:
-            "Approve or decline a change Butler asked about. Call it only after the person has said yes or no to that exact change; use the id from Butler's 'Approval needed' update.",
+            "Record the person's approval or decline for a proposed change. Use the approval id from the update and call only after the person clearly answers yes or no to that exact change.",
           inputSchema: { id: z.string(), allow: z.boolean() },
         },
         async ({ id, allow }) => asContent(decideApproval(caller, id, allow)),
@@ -47,7 +47,7 @@ export function mcpRoutes(deps: ChatDeps): BridgeRoutes {
         "butler_status",
         {
           description:
-            "What Butler is doing in a chat: running, waiting_approval or idle, its latest reply, and any approval waiting for an answer.",
+            "Get the status of a configuration request by chat_id. Returns running, waiting_approval, or idle, along with the latest reply and any pending approval.",
           inputSchema: { chat_id: z.string() },
         },
         async ({ chat_id }) => asContent(handoffStatus(deps, caller, chat_id)),

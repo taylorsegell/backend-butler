@@ -12,6 +12,7 @@ from livekit.rtc import EventEmitter
 from starlette.websockets import WebSocketDisconnect
 
 import native_audio
+from approvals import ApprovalStore
 
 
 class NativeSession:
@@ -120,11 +121,54 @@ def test_close_acknowledges_release_before_new_connection():
 
 
 @pytest.mark.asyncio
+async def test_active_native_call_reads_only_new_owner_updates(tmp_path):
+    feed = ApprovalStore(tmp_path / "approvals.json")
+    feed.note("alice", "Earlier update")
+    generated = asyncio.Event()
+    speech = native_audio.NativeSession.__new__(native_audio.NativeSession)
+    speech.approval_events = feed.events
+    speech.person, speech.selected = "alice", None
+    speech.failed = speech.closing = False
+    speech.close_task = None
+    speech.providers = {}
+    speech.output, speech.agent = Mock(), Mock()
+    speech.idle_input, speech.refresh = Mock(), Mock()
+    speech.save_loop = speech.heartbeat_loop = AsyncMock()
+    speech.session = SimpleNamespace(
+        start=AsyncMock(),
+        save=AsyncMock(),
+        aclose=AsyncMock(),
+        input=Mock(),
+        generate_reply=Mock(side_effect=lambda **_: generated.set()),
+    )
+    speech.agent.update_chat_ctx = AsyncMock()
+    persisted = SimpleNamespace(session_id="owned-conversation", release=AsyncMock())
+
+    with patch.object(
+        native_audio.RemoteSession, "open", AsyncMock(return_value=persisted)
+    ):
+        await speech.start()
+    try:
+        feed.note("bob", "Another person's update")
+        feed.note("alice", "Approval needed for the porch schedule.")
+        await asyncio.wait_for(generated.wait(), 2)
+        speech.session.generate_reply.assert_called_once_with(
+            user_input="[update] butler: Approval needed for the porch schedule.",
+            tool_choice="none",
+        )
+    finally:
+        await speech.close()
+    assert speech.butler_updates.cancelled()
+    persisted.release.assert_awaited_once()
+
+
+@pytest.mark.asyncio
 async def test_persistence_failure_stops_agent_and_waits_for_release():
     speech = native_audio.NativeSession.__new__(native_audio.NativeSession)
     speech.failed = False
     speech.close_task = None
     speech.saver = speech.heartbeat = None
+    speech.butler_updates = None
     speech.providers = {}
     speech.output = Mock()
     speech.idle_input = Mock()

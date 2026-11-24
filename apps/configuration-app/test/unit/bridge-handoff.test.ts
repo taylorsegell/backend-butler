@@ -77,17 +77,17 @@ describe("startHandoff", () => {
     script = async () => ({ parts: [{ kind: "error", text: "boom" }], ok: false });
     const a = startHandoff(d, alice, "x") as any;
     await flush();
-    expect(sent.at(-1)).toMatchObject({ chat_id: a.chat_id, text: "Butler hit an error: boom", done: { ok: false } });
+    expect(sent.at(-1)).toMatchObject({ chat_id: a.chat_id, text: "I couldn’t finish the request. boom", done: { ok: false } });
     script = async () => {
       throw new Error("kaput");
     };
     const b = startHandoff(d, alice, "y") as any;
     await flush();
-    expect(sent.at(-1)).toMatchObject({ chat_id: b.chat_id, text: "Butler hit an error: kaput", done: { ok: false } });
+    expect(sent.at(-1)).toMatchObject({ chat_id: b.chat_id, text: "I couldn’t finish the request. kaput", done: { ok: false } });
     script = async () => ({ parts: [], ok: true });
     startHandoff(d, alice, "z");
     await flush();
-    expect(sent.at(-1).text).toBe("Butler finished.");
+    expect(sent.at(-1)).toMatchObject({ text: "I don’t have a confirmed result for this request.", done: { ok: true } });
   });
 
   it("refuses without a callback or user, and validates the request", () => {
@@ -171,7 +171,7 @@ describe("approvals", () => {
     await flush();
     expect(sent).toHaveLength(1);
     const a = sent[0];
-    expect(a.text).toMatch(/^Approval needed: Porch light\. Turns it on at sunset\. Say yes or no\. \(approval [0-9a-f-]{36}\)$/);
+    expect(a.text).toMatch(/^Approval needed: Porch light\. Turns it on at sunset\. Should I apply this change\? \(approval [0-9a-f-]{36}\)$/);
     expect(a.approval).toMatchObject({ title: "Porch light", chat_id: r.chat_id, toolUseId: "tu1" });
     expect(a.approval.id).toBeTruthy();
     const ms = Date.parse(a.approval.expires_at) - Date.now();
@@ -195,7 +195,7 @@ describe("approvals", () => {
       "approval_result",
       "done",
     ]);
-    expect(sent[1]).toMatchObject({ text: "Approved: Porch light.", approval_result: { id: a.approval.id, allow: true, chat_id: r.chat_id } });
+    expect(sent[1]).toMatchObject({ text: "I received approval for Porch light.", approval_result: { id: a.approval.id, allow: true, chat_id: r.chat_id } });
     expect(sent[2]).toMatchObject({ text: "fin", done: { ok: true } });
     // A second decision never flips the first.
     expect(decideApproval(alice, a.approval.id, false)).toHaveProperty("error");
@@ -210,6 +210,6 @@ describe("approvals", () => {
     decideApproval(alice, sent[0].approval.id, false);
     await waitIdle(d, alice, r.chat_id);
     expect(outcome.allowed).toBe(false);
-    expect(sent[1]).toMatchObject({ text: "Not approved: Porch light.", approval_result: { allow: false } });
+    expect(sent[1]).toMatchObject({ text: "I won’t apply Porch light.", approval_result: { allow: false } });
   });
 });
