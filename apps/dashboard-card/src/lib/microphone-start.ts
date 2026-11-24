@@ -27,9 +27,12 @@ export async function startMicrophone<T extends { stop(): void }>(options: {
     throw reason instanceof VoiceStartError ? reason : new VoiceStartError('capture', reason);
   }
   try {
-    const [acquired, connected] = await Promise.all([capture, options.connect()]);
+    const connection = options.connect().then(connected => {
+      if (!options.isCurrent()) throw new VoiceStartError('cancelled');
+      if (!connected) throw new VoiceStartError('connection');
+    });
+    const [acquired] = await Promise.all([capture, connection]);
     if (!options.isCurrent()) throw new VoiceStartError('cancelled');
-    if (!connected) throw new VoiceStartError('connection');
     publishing = true;
     await options.publish(acquired);
     if (!options.isCurrent()) throw new VoiceStartError('cancelled');

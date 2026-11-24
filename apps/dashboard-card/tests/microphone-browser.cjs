@@ -76,7 +76,8 @@ const esbuild=require('esbuild');
   await page.getByRole('button',{name:'Live view',exact:true}).click();
   await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(260);await page.screenshot({path:path.join(captures,'desktop-live.png')});
   console.log(engine+' PASS: Live-first, shared draft, session, microphone and selected history across view changes');
-  for(const layout of ['fullpage','voice'])for(const width of [320,402,560]){
+  const layout='fullpage';
+  for(const width of [320,402,560]){
    await page.setViewportSize({width,height:874});await page.goto(base+'/?layout='+layout);await page.getByRole('button',{name:'Start talking',exact:true}).waitFor();
    assert.equal(await page.evaluate(()=>window.captureRequests),0,'idle never captures');
    await page.getByRole('button',{name:'Start talking',exact:true}).click();
@@ -96,7 +97,7 @@ const esbuild=require('esbuild');
    await page.getByRole('button',{name:'Start talking',exact:true}).click();await page.getByRole('button',{name:'Send recording',exact:true}).waitFor();await page.waitForFunction(()=>window.streams.length>0);
    await page.getByRole('button',{name:'Cancel recording',exact:true}).click();
    await page.waitForFunction(()=>window.streams.every(s=>s.getTracks().every(t=>t.readyState==='ended')));
-   if(width===402&&layout==='fullpage'){
+   if(width===402){
     await page.evaluate(()=>{window.failure='NotReadableError'});await page.getByRole('button',{name:'Start talking',exact:true}).click();await page.locator('.lk-recovery').waitFor();
     await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(260);await page.screenshot({path:path.join(process.env.ARTIFACTS_DIR||'/tmp','butler-iphone-mic-'+engine+'.png')});
    }
@@ -194,6 +195,23 @@ const esbuild=require('esbuild');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   console.log(engine+' PASS: blocked playback recovery, live approval decisions, long transcript and preserved reading position');
   console.log(engine+' PASS: idle releases microphone without errors, retains selected history, and reconnects only on request');
+
+  await page.goto(base+'/?layout=voice');
+  const widget=page.locator('.lk-voice-widget');
+  const widgetButton=name=>widget.getByRole('button',{name,exact:true});
+  await widgetButton('Start call').click();
+  await widget.getByText('Microphone couldn’t start',{exact:true}).waitFor();
+  await page.evaluate(()=>{window.failure=null});
+  await widgetButton('Try again').click();
+  await widget.getByText('Listening',{exact:true}).waitFor();
+  assert.deepEqual(await page.evaluate(()=>window.captureInTap),[true,true],'widget starts capture and retry directly in the tap');
+  assert.equal(await page.evaluate(()=>window.serverMode),'auto','widget uses continuous turns despite the manual workspace preference');
+  assert.equal(await page.evaluate(()=>window.serverAudioOutput),'on','widget enables spoken replies by default');
+  await widgetButton('End call').click();
+  await widget.getByText('Ready to talk',{exact:true}).waitFor();
+  await page.waitForFunction(()=>window.streams.every(s=>s.getTracks().every(t=>t.readyState==='ended')));
+  console.log(engine+' PASS: browser widget retries capture and starts a hands-free call with spoken replies');
+
   assert.deepEqual(errors,[]);console.log(engine+' PASS: full card capture-in-tap, accurate failures, single recovery, text/retry/cancel and mobile widths');
  }finally{if(browser)await browser.close();await new Promise(r=>server.close(r))}
 })().catch(e=>{console.error(e);process.exit(1)});

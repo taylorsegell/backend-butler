@@ -131,9 +131,9 @@ class BackendButlerCard extends HTMLElement {
     this.fullpage = config.layout === 'fullpage' || (config.layout !== 'card' && config.layout !== 'voice' && !config.height);
     this.toggleAttribute('data-fullpage', this.fullpage);
     if (!this.fullpage) this.clearKeyboardViewport();
-    if (config.layout === 'voice' && !config.height) this.style.setProperty('--lk-h', '380px');
-    else if (!config?.height) this.style.removeProperty('--lk-h');
-    if (config?.height) this.style.setProperty('--lk-h', `${config.height}px`);
+    this.toggleAttribute('data-voice-widget', config.layout === 'voice');
+    if (config.layout !== 'voice' && config.height) this.style.setProperty('--lk-h', `${config.height}px`);
+    else this.style.removeProperty('--lk-h');
     this._attach();
     this.measureViewport();
   }
@@ -148,7 +148,7 @@ class BackendButlerCard extends HTMLElement {
   }
 
   getCardSize(): number {
-    return 8;
+    return this.hasAttribute('data-voice-widget') ? 2 : 8;
   }
 
   connectedCallback(): void {
@@ -257,4 +257,4 @@ class BackendButlerVoiceCard extends BackendButlerCard {
 }
 if (!customElements.get('backend-butler-voice-card')) customElements.define('backend-butler-voice-card', BackendButlerVoiceCard);
 window.customCards.push({ type: 'backend-butler-voice-card', name: 'Backend Butler Voice',
-  description: 'Talk to Butler directly from your dashboard, with live transcription and spoken replies.', preview: false });
+  description: 'Start a hands-free call with Butler from a compact dashboard widget.', preview: false });

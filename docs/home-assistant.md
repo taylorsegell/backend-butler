@@ -203,35 +203,18 @@ Add **Backend Butler Voice** from the card picker, or use:
 ```yaml
 type: custom:backend-butler-voice-card
 title: Talk to Butler
-height: 380
 ```
 
-This is an embedded live voice session, not a navigation button. Tap the microphone to
-start talking, then Send to finish the recording; Cancel discards it. Replies and the
-transcript stay in the card. Spoken replies are enabled by default for this variant;
-set `audio_output: false` for text replies. The microphone stays dormant until tapped.
-It uses the same authenticated connection and permission/error recovery as full-page
-Voice. Browser capture requires HTTPS and microphone permission; supported Companion capture can use the enabled native bridge over HTTP. Use one Butler session
-card per dashboard view; its session is shared with the full-page Butler interface.
+Tap **Start call** and speak when the widget shows **Listening**. The call runs hands-free
+in the dashboard. Use **Cancel call** during startup or **End call** to disconnect and
+release the microphone. Browser capture requires HTTPS and microphone permission. The
+Companion app can use the enabled native microphone bridge over HTTP.
 
-The equivalent option on `custom:backend-butler-card` is `layout: voice` (set
-`audio_output: true` if you want spoken replies). The full embedded interface remains
-available using `layout: card`.
+The widget sizes to its content, including in existing configurations with a `height`
+setting. `layout: voice` on `custom:backend-butler-card` also uses the widget. Both accept
+an optional `title` and default to spoken replies. Set `audio_output: false` for silent
+replies. If playback is blocked, tap **Enable reply audio**.
 
-During an active voice session, a compact strip above the composer shows connection,
-microphone, backend-work and reply-playback status. Its rings follow actual audio levels;
-reduced-motion settings keep the feedback static. Live captions mark transcription in
-progress and settle into final text. **Stop reply audio** mutes playback without cancelling
-home actions; replies resume with your next recognized utterance, typed/new microphone
-turn, or the header audio control. If browser autoplay blocks sound, use **Enable reply
-audio**. **End voice session** disconnects and releases the microphone.
-
-The dashboard voice card stays content-sized while empty and idle. Its `height` option
-sets the expanded conversation height once a session is active or has transcript content.
-
-The dashboard voice variant uses the House companion layout: Butler’s own mark, a short
-invitation while idle, and live session status. The mark follows real microphone/reply
-levels, stays still in silence, and respects reduced motion. Theme and accent settings
-apply to the mark and controls. Approval requests remain available before any transcript
-messages. Existing `custom:backend-butler-voice-card` configurations receive this design
-automatically; no YAML changes are required.
+Open the full-page Butler interface for transcripts, typing, approvals, history, and
+settings. Use `layout: card` to embed that workspace in a dashboard. Use one Butler
+session card per dashboard view. The widget and workspace share the voice session.

@@ -2,6 +2,10 @@
 
 All notable changes to this app are listed here, newest first.
 
+## 0.7.1
+
+- Describe automation work, approval requests, and results in Butler's first-person voice across the app and voice bridge.
+
 ## 0.7.0
 
 ### Added

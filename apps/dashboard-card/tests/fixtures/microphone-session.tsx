@@ -34,6 +34,7 @@ export function useSession(_source:any,{room}:any) {
    ((window as any).rpcCalls??=[]).push(method);
    if(method==='get_conversation')return JSON.stringify({id:'synthetic-conversation',items:[{kind:'message',id:'a',role:'agent',text:'A synthetic test conversation.',ts:1}]});
    if(method==='set_turn_mode'){(window as any).serverMode=payload;state(payload==='auto')}
+   if(method==='set_audio_output')(window as any).serverAudioOutput=payload;
    if(method==='cancel_turn'&&(window as any).hangCancel)return new Promise(()=>{});
    if(method==='start_turn')state(true);
    if(method==='cancel_turn'||method==='end_turn')state(false);
