@@ -10,10 +10,10 @@ const esbuild = require('esbuild');
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const engine = process.env.ENGINE === 'webkit' ? webkit : chromium;
   const browser = await engine.launch({ headless: true }); const errors = []; let page;
-  const mount = async () => {
+  const mount = async (query = '') => {
     await page?.close(); page = await browser.newPage({ viewport: { width: 402, height: 874 } }); page.setDefaultTimeout(10000);
     page.on('pageerror', error => errors.push(error.message));
-    await page.goto('http://127.0.0.1:' + server.address().port);
+    await page.goto('http://127.0.0.1:' + server.address().port + '/' + query);
     await page.getByRole('button', { name: 'Start call', exact: true }).waitFor();
   };
   const open = async (draft = '') => {
@@ -112,5 +112,51 @@ const esbuild = require('esbuild');
     await page.evaluate(() => { window.nativeEvent?.({ type: 'idle' }); window.unmount(); }); await page.waitForTimeout(250);
     assert.equal(await page.evaluate(() => window.stops), 1); assert.equal(await page.evaluate(() => window.requests.filter(request => request.command === 'disconnect').length), 1); assert.equal(await page.evaluate(() => window.opens), 1);
     assert.deepEqual(errors, []); console.log('PASS: overlapping End/idle/unmount share cleanup without unhandled errors');
+
+    const widgetButton = name => page.locator('.lk-voice-widget').getByRole('button', { name, exact: true });
+    const pendingRequest = name => page.waitForFunction(name => typeof window[name] === 'function', name);
+    for (const audio of ['on', 'off']) {
+      await mount('?layout=voice&audio=' + audio);
+      const widget = page.locator('.lk-voice-widget');
+      assert.equal(await widget.getByRole('button').count(), 1);
+      assert.equal(await page.evaluate(() => window.opens), 0, 'native widget stays idle despite legacy auto-start settings');
+      await widgetButton('Start call').click();
+      await widget.getByText('Listening', { exact: true }).waitFor();
+      assert.equal(await page.evaluate(() => window.audioResumesInTap[0]), true, 'native audio unlock starts in the user gesture');
+      const requests = await page.evaluate(() => window.requests);
+      assert.equal(requests.find(request => request.type.endsWith('/prepare')).continuous, true);
+      assert.equal(requests.find(request => request.command === 'set_turn_mode').payload, 'auto');
+      assert.equal(requests.find(request => request.command === 'set_audio_output').payload, audio);
+      await widgetButton('End call').click();
+      await page.waitForFunction(() => window.disconnectCompleted);
+      await widget.getByText('Ready to talk', { exact: true }).waitFor();
+      assert.equal(await page.evaluate(() => window.stops), 1);
+      assert.equal(await page.evaluate(() => window.requests.filter(request => request.command === 'disconnect').length), 1);
+    }
+    console.log('PASS: native widget arms a continuous receiver, respects reply audio and releases capture on End');
+
+    await mount('?layout=voice');
+    await page.evaluate(() => { window.holdPrepare = true; });
+    await widgetButton('Start call').click();
+    await pendingRequest('releasePrepare');
+    await widgetButton('Cancel call').click();
+    await page.evaluate(() => window.releasePrepare());
+    await page.waitForFunction(() => window.disconnectCompleted);
+    assert.equal(await page.evaluate(() => window.captures), 0, 'cancelled native prepare cannot acquire the microphone');
+    assert.equal(await widgetButton('Try again').count(), 0, 'intentional cancellation stays quiet');
+
+    await mount('?layout=voice');
+    await widgetButton('Start call').click();
+    await widgetButton('End call').waitFor();
+    await page.evaluate(() => { window.holdDisconnect = true; window.nativeEvent({ type: 'error', message: 'Synthetic conversation save error' }); });
+    await pendingRequest('releaseDisconnect');
+    assert.equal(await widgetButton('Try again').isEnabled(), false, 'retry waits for native durable close');
+    await page.evaluate(() => { window.holdDisconnect = false; window.releaseDisconnect(); });
+    await widgetButton('Try again').click();
+    await widgetButton('End call').waitFor();
+    assert.equal(await page.evaluate(() => window.opens), 2, 'native widget retry opens a fresh authenticated session');
+    await widgetButton('End call').click();
+    assert.deepEqual(errors, []);
+    console.log('PASS: native widget cancels delayed prepare and serializes recovery after a conversation error');
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 })().catch(error => { console.error(error); process.exit(1); });

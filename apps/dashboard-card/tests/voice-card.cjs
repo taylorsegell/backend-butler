@@ -1,12 +1,161 @@
-const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const {chromium,webkit}=require('playwright');const engine=process.env.ENGINE||'chromium';let tokens=0;let tokenDelay=0;let pendingApproval=false;
-const html=`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:16px;background:#181818;color:#eee}backend-butler-voice-card{display:block;max-width:520px}</style><backend-butler-voice-card></backend-butler-voice-card><script type="module">
-import '/card.js';const card=document.querySelector('backend-butler-voice-card');card.setConfig({type:'custom:backend-butler-voice-card',title:'Talk to Butler'});window.micRequests=0;navigator.mediaDevices.getUserMedia=async()=>{window.micRequests++;throw new DOMException('Denied','NotAllowedError')};card.hass={states:{},user:{id:'test',is_admin:true},callWS:async()=>({}),callService:async()=>{},callApi:async(method,path,body)=>{const r=await fetch('/api/'+path,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});if(!r.ok)throw {status_code:r.status};return r.json()}};
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const http = require('node:http');
+const path = require('node:path');
+const { chromium, webkit } = require('playwright');
+
+const engine = process.env.ENGINE || 'chromium';
+const bundle = path.resolve(__dirname, '../../../custom_components/backend_butler/frontend/backend-butler-card.js');
+const artifacts = process.env.ARTIFACTS_DIR;
+const tokenRequests = [];
+
+const html = `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body { margin: 16px; background: #181818; color: #eee; }
+  main { max-width: 520px; }
+  main.light { --card-background-color: #fff; --primary-text-color: #202124; --secondary-text-color: #555; }
+  .neighbor { margin-block-start: 12px; }
+</style>
+<main><div class="neighbor">Next dashboard card</div></main>
+<script type="module">
+  window.captureRequests = 0;
+  const devices = navigator.mediaDevices;
+  const getUserMedia = () => {
+    window.captureRequests++;
+    return new Promise(() => {});
+  };
+  Object.defineProperty(Object.getPrototypeOf(devices), 'getUserMedia', { configurable: true, writable: true, value: getUserMedia });
+  Object.defineProperty(devices, 'getUserMedia', { configurable: true, writable: true, value: getUserMedia });
+  await import('/card.js');
+  const options = new URLSearchParams(location.search);
+  const layout = options.get('layout') || 'voice';
+  const type = layout === 'voice' && !options.has('alias') ? 'backend-butler-voice-card' : 'backend-butler-card';
+  const main = document.querySelector('main');
+  if (options.has('light')) main.classList.add('light');
+  const card = document.createElement(type);
+  card.setConfig({
+    type: 'custom:' + type,
+    layout,
+    ...(layout === 'voice'
+      ? {title: 'Talk to Butler', height: 640, auto_connect: true, start_on_connect: true}
+      : {})
+  });
+  card.hass = {
+    states: {}, user: {id: 'fixture', is_admin: true}, callWS: async () => [],
+    callService: async () => {},
+    callApi: async (method, apiPath, body) => {
+      if (layout !== 'voice' && apiPath.endsWith('/token')) {
+        return {serverUrl: location.origin.replace('http', 'ws'), participantToken: ''};
+      }
+      const response = await fetch('/api/' + apiPath, {method, body: body ? JSON.stringify(body) : undefined});
+      if (!response.ok) throw {status_code: response.status};
+      return response.json();
+    }
+  };
+  main.prepend(card);
 </script>`;
-const server=http.createServer((req,res)=>{if(req.url==='/'){res.setHeader('Content-Type','text/html');return res.end(html)}if(req.url==='/card.js'){res.setHeader('Content-Type','text/javascript');return res.end(fs.readFileSync(path.resolve(__dirname,'../../../custom_components/backend_butler/frontend/backend-butler-card.js')))}res.setHeader('Content-Type','application/json');if(req.url.includes('/token')){tokens++;res.statusCode=503;return setTimeout(()=>res.end('{}'),tokenDelay)}if(req.url.includes('/tasks'))return res.end('{"tasks":[]}');if(req.url.includes('/approvals'))return res.end(JSON.stringify({items:pendingApproval?[{id:'fixture',chat_id:'fixture',title:'Review fixture request',summary:'An approval arriving before any transcript.',preview:{kind:'yaml',text:'alias: Example'},expires_at:new Date(Date.now()+60000).toISOString(),status:'pending'}]:[]}));return res.end('{}')});
-(async()=>{await new Promise(r=>server.listen(8769,'127.0.0.1',r));const browser=await(engine==='webkit'?webkit:chromium).launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));try{
-await page.goto('http://127.0.0.1:8769');const mic=page.getByRole('button',{name:'Start talking',exact:true});await mic.waitFor();await page.evaluate(()=>document.fonts.ready);
-assert.equal(await page.getByRole('tab').count(),0);assert.equal(await page.locator('.lk-devices').count(),0);assert.equal(await page.evaluate(()=>window.micRequests),0,'opening card must not capture microphone');assert.equal(await page.locator('backend-butler-voice-card').getAttribute('data-fullpage'),null);
-for(const width of [320,390,1200]){await page.setViewportSize({width,height:800});const box=await page.locator('ha-card').boundingBox();assert.ok(box.height>=120&&box.height<240,'idle card is content-sized: '+box.height);const dock=await page.locator('.lk-dock').boundingBox();assert.ok(dock.y+dock.height<=box.y+box.height+1);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:path.join(process.env.ARTIFACTS_DIR||'/tmp',`voice-card-${engine}-${width}.png`)});}
-pendingApproval=true;await page.getByRole('button',{name:'Approve: Review fixture request',exact:true}).waitFor();assert.ok((await page.getByRole('button',{name:'Approve: Review fixture request',exact:true}).boundingBox()).height>=44);pendingApproval=false;await page.getByRole('button',{name:'Approve: Review fixture request',exact:true}).waitFor({state:'detached'});await mic.click();await page.getByText('Voice session couldn’t connect',{exact:true}).waitFor();assert.equal(Math.round((await page.locator('ha-card').boundingBox()).height),380,'active/error conversation retains configured height');assert.ok(tokens>0,'microphone uses authenticated LiveKit token path');await page.getByRole('button',{name:'Retry voice',exact:true}).waitFor();assert.equal(page.url(),'http://127.0.0.1:8769/','mic does not navigate away');await page.getByRole('button',{name:'End voice session',exact:true}).click();tokenDelay=500;await page.getByRole('button',{name:'Start talking',exact:true}).click();await page.getByRole('button',{name:'End voice session',exact:true}).click();await page.waitForTimeout(800);assert.equal(await page.evaluate(()=>window.micRequests),0,'ending a connection attempt must prevent late microphone capture');assert.equal(await page.getByText('Voice session couldn’t connect',{exact:true}).count(),0,'cancelled startup must not show a late connection error');await page.getByRole('button',{name:'Start talking',exact:true}).click();await page.getByRole('button',{name:'Cancel recording',exact:true}).click();await page.waitForTimeout(800);assert.equal(await page.evaluate(()=>window.micRequests),0,'Cancel recording during startup must not acquire a microphone later');assert.equal(await page.getByText('Microphone is unavailable',{exact:true}).count(),0,'cancelled recording must not report microphone failure');assert.deepEqual(errors,[]);console.log(engine+' PASS: embedded voice card, microphone action, handled connection failure/retry, no automatic capture/navigation, compact desktop/mobile layout');
-}finally{await browser.close();server.close()}})().catch(e=>{console.error(e);process.exit(1)});
+
+const server = http.createServer((req, res) => {
+  const pathname = new URL(req.url, 'http://localhost').pathname;
+  if (pathname === '/') {
+    res.setHeader('Content-Type', 'text/html');
+    return res.end(html);
+  }
+  if (pathname === '/card.js') {
+    res.setHeader('Content-Type', 'text/javascript');
+    return res.end(fs.readFileSync(bundle));
+  }
+  res.setHeader('Content-Type', 'application/json');
+  if (pathname.endsWith('/token')) {
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => {
+      tokenRequests.push(JSON.parse(Buffer.concat(chunks).toString()));
+      res.statusCode = 503;
+      setTimeout(() => res.end('{}'), 250);
+    });
+    return;
+  }
+  return res.end(pathname.endsWith('/tasks') ? '{"tasks":[]}' : '{"items":[]}');
+});
+
+(async () => {
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const url = 'http://127.0.0.1:' + server.address().port;
+  let browser;
+  try {
+    browser = await (engine === 'webkit' ? webkit : chromium).launch({
+      headless: true, args: engine === 'chromium' ? ['--no-sandbox'] : [],
+    });
+    const page = await browser.newPage({ viewport: { width: 390, height: 800 } });
+    page.setDefaultTimeout(10000);
+    const errors = [];
+    page.on('pageerror', error => {
+      errors.push(String(error));
+      console.error('Card fixture page error:', error);
+    });
+    const card = page.locator('ha-card');
+    const start = card.getByRole('button', { name: 'Start call', exact: true });
+    const cancel = card.getByRole('button', { name: 'Cancel call', exact: true });
+    const retry = card.getByRole('button', { name: 'Try again', exact: true });
+
+    await page.goto(url);
+    await card.waitFor();
+    if (artifacts) await page.screenshot({path: path.join(artifacts, 'voice-widget-' + engine + '-initial.png')});
+    const initial = await card.boundingBox();
+    assert.ok(initial.height >= 72 && initial.height <= 180, 'embedded card must stay compact with legacy height: ' + initial.height);
+    await start.waitFor({timeout: 2000});
+    for (const [width, query] of [[320, ''], [390, '?light'], [1200, '?alias']]) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(url + '/' + query);
+      await start.waitFor();
+      assert.equal(await card.getByRole('button').count(), 1);
+      assert.equal(await card.getByRole('status').innerText(), 'Ready to talk');
+      assert.equal(await page.locator('.lk-convo, .lk-dock, .lk-drawer, .lk-devices, textarea').count(), 0);
+      assert.equal(await page.locator('main > :first-child').getAttribute('data-fullpage'), null);
+      assert.equal(await page.evaluate(() => window.captureRequests), 0);
+      const box = await card.boundingBox();
+      const button = await start.boundingBox();
+      assert.ok(box.height >= 72 && box.height <= 180, width + 'px compact height: ' + box.height);
+      assert.ok(button.width >= 44 && button.height >= 44, 'call control is a viable touch target');
+      assert.ok(box.y + box.height < (await page.locator('.neighbor').boundingBox()).y);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      if (artifacts) await page.screenshot({path: path.join(artifacts, 'voice-widget-' + engine + '-' + width + '.png')});
+    }
+    assert.equal(tokenRequests.length, 0, 'opening the widget never connects, even with legacy auto-start settings');
+
+    await page.keyboard.press('Tab');
+    assert.equal(await start.evaluate(button => button.getRootNode().activeElement === button), true);
+    await page.keyboard.press('Enter');
+    await cancel.waitFor();
+    await retry.waitFor().catch(async error => {
+      console.error('Status after failed connection:', await card.getByRole('status').innerText());
+      throw error;
+    });
+    assert.equal(await card.getByRole('button').count(), 1);
+    assert.ok((await card.boundingBox()).height <= 200, 'a failure stays compact');
+    assert.equal(tokenRequests[0].input_mode, 'auto', 'widget uses the authenticated continuous call path');
+    assert.equal(page.url(), url + '/?alias');
+
+    await retry.click();
+    await cancel.click();
+    await start.waitFor();
+    await page.waitForTimeout(350);
+    await start.waitFor();
+    assert.equal(await retry.count(), 0, 'cancelled connection does not surface late error');
+
+    for (const layout of ['fullpage', 'card']) {
+      await page.goto(url + '/?layout=' + layout);
+      await page.locator('backend-butler-card .lk-call').waitFor();
+      await card.getByRole('button', { name: 'Transcript', exact: true }).click();
+      await page.locator('backend-butler-card .lk-dock').waitFor();
+      assert.equal(await page.locator('backend-butler-card[data-fullpage]').count(), layout === 'fullpage' ? 1 : 0);
+      assert.equal(await card.getByRole('button', { name: 'Settings', exact: true }).count(), 1);
+    }
+    assert.deepEqual(errors, []);
+    console.log(engine + ' PASS: registered widget, legacy height, both voice configurations, sizes, authenticated failure, retry, cancel, dedicated workspace');
+  } finally {
+    if (browser) await browser.close();
+    await new Promise(resolve => server.close(resolve));
+  }
+})().catch(error => { console.error(error); process.exitCode = 1; });

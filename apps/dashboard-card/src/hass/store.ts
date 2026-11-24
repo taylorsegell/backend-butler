@@ -58,9 +58,9 @@ export interface CardConfig {
   music_entity?: string;
   /** How many tiles to show before "Show more". Default 8. */
   max_tiles?: number;
-  /** Full-page chat by default; use card for an embedded dashboard widget. */
+  /** Full-page chat by default; card embeds the workspace and voice shows a call widget. */
   layout?: 'fullpage' | 'card' | 'voice';
-  /** Explicit embedded-card height in px; fullpage uses the available viewport instead. */
+  /** Explicit embedded workspace height in px. The voice widget sizes to its content. */
   height?: number;
   /**
    * Connect automatically when the dashboard tab is open; disconnect on leave. Default false —

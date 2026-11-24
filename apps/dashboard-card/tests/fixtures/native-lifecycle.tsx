@@ -5,22 +5,24 @@ import { Root } from '../../src/App';
 import { HassStore } from '../../src/hass/store';
 import { CARD_STYLES } from '../../src/styles';
 const fixture = window as any;
+const options = new URLSearchParams(location.search);
+const widget = options.get('layout') === 'voice';
 const sessionId = '1'.repeat(32);
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 let closed = false;
-Object.assign(fixture, { audioResumesInTap: [], requests: [], pending: [], stops: 0, opens: 0, endStarted: false, hold: '', disconnectFails: false });
+Object.assign(fixture, { audioResumesInTap: [], requests: [], pending: [], captures: 0, stops: 0, opens: 0, endStarted: false, hold: '', disconnectFails: false });
 let insideTap = false;
 document.addEventListener('click', () => { insideTap = true; setTimeout(() => { insideTap = false; }, 0); }, true);
 const resume = AudioContext.prototype.resume;
 AudioContext.prototype.resume = function() { fixture.audioContext = this; fixture.audioResumesInTap.push(insideTap); if (fixture.holdAudio) return new Promise((_resolve, reject) => { fixture.rejectAudio = reject; }); return resume.call(this); };
-const host = document.createElement('div'); host.setAttribute('data-fullpage', '');
-host.style.cssText = 'display:block;height:100dvh;--primary-color:#FC6B02;--primary-text-color:#eee;--secondary-text-color:#aaa;--card-background-color:#181818';
+const host = document.createElement('div'); if (!widget) host.setAttribute('data-fullpage', '');
+host.style.cssText = `display:block;${widget ? '' : 'height:100dvh;'}--primary-color:#FC6B02;--primary-text-color:#eee;--secondary-text-color:#aaa;--card-background-color:#181818`;
 document.body.append(host);
 const shadow = host.attachShadow({ mode: 'open' }); shadow.innerHTML = '<style>' + CARD_STYLES + '</style><div class="lk-root"></div>';
-const store = new HassStore(); store.setHost(host); store.setConfig({ type: 'backend-butler-card', layout: 'fullpage' });
+const store = new HassStore(); store.setHost(host); store.setConfig({ type: 'backend-butler-card', layout: widget ? 'voice' : 'fullpage', ...(widget && { input_mode: 'push_to_talk', audio_output: options.get('audio') !== 'off', auto_connect: true, start_on_connect: true }) });
 store.setHass({
   states: {}, user: { id: 'synthetic-user', name: 'Test', is_admin: true },
-  auth: { external: { config: { webrtc: { hasCameraMicrophoneStream: true } }, sendMessage: async () => ({ session_id: 'synthetic-microphone' }), fireMessage: () => { fixture.stops++; } } },
+  auth: { external: { config: { webrtc: { hasCameraMicrophoneStream: true } }, sendMessage: async () => { fixture.captures++; return { session_id: 'synthetic-microphone' }; }, fireMessage: () => { fixture.stops++; } } },
   connection: { subscribeMessage: async (callback: any) => { fixture.nativeEvent = callback; return async () => { await delay(80); fixture.nativeEvent = undefined; }; } },
   callWS: async (message: any) => {
     fixture.requests.push({ ...message, afterEnd: fixture.endStarted });

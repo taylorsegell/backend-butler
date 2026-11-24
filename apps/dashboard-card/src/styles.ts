@@ -6,6 +6,7 @@ import { FONT_CSS } from './font';
 import { CONVERSATION_HEADER_STYLES } from './conversation-header-styles';
 import { CONVERSATION_DRAWER_STYLES } from './conversation-drawer-styles';
 import { VOICE_FEEDBACK_STYLES } from './voice-feedback-styles';
+import { VOICE_WIDGET_STYLES } from './voice-widget-styles';
 
 export const CARD_STYLES =
   FONT_CSS +
@@ -690,4 +691,4 @@ export const CARD_STYLES =
   .lk-voice-preferences .lk-modeswitch { align-self: flex-start; }
   .lk-history-actions { padding: 12px 16px; }
   .lk-conversation-drawer .lk-settings-scroll { padding: 20px 16px; }
-` + VOICE_FEEDBACK_STYLES + CONVERSATION_HEADER_STYLES + CONVERSATION_DRAWER_STYLES + LIVE_CALL_STYLES;
+` + VOICE_FEEDBACK_STYLES + CONVERSATION_HEADER_STYLES + CONVERSATION_DRAWER_STYLES + LIVE_CALL_STYLES + VOICE_WIDGET_STYLES;
