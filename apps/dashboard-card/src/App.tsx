@@ -221,13 +221,15 @@ function CardShell() {
   const [micStarting, setMicStarting] = useState(false); // mic acquisition in flight (cold-start)
   const [connecting, setConnecting] = useState(false);
   // Keep the failed operation visible with recovery actions until the next attempt
-  const [failure, setFailure] = useState<'connection' | 'message' | 'microphone' | null>(null);
+  const [failure, setFailure] = useState<'connection' | 'session' | 'close' | 'message' | 'microphone' | null>(null);
   const [microphoneError, setMicrophoneError] = useState<MicrophoneFailure | null>(null);
   const microphoneAttempt = useRef<Promise<void> | null>(null);
   const microphoneTrack = useRef<LocalAudioTrack | null>(null);
   const nativeMicrophone = useRef<NativeMicrophone | null>(null);
   const [nativeMicActive, setNativeMicActive] = useState(false);
   const voiceGeneration = useRef(0);
+  const intentionallyEnded = useRef(false);
+  const endingVoice = useRef<Promise<boolean> | null>(null);
   const lastUserUtterance = [...items].reverse().find(item => item.kind === 'message' && item.role === 'user');
   const replyAudio = useReplyAudio(lastUserUtterance?.id);
   const replyMuted = replyAudio.muted;
@@ -276,16 +278,19 @@ function CardShell() {
   const rpc = useCallback(async (method: string, payload = '') => {
     const room = sessionRef.current.room;
     const id = agentIdentity(room);
-    if (!room || !id) return;
+    if (!room || !id || intentionallyEnded.current) return;
+    const generation = voiceGeneration.current;
     try {
       return await room.localParticipant.performRpc({ destinationIdentity: id, method, payload });
     } catch (e) {
-      console.error(`${method} failed`, e);
+      if (!intentionallyEnded.current && generation === voiceGeneration.current) console.error(`${method} failed`, e);
     }
   }, []);
 
   const conversationReady = useRef<ReturnType<typeof createConversationReady> | null>(null);
   const onConversationError = useCallback((data: unknown) => {
+    if (intentionallyEnded.current) return;
+    intentionallyEnded.current = true;
     const message = data && typeof data === 'object' && 'message' in data && typeof data.message === 'string'
       ? data.message : 'Conversation could not be saved. Reconnect to continue.';
     conversationReady.current?.settle(false);
@@ -293,10 +298,15 @@ function CardShell() {
     voiceGeneration.current++;
     microphoneAttempt.current = null;
     setNavigationError(message);
-    setFailure('connection');
+    setFailure('session');
+    setMicStarting(false);
     setTurnActive(false);
     setAutoPaused(true);
-    void releaseMic().then(() => sessionRef.current.end?.()).catch(console.error);
+    const cleanup = releaseMic().then(() => sessionRef.current.end?.()).then(() => true).catch(() => {
+      setNavigationError(null); setFailure('close'); return false;
+    });
+    endingVoice.current = cleanup;
+    void cleanup.finally(() => { if (endingVoice.current === cleanup) endingVoice.current = null; });
   }, [releaseMic]);
   useRoomDataTopic(session.room, 'ha.conversation_error', onConversationError);
 
@@ -322,7 +332,10 @@ function CardShell() {
   const enableReplyAudio = () => {
     setPlaybackError(null);
     replyAudio.restore();
-    void session.room!.startAudio().catch(() => setPlaybackError('Audio could not start. Check this browser’s sound permission, then try Enable reply audio again.'));
+    const generation = voiceGeneration.current;
+    void session.room!.startAudio().catch(() => {
+      if (!intentionallyEnded.current && generation === voiceGeneration.current) setPlaybackError('Audio could not start. Check this browser’s sound permission, then try Enable reply audio again.');
+    });
   };
   const toggleAudioOutput = () => {
     if (audioOutput && !transport.canPlayback) { enableReplyAudio(); return; }
@@ -337,6 +350,7 @@ function CardShell() {
   // connecting share one attempt rather than starting the session twice.
   const connecting$ = useRef<Promise<boolean> | null>(null);
   const connectSession = useCallback(async (): Promise<boolean> => {
+    if (endingVoice.current) await endingVoice.current;
     const s = sessionRef.current;
     if (connecting$.current) return connecting$.current;
     if (s.isConnected && conversationReady.current?.state === true) return true;
@@ -344,6 +358,8 @@ function CardShell() {
     const readiness = createConversationReady();
     conversationReady.current = readiness;
     const generation = voiceGeneration.current;
+    intentionallyEnded.current = false;
+    setNavigationError(null);
     setIdleEnded(false);
     setConnecting(true);
     setFailure(null);
@@ -380,6 +396,7 @@ function CardShell() {
   // Request capture inside the tap; waiting for a network connection first can
   // lose the browser's user activation on iOS. Publish only after persistence is ready.
   const openTurn = useCallback(() => {
+    if (endingVoice.current) return Promise.reject(new VoiceStartError('cancelled'));
     const generation = voiceGeneration.current;
     const room = sessionRef.current.room!;
     if (nativeCapture) {
@@ -443,7 +460,7 @@ function CardShell() {
 
   const beginTurn = useCallback(
     (onFail: () => void) => {
-      if (microphoneAttempt.current) return;
+      if (microphoneAttempt.current || endingVoice.current) return;
       replyAudio.restore();
       setPlaybackError(null);
       clearSuggestions();
@@ -488,6 +505,7 @@ function CardShell() {
 
   // --- manual turn control ---
   const onTurnStart = useCallback(() => {
+    if (endingVoice.current) return;
     setTurnActive(true); // show the listening bar immediately
     beginTurn(() => setTurnActive(false));
   }, [beginTurn]);
@@ -510,6 +528,7 @@ function CardShell() {
   }, [stopTurn]);
 
   const onResume = useCallback(() => {
+    if (endingVoice.current) return;
     setAutoPaused(false); // go live immediately
     beginTurn(() => setAutoPaused(true));
   }, [beginTurn]);
@@ -544,7 +563,7 @@ function CardShell() {
 
   const retryVoice = async () => {
     const message = voiceDraft.trim();
-    if (message) {
+    if (message && (failure === 'connection' || failure === 'message')) {
       if (await onSend(message)) setVoiceDraft((current) => current.trim() === message ? '' : current);
     } else if (failure === 'microphone') {
       if (mode === 'manual') onTurnStart();
@@ -583,21 +602,24 @@ function CardShell() {
   // lazily text-connected card, which must stay audio-free.
   const agentReady = agent.isConnected;
   useEffect(() => {
-    if (!connected || !agentReady) return;
+    if (!connected || !agentReady || intentionallyEnded.current) return;
+    const generation = voiceGeneration.current;
     let cancelled = false;
+    const current = () => !cancelled && !intentionallyEnded.current && generation === voiceGeneration.current;
     (async () => {
       const seed = await rpc('get_conversation');
-      if (!cancelled && seed) {
+      if (current() && seed) {
         try {
           const data = JSON.parse(seed);
           applyConversationSeed(data);
           if (data?.error) return;
         } catch { /* Live messages remain available if the seed is malformed. */ }
       }
-      if (cancelled) return;
+      if (!current()) return;
       await rpc('set_turn_mode', mode === 'auto' && !autoPaused ? 'auto' : 'manual');
+      if (!current()) return;
       await rpc('set_audio_output', audioOutputConfig ? 'on' : 'off');
-      if (cancelled) return;
+      if (!current()) return;
       if (autoConnect && startOnConnect && !didAutoStart.current) {
         didAutoStart.current = true;
         if (mode === 'auto') onResume();
@@ -650,14 +672,18 @@ function CardShell() {
   }, [autoConnect, autoTried, hass, connected, connectSession]);
 
   useEffect(() => {
-    const onPageHide = () => { conversationReady.current?.settle(false); sessionRef.current.end?.(); };
+    const onPageHide = () => {
+      intentionallyEnded.current = true;
+      voiceGeneration.current++;
+      conversationReady.current?.settle(false);
+      void releaseMic().then(() => sessionRef.current.end?.()).catch(error => console.error('Voice session cleanup failed', error));
+    };
     window.addEventListener('pagehide', onPageHide);
     return () => {
       window.removeEventListener('pagehide', onPageHide);
-      conversationReady.current?.settle(false);
-      sessionRef.current.end?.(); // card removed (view left / dashboard closed)
+      onPageHide(); // card removed (view left / dashboard closed)
     };
-  }, []);
+  }, [releaseMic]);
 
   const query = lastUserText(items);
   const phase = agentPhase(connected, connecting, agentState);
@@ -667,31 +693,54 @@ function CardShell() {
   // only ever appears when STT is genuinely live.
   const dozing = connected && !sttEnabled && phase.orb === 'listening';
   const orbState = dozing ? 'dozing' : phase.orb;
+  const hasDraft = Boolean(voiceDraft.trim());
+  const connectionMessage = `${hasDraft ? 'Your typed draft is still here. ' : ''}Retry the conversation or check connection settings.`;
   const voiceError = failure === 'connection'
-    ? { title: 'Voice session couldn’t connect', message: 'Your typed draft is still here. Retry the conversation or check connection settings.' }
-    : failure === 'message'
-      ? { title: 'Your message wasn’t sent', message: 'Your draft is saved below. Retry the message or check connection settings.' }
-      : failure === 'microphone'
-        ? microphoneError ?? microphoneFailure(null)
-        : null;
+    ? { title: 'Voice session couldn’t connect', message: connectionMessage }
+    : failure === 'session'
+      ? { title: 'Voice session needs attention', message: `${navigationError ? navigationError + ' ' : ''}${connectionMessage}` }
+      : failure === 'close'
+        ? { title: 'Call ended, but saving wasn’t confirmed', message: `The microphone is off. Butler couldn’t confirm the conversation was saved and closed. ${hasDraft ? 'Your typed draft is still here. ' : ''}Reconnect before continuing.` }
+        : failure === 'message'
+          ? { title: 'Your message wasn’t sent', message: `${hasDraft ? 'Your typed draft is still here. ' : ''}Retry the message or check connection settings.` }
+          : failure === 'microphone'
+            ? microphoneError ?? microphoneFailure(null)
+            : null;
 
-  // Embedded-card mode keeps its existing height behavior. Full-page sizing is owned by
-  // the host and fills the available viewport for every tab.
-  const endVoice = async (reason?: 'idle') => {
+  const endVoice = (reason?: 'idle'): Promise<boolean> => {
+    if (endingVoice.current) return endingVoice.current;
+    // Block connected effects and late control errors before React renders the
+    // paused state; normal End must not configure a session that is closing.
+    intentionallyEnded.current = true;
     setIdleEnded(reason === 'idle');
     conversationReady.current?.settle(false);
     conversationReady.current = null;
     voiceGeneration.current++;
     microphoneAttempt.current = null;
     setConnecting(false);
+    setMicStarting(false);
     setPlaybackError(null);
     setTurnActive(false);
     setAutoPaused(true);
     setFailure(null);
-    await releaseMic();
-    try { if (session.room!.state !== ConnectionState.Disconnected) await session.end?.(); } catch { if (!connecting) setFailure('connection'); }
-    replyAudio.restore();
-    requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLButtonElement>('[aria-label="Start talking"], [aria-label="Start listening"]')?.focus());
+    setNavigationError(null);
+    const attempt = (async () => {
+      await releaseMic();
+      try {
+        const current = sessionRef.current;
+        if (current.nativeClient || current.room!.state !== ConnectionState.Disconnected) await current.end?.();
+      } catch {
+        setIdleEnded(false);
+        setFailure('close');
+        return false;
+      }
+      replyAudio.restore();
+      requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLButtonElement>('[aria-label="Start call"], [aria-label="Start talking"], [aria-label="Start listening"]')?.focus());
+      return true;
+    })();
+    endingVoice.current = attempt;
+    void attempt.finally(() => { if (endingVoice.current === attempt) endingVoice.current = null; });
+    return attempt;
   };
   const endVoiceRef = useRef(endVoice);
   endVoiceRef.current = endVoice;
@@ -700,7 +749,7 @@ function CardShell() {
 
   const stopReplyAudio = () => {
     replyAudio.stop();
-    requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());
+    requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true }));
   };
   const pendingVoiceTool = [...toolCalls].reverse().find(tool => tool.status === 'running');
   const feedback = resolveVoiceFeedback({ connected, connecting, idleEnded,
@@ -730,11 +779,11 @@ function CardShell() {
           onOpen={setEditing}
           onSeeAll={() => setTab('schedules')}
         />
-      </div>} items={items} reflowKey={suggestions.length} unavailable={failure === 'connection' || failure === 'message'}
+      </div>} items={items} reflowKey={suggestions.length} unavailable={failure === 'connection' || failure === 'session' || failure === 'close' || failure === 'message'}
         onPrompt={(prompt) => {
           setTranscript(true);
           setVoiceDraft(prompt);
-          requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus());
+          requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true }));
         }} />
       <Dock textOnly
         draft={voiceDraft}
@@ -760,7 +809,7 @@ function CardShell() {
     setHistoryOpening(true);
     setNavigationError(null);
     try {
-      await endVoice();
+      if (!(await endVoice())) return;
       let switched = false;
       for (let attempt = 0; attempt < 4 && !switched; attempt++) {
         if (attempt) await new Promise(resolve => setTimeout(resolve, 350));
@@ -779,7 +828,7 @@ function CardShell() {
     setHistoryOpening(true);
     setNavigationError(null);
     try {
-      await endVoice();
+      if (!(await endVoice())) return;
       for (let attempt = 0; ; attempt++) {
         try {
           await store.getSnapshot().hass!.callApi('POST', 'backend_butler/chat', {new: true});
@@ -816,10 +865,11 @@ function CardShell() {
           onCancelRecording={onTurnCancel} onPause={onPause} onResume={onResume} onAudio={toggleAudioOutput}
           onInterrupt={stopReplyAudio} onEnd={() => void endVoice()}
           onEnableAudio={connected && audioOutput && !transport.canPlayback ? enableReplyAudio : undefined}
+          hasRecovery={Boolean(voiceError)}
           transcriptContent={activeView}
           approvals={<ButlerApprovals room={session.room} />}
-          notice={<>{navigationError && drawer !== 'history' && <p className="lk-set-err" role="alert">{navigationError}</p>}
-            {voiceError && <RecoveryNotice {...voiceError} retryLabel={voiceDraft.trim() ? 'Retry message' : failure === 'microphone' ? 'Retry microphone' : 'Retry connection'}
+          notice={<>{navigationError && failure !== 'session' && drawer !== 'history' && <p className="lk-set-err" role="alert">{navigationError}</p>}
+            {voiceError && <RecoveryNotice {...voiceError} retryLabel={hasDraft && (failure === 'connection' || failure === 'message') ? 'Retry message' : failure === 'microphone' ? 'Retry microphone' : failure === 'close' ? 'Reconnect' : 'Retry voice'}
               busy={connecting || sendingVoice || micStarting} onRetry={() => void retryVoice()}
               onSettings={failure !== 'microphone' && hass?.user?.is_admin ? openConnectionSettings : undefined}
               diagnostic={failure === 'microphone' ? microphoneError?.diagnostic : undefined} />}</>}
@@ -836,7 +886,7 @@ function CardShell() {
         </section>} />}
       </ConversationDrawer>
       <ConversationDrawer open={drawer === 'schedules'} title="Upcoming" onClose={() => setDrawer(null)}>
-        <SchedulesTab api={tasksApi} onOpen={setEditing} onCreate={() => { setVoiceDraft(current => current.trim() ? current : 'Remind me to take out the bins tomorrow at 7 PM.'); setDrawer(null); setTranscript(true); requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus()); }} />
+        <SchedulesTab api={tasksApi} onOpen={setEditing} onCreate={() => { setVoiceDraft(current => current.trim() ? current : 'Remind me to take out the bins tomorrow at 7 PM.'); setDrawer(null); setTranscript(true); requestAnimationFrame(() => store.host?.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true })); }} />
       </ConversationDrawer>
       <ConversationDrawer open={drawer === 'history'} title="Conversations" onClose={() => setDrawer(null)}>
         <div className="lk-history-actions"><button className="lk-btn" onClick={() => void newConversation()} disabled={historyOpening}>New conversation</button>{navigationError && <p className="lk-set-err" role="alert">{navigationError}</p>}</div>

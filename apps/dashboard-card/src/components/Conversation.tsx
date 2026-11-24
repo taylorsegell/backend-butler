@@ -12,6 +12,7 @@ import {
 import type { Room } from 'livekit-client';
 import { ButlerApprovals } from './ButlerApprovals';
 import { Markdown } from './Markdown';
+import { BUTLER_JACKET_PATHS, BUTLER_LOGO_VIEWBOX, BUTLER_TIE_PATH } from '../lib/logo';
 
 /**
  * The conversation timeline: speech + typed messages and the agent's tool actions,
@@ -140,6 +141,7 @@ export function Conversation({
     if (el && hasNotice && (!items.length || stick.current)) el.scrollTop = el.scrollHeight;
   }, [hasNotice, items.length]);
 
+  const emptyVoice = voice && !unavailable;
   return (
     <div className="lk-convo" ref={ref} onScroll={onScroll}>
       {voice && <div className="lk-sr-only" aria-live="polite" aria-atomic="true" aria-relevant="additions text">
@@ -155,10 +157,19 @@ export function Conversation({
           )
         )
       ) : !compact ? (
-        <div className="lk-empty">
-          <ha-icon icon={unavailable ? 'mdi:connection' : voice ? 'mdi:microphone-outline' : 'backend_butler:logo'} aria-hidden="true" />
-          <h2>{unavailable ? 'Connection needs attention' : voice ? compact ? 'How can I help?' : 'Ready to talk?' : 'How can I help at home?'}</h2>
-          <p>{unavailable ? 'Use the recovery options below to try again.' : voice ? compact ? 'Tap the microphone or type below.' : 'Use the microphone to talk, or type a message below.' : 'Ask about your home, control devices, or schedule a task.'}</p>
+        <div className={emptyVoice ? 'lk-empty lk-empty--call' : 'lk-empty'}>
+          {emptyVoice ? (
+            <div className="lk-empty-brand">
+              <svg viewBox={BUTLER_LOGO_VIEWBOX} aria-hidden="true" focusable="false">
+                {BUTLER_JACKET_PATHS.map(d => <path key={d} d={d} fill="#f2f2f3" />)}
+                <path d={BUTLER_TIE_PATH} fill="#FC6B02" />
+              </svg>
+            </div>
+          ) : <>
+            <ha-icon icon={unavailable ? 'mdi:connection' : 'backend_butler:logo'} aria-hidden="true" />
+            <h2>{unavailable ? 'Connection needs attention' : 'How can I help at home?'}</h2>
+            <p>{unavailable ? 'Use the recovery options below to try again.' : 'Ask about your home, control devices, or schedule a task.'}</p>
+          </>}
           {onPrompt && !unavailable && (
             <div className="lk-starters" aria-label="Suggested requests">
               {['Which lights are on?', 'What’s the temperature at home?', 'What tasks are scheduled?'].map((prompt) => (
