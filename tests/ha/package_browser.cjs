@@ -97,10 +97,24 @@ const { chromium } = requireCard('playwright');
   const captures='/tmp/butler-live-native-captures';fs.mkdirSync(captures,{recursive:true});
   await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(250);
   await page.screenshot({path:path.join(captures,'phone-native-reply.png')});
-  // Delay one card-side response across a real Home Assistant disconnect.
   await page.getByRole('button', { name: 'Transcript', exact: true }).click();
   const composer = page.getByRole('textbox', { name: 'Message Backend Butler', exact: true });
-  await composer.fill('');
+  const followup = 'Explain the previous answer';
+  const followupBubble = page.locator('.lk-call-transcript .lk-msg[data-role="user"]')
+   .getByText(followup, { exact: true });
+  await composer.fill(followup);
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
+  await wait(() => events.filter(event => event.type === 'conversation').at(-1)?.items
+   .some(item => item.role === 'user' && item.text === followup));
+  await wait(() => composer.inputValue().then(value => value === ''));
+  await delivery;
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const textCommands = await page.evaluate(text => window.controlCalls
+   .filter(call => call.command === 'text' && call.payload === text).length, followup);
+  assert.equal(textCommands, 1, 'one native text command');
+  assert.equal(await followupBubble.count(), 1, 'one live transcript entry for the typed follow-up');
+
+  // Delay one card-side response across a real Home Assistant disconnect.
   await page.evaluate(() => { window.holdNextAudioSetting = true; });
   await page.getByRole('button', { name: 'Silence spoken replies', exact: true }).click();
   await page.waitForFunction(() => typeof window.rejectLateAudioSetting === 'function');
@@ -130,6 +144,9 @@ const { chromium } = requireCard('playwright');
    await page.getByRole('button', { name: 'Transcript', exact: true }).click();
   }
   await page.locator('.lk-call-transcript').getByText('Synthetic spoken question',{exact:true}).waitFor();
+  await followupBubble.waitFor();
+  assert.equal(await followupBubble.count(), 1, 'one saved transcript entry for the typed follow-up');
+  console.log('PASS: one typed follow-up after speaking sends one native command and renders once live and in saved history');
   assert.equal(await page.evaluate(()=>window.apiCalls.some(c=>c.path.includes('/warm'))),false,'native history switches never warm a competing text session');
   assert.equal(await page.evaluate(()=>window.nativeCalls.some(m=>m.type==='assist/show')),false);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
