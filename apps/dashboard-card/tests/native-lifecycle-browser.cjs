@@ -40,6 +40,7 @@ const esbuild = require('esbuild');
     await open();
     const followUp = 'A synthetic typed follow-up.';
     const transcript = page.locator('.lk-call-transcript');
+    const agentBubbles = transcript.locator('.lk-msg[data-role="agent"] .lk-bubble');
     const userBubbles = transcript.locator('.lk-msg[data-role="user"]').getByText(followUp, { exact: true });
     const composer = page.getByRole('textbox', { name: 'Message Backend Butler' });
     const sendFollowUp = async turn => {
@@ -48,7 +49,7 @@ const esbuild = require('esbuild');
       await page.waitForFunction(() => document.querySelector('body > div').shadowRoot.querySelector('textarea').value === '');
       assert.deepEqual(await page.evaluate(() => window.requests.filter(request => request.command === 'text').map(request => request.payload)), Array(turn).fill(followUp));
       await page.evaluate(() => window.publishConversation());
-      await transcript.getByText(`Synthetic reply to typed follow-up ${turn}.`, { exact: true }).waitFor();
+      await agentBubbles.getByText(`Synthetic reply to typed follow-up ${turn}.`, { exact: true }).waitFor();
       assert.equal(await userBubbles.count(), turn, 'each accepted send should produce one authoritative bubble');
     };
     await sendFollowUp(1);
