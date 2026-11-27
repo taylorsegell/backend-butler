@@ -14,9 +14,9 @@
     "test:microphone": "node tests/voice-card.cjs && node tests/microphone-browser.cjs && node tests/live-caption-scroll.cjs && node tests/native-lifecycle-browser.cjs && node tests/call-recovery-ui.cjs && node tests/keyboard-viewport.cjs"
   },
   "dependencies": {
-    "@livekit/components-react": "^2.9.25",
-    "livekit-client": "^2.23.0",
-    "motion": "^14.11.1",
+    "@livekit/components-react": "^2.9.26",
+    "livekit-client": "^2.25.0",
+    "motion": "^14.14.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
@@ -26,9 +26,9 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
     "esbuild": "0.28.2",
-    "playwright": "^1.65.0",
-    "typescript": "5.9.3",
-    "vite": "^8.3.7"
+    "playwright": "^1.65.1",
+    "typescript": "7.0.2",
+    "vite": "^8.3.8"
   },
   "license": "MIT",
   "repository": {
